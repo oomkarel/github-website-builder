@@ -21,7 +21,7 @@ import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
 // Admin Pages
-import { ProtectedRoute } from "./components/admin/ProtectedRoute";
+import ProtectedRoute from "./components/admin/ProtectedRoute";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminPages from "./pages/admin/AdminPages";
 import AdminPageEditor from "./pages/admin/AdminPageEditor";
