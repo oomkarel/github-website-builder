@@ -1,0 +1,994 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Save, Plus, Trash2, GripVertical } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { AdminLayout } from '@/components/admin/AdminLayout';
+import { ImageUploader } from '@/components/admin/ImageUploader';
+import { usePageContent, useUpdatePageContent } from '@/hooks/usePageContent';
+import { useToast } from '@/hooks/use-toast';
+import { Skeleton } from '@/components/ui/skeleton';
+
+export default function AdminHomeEditor() {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const { data: pageContent, isLoading } = usePageContent('home');
+  const updatePageContent = useUpdatePageContent();
+
+  const [contentEn, setContentEn] = useState<Record<string, any>>({});
+  const [contentId, setContentId] = useState<Record<string, any>>({});
+
+  useEffect(() => {
+    if (pageContent) {
+      setContentEn(pageContent.content_en || {});
+      setContentId(pageContent.content_id || {});
+    }
+  }, [pageContent]);
+
+  const handleSave = async () => {
+    await updatePageContent.mutateAsync({
+      pageKey: 'home',
+      contentEn,
+      contentId
+    });
+  };
+
+  const updateSection = (lang: 'en' | 'id', section: string, key: string, value: any) => {
+    const setter = lang === 'en' ? setContentEn : setContentId;
+    setter(prev => ({
+      ...prev,
+      [section]: {
+        ...prev[section],
+        [key]: value
+      }
+    }));
+  };
+
+  const updateArrayItem = (lang: 'en' | 'id', section: string, arrayKey: string, index: number, field: string, value: any) => {
+    const setter = lang === 'en' ? setContentEn : setContentId;
+    setter(prev => {
+      const items = [...(prev[section]?.[arrayKey] || [])];
+      items[index] = { ...items[index], [field]: value };
+      return {
+        ...prev,
+        [section]: {
+          ...prev[section],
+          [arrayKey]: items
+        }
+      };
+    });
+  };
+
+  const addArrayItem = (lang: 'en' | 'id', section: string, arrayKey: string, defaultItem: any) => {
+    const setter = lang === 'en' ? setContentEn : setContentId;
+    setter(prev => ({
+      ...prev,
+      [section]: {
+        ...prev[section],
+        [arrayKey]: [...(prev[section]?.[arrayKey] || []), defaultItem]
+      }
+    }));
+  };
+
+  const removeArrayItem = (lang: 'en' | 'id', section: string, arrayKey: string, index: number) => {
+    const setter = lang === 'en' ? setContentEn : setContentId;
+    setter(prev => {
+      const items = [...(prev[section]?.[arrayKey] || [])];
+      items.splice(index, 1);
+      return {
+        ...prev,
+        [section]: {
+          ...prev[section],
+          [arrayKey]: items
+        }
+      };
+    });
+  };
+
+  if (isLoading) {
+    return (
+      <AdminLayout>
+        <div className="space-y-6">
+          <Skeleton className="h-10 w-64" />
+          <Skeleton className="h-96 w-full" />
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  return (
+    <AdminLayout>
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-display font-bold">Edit Home Page</h1>
+            <p className="text-muted-foreground">Manage all sections of your home page</p>
+          </div>
+          <Button onClick={handleSave} disabled={updatePageContent.isPending}>
+            <Save className="h-4 w-4 mr-2" />
+            {updatePageContent.isPending ? 'Saving...' : 'Save Changes'}
+          </Button>
+        </div>
+
+        <Tabs defaultValue="hero" className="space-y-6">
+          <TabsList className="grid grid-cols-4 lg:grid-cols-8 w-full">
+            <TabsTrigger value="hero">Hero</TabsTrigger>
+            <TabsTrigger value="features">Features</TabsTrigger>
+            <TabsTrigger value="stats">Stats</TabsTrigger>
+            <TabsTrigger value="products">Products</TabsTrigger>
+            <TabsTrigger value="clients">Clients</TabsTrigger>
+            <TabsTrigger value="testimonials">Testimonials</TabsTrigger>
+            <TabsTrigger value="cta">CTA</TabsTrigger>
+            <TabsTrigger value="seo">SEO</TabsTrigger>
+          </TabsList>
+
+          {/* Hero Section */}
+          <TabsContent value="hero" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Hero Images</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {(contentEn.hero?.images || []).map((image: string, index: number) => (
+                    <div key={index} className="relative">
+                      <ImageUploader
+                        value={image}
+                        onChange={(url) => {
+                          const images = [...(contentEn.hero?.images || [])];
+                          images[index] = url;
+                          updateSection('en', 'hero', 'images', images);
+                          updateSection('id', 'hero', 'images', images);
+                        }}
+                      />
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        className="absolute top-2 right-2"
+                        onClick={() => {
+                          const images = [...(contentEn.hero?.images || [])];
+                          images.splice(index, 1);
+                          updateSection('en', 'hero', 'images', images);
+                          updateSection('id', 'hero', 'images', images);
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ))}
+                  <button
+                    onClick={() => {
+                      const images = [...(contentEn.hero?.images || []), ''];
+                      updateSection('en', 'hero', 'images', images);
+                      updateSection('id', 'hero', 'images', images);
+                    }}
+                    className="aspect-video border-2 border-dashed rounded-lg flex items-center justify-center hover:bg-muted/50 transition-colors"
+                  >
+                    <Plus className="h-8 w-8 text-muted-foreground" />
+                  </button>
+                </div>
+              </CardContent>
+            </Card>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>English Content</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label>Badge Text</Label>
+                    <Input
+                      value={contentEn.hero?.badge || ''}
+                      onChange={(e) => updateSection('en', 'hero', 'badge', e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label>Title</Label>
+                    <Textarea
+                      value={contentEn.hero?.title || ''}
+                      onChange={(e) => updateSection('en', 'hero', 'title', e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label>Subtitle</Label>
+                    <Textarea
+                      value={contentEn.hero?.subtitle || ''}
+                      onChange={(e) => updateSection('en', 'hero', 'subtitle', e.target.value)}
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label>Primary CTA</Label>
+                      <Input
+                        value={contentEn.hero?.cta_primary || ''}
+                        onChange={(e) => updateSection('en', 'hero', 'cta_primary', e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <Label>Secondary CTA</Label>
+                      <Input
+                        value={contentEn.hero?.cta_secondary || ''}
+                        onChange={(e) => updateSection('en', 'hero', 'cta_secondary', e.target.value)}
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Indonesian Content</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label>Badge Text</Label>
+                    <Input
+                      value={contentId.hero?.badge || ''}
+                      onChange={(e) => updateSection('id', 'hero', 'badge', e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label>Title</Label>
+                    <Textarea
+                      value={contentId.hero?.title || ''}
+                      onChange={(e) => updateSection('id', 'hero', 'title', e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label>Subtitle</Label>
+                    <Textarea
+                      value={contentId.hero?.subtitle || ''}
+                      onChange={(e) => updateSection('id', 'hero', 'subtitle', e.target.value)}
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label>Primary CTA</Label>
+                      <Input
+                        value={contentId.hero?.cta_primary || ''}
+                        onChange={(e) => updateSection('id', 'hero', 'cta_primary', e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <Label>Secondary CTA</Label>
+                      <Input
+                        value={contentId.hero?.cta_secondary || ''}
+                        onChange={(e) => updateSection('id', 'hero', 'cta_secondary', e.target.value)}
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          {/* Features Section */}
+          <TabsContent value="features" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>English</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label>Section Title</Label>
+                    <Input
+                      value={contentEn.features?.title || ''}
+                      onChange={(e) => updateSection('en', 'features', 'title', e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label>Section Subtitle</Label>
+                    <Textarea
+                      value={contentEn.features?.subtitle || ''}
+                      onChange={(e) => updateSection('en', 'features', 'subtitle', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-4">
+                    <Label>Features</Label>
+                    {(contentEn.features?.items || []).map((item: any, index: number) => (
+                      <div key={index} className="p-4 border rounded-lg space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium">Feature {index + 1}</span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeArrayItem('en', 'features', 'items', index)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                        <Input
+                          placeholder="Icon (Package, Shield, Users, Zap)"
+                          value={item.icon || ''}
+                          onChange={(e) => updateArrayItem('en', 'features', 'items', index, 'icon', e.target.value)}
+                        />
+                        <Input
+                          placeholder="Title"
+                          value={item.title || ''}
+                          onChange={(e) => updateArrayItem('en', 'features', 'items', index, 'title', e.target.value)}
+                        />
+                        <Textarea
+                          placeholder="Description"
+                          value={item.description || ''}
+                          onChange={(e) => updateArrayItem('en', 'features', 'items', index, 'description', e.target.value)}
+                        />
+                      </div>
+                    ))}
+                    <Button
+                      variant="outline"
+                      onClick={() => addArrayItem('en', 'features', 'items', { icon: 'Package', title: '', description: '' })}
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Feature
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Indonesian</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label>Section Title</Label>
+                    <Input
+                      value={contentId.features?.title || ''}
+                      onChange={(e) => updateSection('id', 'features', 'title', e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label>Section Subtitle</Label>
+                    <Textarea
+                      value={contentId.features?.subtitle || ''}
+                      onChange={(e) => updateSection('id', 'features', 'subtitle', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-4">
+                    <Label>Features</Label>
+                    {(contentId.features?.items || []).map((item: any, index: number) => (
+                      <div key={index} className="p-4 border rounded-lg space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium">Feature {index + 1}</span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeArrayItem('id', 'features', 'items', index)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                        <Input
+                          placeholder="Icon"
+                          value={item.icon || ''}
+                          onChange={(e) => updateArrayItem('id', 'features', 'items', index, 'icon', e.target.value)}
+                        />
+                        <Input
+                          placeholder="Title"
+                          value={item.title || ''}
+                          onChange={(e) => updateArrayItem('id', 'features', 'items', index, 'title', e.target.value)}
+                        />
+                        <Textarea
+                          placeholder="Description"
+                          value={item.description || ''}
+                          onChange={(e) => updateArrayItem('id', 'features', 'items', index, 'description', e.target.value)}
+                        />
+                      </div>
+                    ))}
+                    <Button
+                      variant="outline"
+                      onClick={() => addArrayItem('id', 'features', 'items', { icon: 'Package', title: '', description: '' })}
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Feature
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          {/* Stats Section */}
+          <TabsContent value="stats" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>English</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {(contentEn.stats?.items || []).map((item: any, index: number) => (
+                    <div key={index} className="p-4 border rounded-lg space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium">Stat {index + 1}</span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeArrayItem('en', 'stats', 'items', index)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <Input
+                          type="number"
+                          placeholder="Value"
+                          value={item.value || ''}
+                          onChange={(e) => updateArrayItem('en', 'stats', 'items', index, 'value', parseInt(e.target.value) || 0)}
+                        />
+                        <Input
+                          placeholder="Suffix (+, M+, etc)"
+                          value={item.suffix || ''}
+                          onChange={(e) => updateArrayItem('en', 'stats', 'items', index, 'suffix', e.target.value)}
+                        />
+                      </div>
+                      <Input
+                        placeholder="Label"
+                        value={item.label || ''}
+                        onChange={(e) => updateArrayItem('en', 'stats', 'items', index, 'label', e.target.value)}
+                      />
+                    </div>
+                  ))}
+                  <Button
+                    variant="outline"
+                    onClick={() => addArrayItem('en', 'stats', 'items', { value: 0, suffix: '+', label: '' })}
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Stat
+                  </Button>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Indonesian</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {(contentId.stats?.items || []).map((item: any, index: number) => (
+                    <div key={index} className="p-4 border rounded-lg space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium">Stat {index + 1}</span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeArrayItem('id', 'stats', 'items', index)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <Input
+                          type="number"
+                          placeholder="Value"
+                          value={item.value || ''}
+                          onChange={(e) => updateArrayItem('id', 'stats', 'items', index, 'value', parseInt(e.target.value) || 0)}
+                        />
+                        <Input
+                          placeholder="Suffix"
+                          value={item.suffix || ''}
+                          onChange={(e) => updateArrayItem('id', 'stats', 'items', index, 'suffix', e.target.value)}
+                        />
+                      </div>
+                      <Input
+                        placeholder="Label"
+                        value={item.label || ''}
+                        onChange={(e) => updateArrayItem('id', 'stats', 'items', index, 'label', e.target.value)}
+                      />
+                    </div>
+                  ))}
+                  <Button
+                    variant="outline"
+                    onClick={() => addArrayItem('id', 'stats', 'items', { value: 0, suffix: '+', label: '' })}
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Stat
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          {/* Products Section */}
+          <TabsContent value="products" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>English</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label>Section Title</Label>
+                    <Input
+                      value={contentEn.products?.title || ''}
+                      onChange={(e) => updateSection('en', 'products', 'title', e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label>Section Subtitle</Label>
+                    <Textarea
+                      value={contentEn.products?.subtitle || ''}
+                      onChange={(e) => updateSection('en', 'products', 'subtitle', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-4">
+                    <Label>Products</Label>
+                    {(contentEn.products?.items || []).map((item: any, index: number) => (
+                      <div key={index} className="p-4 border rounded-lg space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium">Product {index + 1}</span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeArrayItem('en', 'products', 'items', index)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                        <ImageUploader
+                          value={item.image || ''}
+                          onChange={(url) => updateArrayItem('en', 'products', 'items', index, 'image', url)}
+                        />
+                        <Input
+                          placeholder="Name"
+                          value={item.name || ''}
+                          onChange={(e) => updateArrayItem('en', 'products', 'items', index, 'name', e.target.value)}
+                        />
+                        <Textarea
+                          placeholder="Description"
+                          value={item.description || ''}
+                          onChange={(e) => updateArrayItem('en', 'products', 'items', index, 'description', e.target.value)}
+                        />
+                      </div>
+                    ))}
+                    <Button
+                      variant="outline"
+                      onClick={() => addArrayItem('en', 'products', 'items', { image: '', name: '', description: '' })}
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Product
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Indonesian</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label>Section Title</Label>
+                    <Input
+                      value={contentId.products?.title || ''}
+                      onChange={(e) => updateSection('id', 'products', 'title', e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label>Section Subtitle</Label>
+                    <Textarea
+                      value={contentId.products?.subtitle || ''}
+                      onChange={(e) => updateSection('id', 'products', 'subtitle', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-4">
+                    <Label>Products</Label>
+                    {(contentId.products?.items || []).map((item: any, index: number) => (
+                      <div key={index} className="p-4 border rounded-lg space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium">Product {index + 1}</span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeArrayItem('id', 'products', 'items', index)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                        <ImageUploader
+                          value={item.image || ''}
+                          onChange={(url) => updateArrayItem('id', 'products', 'items', index, 'image', url)}
+                        />
+                        <Input
+                          placeholder="Name"
+                          value={item.name || ''}
+                          onChange={(e) => updateArrayItem('id', 'products', 'items', index, 'name', e.target.value)}
+                        />
+                        <Textarea
+                          placeholder="Description"
+                          value={item.description || ''}
+                          onChange={(e) => updateArrayItem('id', 'products', 'items', index, 'description', e.target.value)}
+                        />
+                      </div>
+                    ))}
+                    <Button
+                      variant="outline"
+                      onClick={() => addArrayItem('id', 'products', 'items', { image: '', name: '', description: '' })}
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Product
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          {/* Clients Section */}
+          <TabsContent value="clients" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>English</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label>Section Title</Label>
+                    <Input
+                      value={contentEn.clients?.title || ''}
+                      onChange={(e) => updateSection('en', 'clients', 'title', e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label>Section Subtitle</Label>
+                    <Textarea
+                      value={contentEn.clients?.subtitle || ''}
+                      onChange={(e) => updateSection('en', 'clients', 'subtitle', e.target.value)}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Indonesian</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label>Section Title</Label>
+                    <Input
+                      value={contentId.clients?.title || ''}
+                      onChange={(e) => updateSection('id', 'clients', 'title', e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label>Section Subtitle</Label>
+                    <Textarea
+                      value={contentId.clients?.subtitle || ''}
+                      onChange={(e) => updateSection('id', 'clients', 'subtitle', e.target.value)}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Client Logos</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                  {(contentEn.clients?.logos || []).map((logo: any, index: number) => (
+                    <div key={index} className="relative p-4 border rounded-lg">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="absolute -top-2 -right-2 h-6 w-6 p-0"
+                        onClick={() => {
+                          removeArrayItem('en', 'clients', 'logos', index);
+                          removeArrayItem('id', 'clients', 'logos', index);
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                      <ImageUploader
+                        value={logo.image || ''}
+                        onChange={(url) => {
+                          updateArrayItem('en', 'clients', 'logos', index, 'image', url);
+                          updateArrayItem('id', 'clients', 'logos', index, 'image', url);
+                        }}
+                      />
+                      <Input
+                        placeholder="Company Name"
+                        className="mt-2"
+                        value={logo.name || ''}
+                        onChange={(e) => {
+                          updateArrayItem('en', 'clients', 'logos', index, 'name', e.target.value);
+                          updateArrayItem('id', 'clients', 'logos', index, 'name', e.target.value);
+                        }}
+                      />
+                    </div>
+                  ))}
+                  <button
+                    onClick={() => {
+                      addArrayItem('en', 'clients', 'logos', { name: '', image: '' });
+                      addArrayItem('id', 'clients', 'logos', { name: '', image: '' });
+                    }}
+                    className="p-4 border-2 border-dashed rounded-lg flex items-center justify-center hover:bg-muted/50 transition-colors min-h-[150px]"
+                  >
+                    <Plus className="h-8 w-8 text-muted-foreground" />
+                  </button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Testimonials Section */}
+          <TabsContent value="testimonials" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>English</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label>Section Title</Label>
+                    <Input
+                      value={contentEn.testimonials?.title || ''}
+                      onChange={(e) => updateSection('en', 'testimonials', 'title', e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label>Section Subtitle</Label>
+                    <Textarea
+                      value={contentEn.testimonials?.subtitle || ''}
+                      onChange={(e) => updateSection('en', 'testimonials', 'subtitle', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-4">
+                    <Label>Testimonials</Label>
+                    {(contentEn.testimonials?.items || []).map((item: any, index: number) => (
+                      <div key={index} className="p-4 border rounded-lg space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium">Testimonial {index + 1}</span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeArrayItem('en', 'testimonials', 'items', index)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                        <Textarea
+                          placeholder="Quote"
+                          value={item.quote || ''}
+                          onChange={(e) => updateArrayItem('en', 'testimonials', 'items', index, 'quote', e.target.value)}
+                        />
+                        <div className="grid grid-cols-2 gap-3">
+                          <Input
+                            placeholder="Name"
+                            value={item.name || ''}
+                            onChange={(e) => updateArrayItem('en', 'testimonials', 'items', index, 'name', e.target.value)}
+                          />
+                          <Input
+                            placeholder="Role"
+                            value={item.role || ''}
+                            onChange={(e) => updateArrayItem('en', 'testimonials', 'items', index, 'role', e.target.value)}
+                          />
+                        </div>
+                        <Input
+                          placeholder="Company"
+                          value={item.company || ''}
+                          onChange={(e) => updateArrayItem('en', 'testimonials', 'items', index, 'company', e.target.value)}
+                        />
+                      </div>
+                    ))}
+                    <Button
+                      variant="outline"
+                      onClick={() => addArrayItem('en', 'testimonials', 'items', { quote: '', name: '', role: '', company: '' })}
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Testimonial
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Indonesian</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label>Section Title</Label>
+                    <Input
+                      value={contentId.testimonials?.title || ''}
+                      onChange={(e) => updateSection('id', 'testimonials', 'title', e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label>Section Subtitle</Label>
+                    <Textarea
+                      value={contentId.testimonials?.subtitle || ''}
+                      onChange={(e) => updateSection('id', 'testimonials', 'subtitle', e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-4">
+                    <Label>Testimonials</Label>
+                    {(contentId.testimonials?.items || []).map((item: any, index: number) => (
+                      <div key={index} className="p-4 border rounded-lg space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium">Testimonial {index + 1}</span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeArrayItem('id', 'testimonials', 'items', index)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                        <Textarea
+                          placeholder="Quote"
+                          value={item.quote || ''}
+                          onChange={(e) => updateArrayItem('id', 'testimonials', 'items', index, 'quote', e.target.value)}
+                        />
+                        <div className="grid grid-cols-2 gap-3">
+                          <Input
+                            placeholder="Name"
+                            value={item.name || ''}
+                            onChange={(e) => updateArrayItem('id', 'testimonials', 'items', index, 'name', e.target.value)}
+                          />
+                          <Input
+                            placeholder="Role"
+                            value={item.role || ''}
+                            onChange={(e) => updateArrayItem('id', 'testimonials', 'items', index, 'role', e.target.value)}
+                          />
+                        </div>
+                        <Input
+                          placeholder="Company"
+                          value={item.company || ''}
+                          onChange={(e) => updateArrayItem('id', 'testimonials', 'items', index, 'company', e.target.value)}
+                        />
+                      </div>
+                    ))}
+                    <Button
+                      variant="outline"
+                      onClick={() => addArrayItem('id', 'testimonials', 'items', { quote: '', name: '', role: '', company: '' })}
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Testimonial
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          {/* CTA Section */}
+          <TabsContent value="cta" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>English</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label>Title</Label>
+                    <Input
+                      value={contentEn.cta?.title || ''}
+                      onChange={(e) => updateSection('en', 'cta', 'title', e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label>Subtitle</Label>
+                    <Textarea
+                      value={contentEn.cta?.subtitle || ''}
+                      onChange={(e) => updateSection('en', 'cta', 'subtitle', e.target.value)}
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label>Primary Button</Label>
+                      <Input
+                        value={contentEn.cta?.primary_button || ''}
+                        onChange={(e) => updateSection('en', 'cta', 'primary_button', e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <Label>Secondary Button</Label>
+                      <Input
+                        value={contentEn.cta?.secondary_button || ''}
+                        onChange={(e) => updateSection('en', 'cta', 'secondary_button', e.target.value)}
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Indonesian</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label>Title</Label>
+                    <Input
+                      value={contentId.cta?.title || ''}
+                      onChange={(e) => updateSection('id', 'cta', 'title', e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <Label>Subtitle</Label>
+                    <Textarea
+                      value={contentId.cta?.subtitle || ''}
+                      onChange={(e) => updateSection('id', 'cta', 'subtitle', e.target.value)}
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label>Primary Button</Label>
+                      <Input
+                        value={contentId.cta?.primary_button || ''}
+                        onChange={(e) => updateSection('id', 'cta', 'primary_button', e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <Label>Secondary Button</Label>
+                      <Input
+                        value={contentId.cta?.secondary_button || ''}
+                        onChange={(e) => updateSection('id', 'cta', 'secondary_button', e.target.value)}
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          {/* SEO Section */}
+          <TabsContent value="seo" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>English SEO</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label>Meta Title</Label>
+                    <Input
+                      value={contentEn.meta_title || ''}
+                      onChange={(e) => setContentEn(prev => ({ ...prev, meta_title: e.target.value }))}
+                    />
+                  </div>
+                  <div>
+                    <Label>Meta Description</Label>
+                    <Textarea
+                      value={contentEn.meta_description || ''}
+                      onChange={(e) => setContentEn(prev => ({ ...prev, meta_description: e.target.value }))}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Indonesian SEO</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label>Meta Title</Label>
+                    <Input
+                      value={contentId.meta_title || ''}
+                      onChange={(e) => setContentId(prev => ({ ...prev, meta_title: e.target.value }))}
+                    />
+                  </div>
+                  <div>
+                    <Label>Meta Description</Label>
+                    <Textarea
+                      value={contentId.meta_description || ''}
+                      onChange={(e) => setContentId(prev => ({ ...prev, meta_description: e.target.value }))}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </AdminLayout>
+  );
+}
