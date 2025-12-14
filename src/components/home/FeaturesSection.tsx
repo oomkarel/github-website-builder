@@ -1,31 +1,50 @@
 import React from 'react';
-import { Package, Shield, Users, Zap } from 'lucide-react';
+import { Package, Shield, Users, Zap, LucideIcon } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
-const features = [
+const iconMap: Record<string, LucideIcon> = {
+  Package,
+  Shield,
+  Users,
+  Zap,
+};
+
+interface FeatureItem {
+  icon?: string;
+  title: string;
+  description: string;
+}
+
+interface FeaturesSectionProps {
+  title?: string;
+  subtitle?: string;
+  items?: FeatureItem[];
+}
+
+const defaultFeatures = [
   {
-    icon: Package,
+    icon: 'Package',
     titleId: 'Kapasitas Produksi Besar',
     titleEn: 'Large Production Capacity',
     descId: 'Mampu memenuhi kebutuhan kemasan dalam skala besar untuk berbagai industri.',
     descEn: 'Capable of meeting large-scale packaging needs for various industries.',
   },
   {
-    icon: Shield,
+    icon: 'Shield',
     titleId: 'Food-Grade & Aman',
     titleEn: 'Food-Grade & Safe',
     descId: 'Material berkualitas tinggi yang aman untuk makanan dan minuman.',
     descEn: 'High-quality materials that are safe for food and beverages.',
   },
   {
-    icon: Users,
+    icon: 'Users',
     titleId: 'Kemitraan Jangka Panjang',
     titleEn: 'Long-term Partnership',
     descId: 'Kami fokus membangun hubungan bisnis yang berkelanjutan.',
     descEn: 'We focus on building sustainable business relationships.',
   },
   {
-    icon: Zap,
+    icon: 'Zap',
     titleId: 'Custom Branding',
     titleEn: 'Custom Branding',
     descId: 'Desain kemasan custom sesuai identitas brand Anda.',
@@ -33,41 +52,53 @@ const features = [
   },
 ];
 
-export function FeaturesSection() {
-  const { t } = useLanguage();
+export function FeaturesSection({ title, subtitle, items }: FeaturesSectionProps) {
+  const { t, language } = useLanguage();
+
+  const displayTitle = title || t('Mengapa Memilih Kami?', 'Why Choose Us?');
+  const displaySubtitle = subtitle || t(
+    'Kami berkomitmen memberikan solusi kemasan terbaik untuk bisnis Anda.',
+    'We are committed to providing the best packaging solutions for your business.'
+  );
+
+  const displayItems = items?.length ? items : defaultFeatures.map(f => ({
+    icon: f.icon,
+    title: language === 'id' ? f.titleId : f.titleEn,
+    description: language === 'id' ? f.descId : f.descEn,
+  }));
 
   return (
     <section className="py-24 bg-background">
       <div className="container mx-auto px-4">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="text-3xl sm:text-4xl font-display font-bold text-foreground mb-4">
-            {t('Mengapa Memilih Kami?', 'Why Choose Us?')}
+            {displayTitle}
           </h2>
           <p className="text-muted-foreground text-lg">
-            {t(
-              'Kami berkomitmen memberikan solusi kemasan terbaik untuk bisnis Anda.',
-              'We are committed to providing the best packaging solutions for your business.'
-            )}
+            {displaySubtitle}
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {features.map((feature, index) => (
-            <div
-              key={index}
-              className="group p-8 rounded-2xl bg-card border border-border hover:border-secondary/50 hover:shadow-lg transition-all duration-300 hover-lift"
-            >
-              <div className="w-14 h-14 rounded-xl bg-secondary/10 flex items-center justify-center mb-6 group-hover:bg-secondary/20 transition-colors">
-                <feature.icon className="h-7 w-7 text-secondary" />
+          {displayItems.map((feature, index) => {
+            const IconComponent = iconMap[feature.icon || 'Package'] || Package;
+            return (
+              <div
+                key={index}
+                className="group p-8 rounded-2xl bg-card border border-border hover:border-secondary/50 hover:shadow-lg transition-all duration-300 hover-lift"
+              >
+                <div className="w-14 h-14 rounded-xl bg-secondary/10 flex items-center justify-center mb-6 group-hover:bg-secondary/20 transition-colors">
+                  <IconComponent className="h-7 w-7 text-secondary" />
+                </div>
+                <h3 className="text-xl font-display font-semibold text-foreground mb-3">
+                  {feature.title}
+                </h3>
+                <p className="text-muted-foreground">
+                  {feature.description}
+                </p>
               </div>
-              <h3 className="text-xl font-display font-semibold text-foreground mb-3">
-                {t(feature.titleId, feature.titleEn)}
-              </h3>
-              <p className="text-muted-foreground">
-                {t(feature.descId, feature.descEn)}
-              </p>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>

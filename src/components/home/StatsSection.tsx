@@ -1,7 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
-const stats = [
+interface StatItem {
+  value: number;
+  suffix: string;
+  label: string;
+}
+
+interface StatsSectionProps {
+  items?: StatItem[];
+}
+
+const defaultStats = [
   { value: 500, suffix: '+', labelId: 'Klien Terlayani', labelEn: 'Clients Served' },
   { value: 10, suffix: 'M+', labelId: 'Produk Diproduksi', labelEn: 'Products Produced' },
   { value: 15, suffix: '+', labelId: 'Tahun Pengalaman', labelEn: 'Years Experience' },
@@ -38,20 +48,26 @@ function AnimatedNumber({ value, suffix }: { value: number; suffix: string }) {
   );
 }
 
-export function StatsSection() {
-  const { t } = useLanguage();
+export function StatsSection({ items }: StatsSectionProps) {
+  const { t, language } = useLanguage();
+
+  const displayItems = items?.length ? items : defaultStats.map(s => ({
+    value: s.value,
+    suffix: s.suffix,
+    label: language === 'id' ? s.labelId : s.labelEn,
+  }));
 
   return (
     <section className="py-20 gradient-primary">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
-          {stats.map((stat, index) => (
+          {displayItems.map((stat, index) => (
             <div key={index} className="text-center">
               <div className="text-4xl sm:text-5xl font-display font-bold text-white mb-2">
                 <AnimatedNumber value={stat.value} suffix={stat.suffix} />
               </div>
               <p className="text-white/80 font-medium">
-                {t(stat.labelId, stat.labelEn)}
+                {stat.label}
               </p>
             </div>
           ))}

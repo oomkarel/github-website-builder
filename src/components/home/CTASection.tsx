@@ -4,8 +4,26 @@ import { ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 
-export function CTASection() {
+interface CTASectionProps {
+  title?: string;
+  subtitle?: string;
+  primaryButton?: string;
+  secondaryButton?: string;
+}
+
+export function CTASection({ title, subtitle, primaryButton, secondaryButton }: CTASectionProps) {
   const { t } = useLanguage();
+
+  const displayTitle = title || t(
+    'Siap Memulai Kemitraan dengan Kami?',
+    'Ready to Start a Partnership with Us?'
+  );
+  const displaySubtitle = subtitle || t(
+    'Hubungi kami sekarang untuk konsultasi gratis dan penawaran terbaik.',
+    'Contact us now for free consultation and the best offers.'
+  );
+  const displayPrimaryButton = primaryButton || t('Hubungi Kami', 'Contact Us');
+  const displaySecondaryButton = secondaryButton || t('Lihat Produk', 'View Products');
 
   return (
     <section className="py-24 bg-background">
@@ -17,27 +35,21 @@ export function CTASection() {
 
           <div className="relative z-10 max-w-2xl mx-auto">
             <h2 className="text-3xl sm:text-4xl font-display font-bold text-white mb-6">
-              {t(
-                'Siap Memulai Kemitraan dengan Kami?',
-                'Ready to Start a Partnership with Us?'
-              )}
+              {displayTitle}
             </h2>
             <p className="text-white/80 text-lg mb-8">
-              {t(
-                'Hubungi kami sekarang untuk konsultasi gratis dan penawaran terbaik.',
-                'Contact us now for free consultation and the best offers.'
-              )}
+              {displaySubtitle}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild size="lg" className="bg-white text-primary hover:bg-white/90 gap-2">
                 <Link to="/hubungi-kami">
-                  {t('Hubungi Kami', 'Contact Us')}
+                  {displayPrimaryButton}
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 bg-transparent">
                 <Link to="/produk">
-                  {t('Lihat Produk', 'View Products')}
+                  {displaySecondaryButton}
                 </Link>
               </Button>
             </div>

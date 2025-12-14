@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useSiteSettings } from '@/hooks/useSiteSettings';
+import { useSiteSetting } from '@/hooks/useSiteSettings';
 import { Link } from 'react-router-dom';
 import {
   Dialog,
@@ -14,7 +13,9 @@ import {
 export function PromoPopup() {
   const [isOpen, setIsOpen] = useState(false);
   const { language } = useLanguage();
-  const { data: popupSettings } = useSiteSettings('popup');
+  const { data: popupSetting } = useSiteSetting('popup');
+  
+  const popupSettings = popupSetting?.value as Record<string, any> | undefined;
 
   useEffect(() => {
     if (!popupSettings?.enabled) return;
