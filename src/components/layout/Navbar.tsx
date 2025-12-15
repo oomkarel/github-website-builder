@@ -165,7 +165,11 @@ export function Navbar() {
                         <Link
                           key={child.href}
                           to={child.href}
-                          className="block px-3 py-2 text-sm hover:text-secondary transition-colors"
+                          className={`block px-3 py-2 text-sm transition-colors ${
+                            location.pathname === child.href 
+                              ? 'text-secondary bg-secondary/10 rounded-md font-medium' 
+                              : 'hover:text-secondary'
+                          }`}
                           onClick={() => setIsOpen(false)}
                         >
                           {child.label}
@@ -177,7 +181,11 @@ export function Navbar() {
                   <Link
                     key={link.href}
                     to={link.href}
-                    className="px-3 py-2 text-sm font-medium hover:text-secondary transition-colors"
+                    className={`px-3 py-2 text-sm font-medium transition-colors rounded-md ${
+                      location.pathname === link.href 
+                        ? 'text-secondary bg-secondary/10' 
+                        : 'hover:text-secondary'
+                    }`}
                     onClick={() => setIsOpen(false)}
                   >
                     {link.label}
