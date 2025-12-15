@@ -33,6 +33,8 @@ import AdminHomeEditor from "./pages/admin/AdminHomeEditor";
 
 // Components
 import { PromoPopup } from "./components/common/PromoPopup";
+import { ScrollToTop } from "./components/common/ScrollToTop";
+import { DynamicFavicon } from "./components/common/DynamicFavicon";
 
 const queryClient = new QueryClient();
 
@@ -45,6 +47,8 @@ const App = () => (
             <Toaster />
             <Sonner />
             <BrowserRouter>
+              <ScrollToTop />
+              <DynamicFavicon />
               <Routes>
                 {/* Public Routes */}
                 <Route path="/" element={<Home />} />

@@ -24,6 +24,7 @@ interface ContentItem {
   step?: string;
   client?: string;
   category?: string;
+  products?: string[];
 }
 
 export default function AdminPageEditor() {
@@ -276,51 +277,134 @@ export default function AdminPageEditor() {
     </Card>
   );
 
-  const renderProcessSection = (lang: 'en' | 'id', content: Record<string, any>) => (
+  const renderProcessSection = (lang: 'en' | 'id', content: Record<string, any>, setContent: React.Dispatch<React.SetStateAction<Record<string, any>>>) => (
+    <>
+      <Card>
+        <CardHeader>
+          <CardTitle>Process Section Header</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <Label>Section Title</Label>
+            <Input
+              value={content.processSection?.title || ''}
+              onChange={(e) => setContent((prev: Record<string, any>) => ({
+                ...prev,
+                processSection: { ...prev.processSection, title: e.target.value }
+              }))}
+            />
+          </div>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>Process Steps</CardTitle>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => addArrayItem(lang, 'processSteps', { step: '', title: '' })}
+          >
+            <Plus className="h-4 w-4 mr-1" /> Add
+          </Button>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {(content.processSteps || []).map((item: any, index: number) => (
+            <div key={index} className="p-4 border rounded-lg space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="font-medium">Step {index + 1}</span>
+                <Button variant="ghost" size="sm" onClick={() => removeArrayItem(lang, 'processSteps', index)}>
+                  <Trash2 className="h-4 w-4 text-destructive" />
+                </Button>
+              </div>
+              <div>
+                <Label>Step Number (e.g., 01, 02)</Label>
+                <Input
+                  value={item.step || ''}
+                  onChange={(e) => updateArrayItem(lang, 'processSteps', index, 'step', e.target.value)}
+                />
+              </div>
+              <div>
+                <Label>Title</Label>
+                <Input
+                  value={item.title || ''}
+                  onChange={(e) => updateArrayItem(lang, 'processSteps', index, 'title', e.target.value)}
+                />
+              </div>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+    </>
+  );
+
+  const renderSuccessSection = (lang: 'en' | 'id', content: Record<string, any>, setContent: React.Dispatch<React.SetStateAction<Record<string, any>>>) => (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Process Steps</CardTitle>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => addArrayItem(lang, 'process', { step: '', title: '', description: '' })}
-        >
-          <Plus className="h-4 w-4 mr-1" /> Add
-        </Button>
+      <CardHeader>
+        <CardTitle>Success Stories Section</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {(content.process || []).map((item: any, index: number) => (
-          <div key={index} className="p-4 border rounded-lg space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="font-medium">Step {index + 1}</span>
-              <Button variant="ghost" size="sm" onClick={() => removeArrayItem(lang, 'process', index)}>
-                <Trash2 className="h-4 w-4 text-destructive" />
-              </Button>
-            </div>
-            <div>
-              <Label>Step Number</Label>
-              <Input
-                value={item.step || ''}
-                onChange={(e) => updateArrayItem(lang, 'process', index, 'step', e.target.value)}
-              />
-            </div>
-            <div>
-              <Label>Title</Label>
-              <Input
-                value={item.title || ''}
-                onChange={(e) => updateArrayItem(lang, 'process', index, 'title', e.target.value)}
-              />
-            </div>
-            <div>
-              <Label>Description</Label>
-              <Textarea
-                value={item.description || ''}
-                onChange={(e) => updateArrayItem(lang, 'process', index, 'description', e.target.value)}
-                rows={2}
-              />
-            </div>
-          </div>
-        ))}
+        <div>
+          <Label>Section Title</Label>
+          <Input
+            value={content.successSection?.title || ''}
+            onChange={(e) => setContent((prev: Record<string, any>) => ({
+              ...prev,
+              successSection: { ...prev.successSection, title: e.target.value }
+            }))}
+          />
+        </div>
+        <div>
+          <Label>Section Subtitle</Label>
+          <Textarea
+            value={content.successSection?.subtitle || ''}
+            onChange={(e) => setContent((prev: Record<string, any>) => ({
+              ...prev,
+              successSection: { ...prev.successSection, subtitle: e.target.value }
+            }))}
+            rows={2}
+          />
+        </div>
+        <div>
+          <Label>Button Text</Label>
+          <Input
+            value={content.successSection?.buttonText || ''}
+            onChange={(e) => setContent((prev: Record<string, any>) => ({
+              ...prev,
+              successSection: { ...prev.successSection, buttonText: e.target.value }
+            }))}
+          />
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  const renderBenefitsSectionHeader = (lang: 'en' | 'id', content: Record<string, any>, setContent: React.Dispatch<React.SetStateAction<Record<string, any>>>) => (
+    <Card>
+      <CardHeader>
+        <CardTitle>Benefits Section Header</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div>
+          <Label>Section Title</Label>
+          <Input
+            value={content.benefitsSection?.title || ''}
+            onChange={(e) => setContent((prev: Record<string, any>) => ({
+              ...prev,
+              benefitsSection: { ...prev.benefitsSection, title: e.target.value }
+            }))}
+          />
+        </div>
+        <div>
+          <Label>Section Subtitle</Label>
+          <Textarea
+            value={content.benefitsSection?.subtitle || ''}
+            onChange={(e) => setContent((prev: Record<string, any>) => ({
+              ...prev,
+              benefitsSection: { ...prev.benefitsSection, subtitle: e.target.value }
+            }))}
+            rows={2}
+          />
+        </div>
       </CardContent>
     </Card>
   );
@@ -418,61 +502,132 @@ export default function AdminPageEditor() {
     </Card>
   );
 
-  const renderProductsSection = (lang: 'en' | 'id', content: Record<string, any>) => (
+  const renderCategoriesSection = (lang: 'en' | 'id', content: Record<string, any>) => (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Products</CardTitle>
+        <CardTitle>Product Categories</CardTitle>
         <Button
           variant="outline"
           size="sm"
-          onClick={() => addArrayItem(lang, 'products', { name: '', description: '', image: '' })}
+          onClick={() => addArrayItem(lang, 'categories', { icon: 'Package', title: '', description: '', products: [] })}
         >
           <Plus className="h-4 w-4 mr-1" /> Add
         </Button>
       </CardHeader>
       <CardContent className="space-y-4">
-        {(content.products || []).map((item: any, index: number) => (
+        {(content.categories || []).map((item: any, index: number) => (
           <div key={index} className="p-4 border rounded-lg space-y-3">
             <div className="flex justify-between items-center">
-              <span className="font-medium">Product {index + 1}</span>
-              <Button variant="ghost" size="sm" onClick={() => removeArrayItem(lang, 'products', index)}>
+              <span className="font-medium">Category {index + 1}</span>
+              <Button variant="ghost" size="sm" onClick={() => removeArrayItem(lang, 'categories', index)}>
                 <Trash2 className="h-4 w-4 text-destructive" />
               </Button>
             </div>
             <div>
-              <Label>Image</Label>
-              <ImageUploader
-                value={item.image || ''}
-                onChange={(url) => updateArrayItem(lang, 'products', index, 'image', url)}
-                folder="products"
+              <Label>Icon Name (Lucide: Package, Coffee, ShoppingBag, Gift)</Label>
+              <Input
+                value={item.icon || ''}
+                onChange={(e) => updateArrayItem(lang, 'categories', index, 'icon', e.target.value)}
               />
             </div>
             <div>
-              <Label>Name</Label>
+              <Label>Title</Label>
               <Input
-                value={item.name || ''}
-                onChange={(e) => updateArrayItem(lang, 'products', index, 'name', e.target.value)}
+                value={item.title || ''}
+                onChange={(e) => updateArrayItem(lang, 'categories', index, 'title', e.target.value)}
               />
             </div>
             <div>
               <Label>Description</Label>
               <Textarea
                 value={item.description || ''}
-                onChange={(e) => updateArrayItem(lang, 'products', index, 'description', e.target.value)}
+                onChange={(e) => updateArrayItem(lang, 'categories', index, 'description', e.target.value)}
                 rows={2}
               />
             </div>
             <div>
-              <Label>Category</Label>
+              <Label>Products (comma-separated)</Label>
               <Input
-                value={item.category || ''}
-                onChange={(e) => updateArrayItem(lang, 'products', index, 'category', e.target.value)}
+                value={(item.products || []).join(', ')}
+                onChange={(e) => updateArrayItem(lang, 'categories', index, 'products', e.target.value.split(',').map((s: string) => s.trim()))}
+                placeholder="Paper Cup, Paper Bowl, Food Container"
               />
             </div>
           </div>
         ))}
       </CardContent>
     </Card>
+  );
+
+  const renderMaterialsSection = (lang: 'en' | 'id', content: Record<string, any>, setContent: React.Dispatch<React.SetStateAction<Record<string, any>>>) => (
+    <>
+      <Card>
+        <CardHeader>
+          <CardTitle>Materials Section</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <Label>Section Title</Label>
+            <Input
+              value={content.materialsSection?.title || ''}
+              onChange={(e) => setContent((prev: Record<string, any>) => ({
+                ...prev,
+                materialsSection: { ...prev.materialsSection, title: e.target.value }
+              }))}
+            />
+          </div>
+          <div>
+            <Label>Section Subtitle</Label>
+            <Textarea
+              value={content.materialsSection?.subtitle || ''}
+              onChange={(e) => setContent((prev: Record<string, any>) => ({
+                ...prev,
+                materialsSection: { ...prev.materialsSection, subtitle: e.target.value }
+              }))}
+              rows={2}
+            />
+          </div>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>Materials</CardTitle>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => addArrayItem(lang, 'materials', { title: '', description: '' })}
+          >
+            <Plus className="h-4 w-4 mr-1" /> Add
+          </Button>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {(content.materials || []).map((item: any, index: number) => (
+            <div key={index} className="p-4 border rounded-lg space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="font-medium">Material {index + 1}</span>
+                <Button variant="ghost" size="sm" onClick={() => removeArrayItem(lang, 'materials', index)}>
+                  <Trash2 className="h-4 w-4 text-destructive" />
+                </Button>
+              </div>
+              <div>
+                <Label>Title</Label>
+                <Input
+                  value={item.title || ''}
+                  onChange={(e) => updateArrayItem(lang, 'materials', index, 'title', e.target.value)}
+                />
+              </div>
+              <div>
+                <Label>Description</Label>
+                <Input
+                  value={item.description || ''}
+                  onChange={(e) => updateArrayItem(lang, 'materials', index, 'description', e.target.value)}
+                />
+              </div>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+    </>
   );
 
   const renderCaseStudiesSection = (lang: 'en' | 'id', content: Record<string, any>) => (
@@ -548,15 +703,18 @@ export default function AdminPageEditor() {
         sections.push(renderAboutSection(lang, content));
         break;
       case 'products':
-        sections.push(renderProductsSection(lang, content));
+        sections.push(renderCategoriesSection(lang, content));
+        sections.push(renderMaterialsSection(lang, content, setContent));
         break;
       case 'corporate-solutions':
+        sections.push(renderBenefitsSectionHeader(lang, content, setContent));
         sections.push(renderBenefitsSection(lang, content));
-        sections.push(renderProcessSection(lang, content));
+        sections.push(renderProcessSection(lang, content, setContent));
         break;
       case 'umkm-solutions':
+        sections.push(renderBenefitsSectionHeader(lang, content, setContent));
         sections.push(renderBenefitsSection(lang, content));
-        sections.push(renderFeaturesSection(lang, content));
+        sections.push(renderSuccessSection(lang, content, setContent));
         break;
       case 'case-studies':
         sections.push(renderCaseStudiesSection(lang, content));
