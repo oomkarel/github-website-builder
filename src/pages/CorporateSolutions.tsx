@@ -34,11 +34,17 @@ export default function CorporateSolutions() {
   }
 
   const content = language === 'id' ? pageContent?.content_id : pageContent?.content_en;
+  
+  // Hero image should be shared across languages - use English as fallback
+  const heroImage = content?.hero?.image || pageContent?.content_en?.hero?.image;
 
-  const hero = content?.hero || { 
-    title: t('Solusi Kemasan untuk Korporat', 'Packaging Solutions for Corporations'), 
-    subtitle: t('Kami menyediakan solusi kemasan berskala besar dengan kualitas konsisten untuk memenuhi kebutuhan industri Anda.', 'We provide large-scale packaging solutions with consistent quality to meet your industry needs.'),
-    buttonText: t('Jadwalkan Konsultasi', 'Schedule Consultation')
+  const hero = { 
+    ...(content?.hero || { 
+      title: t('Solusi Kemasan untuk Korporat', 'Packaging Solutions for Corporations'), 
+      subtitle: t('Kami menyediakan solusi kemasan berskala besar dengan kualitas konsisten untuk memenuhi kebutuhan industri Anda.', 'We provide large-scale packaging solutions with consistent quality to meet your industry needs.'),
+      buttonText: t('Jadwalkan Konsultasi', 'Schedule Consultation')
+    }),
+    image: heroImage 
   };
   const benefits = content?.benefits || [
     { icon: 'TrendingUp', title: t('Kapasitas Produksi Besar', 'Large Production Capacity'), description: t('Mampu memenuhi pesanan dalam jumlah besar dengan konsistensi kualitas.', 'Able to fulfill large orders with consistent quality.') },

@@ -43,8 +43,14 @@ export default function Products() {
   }
 
   const content = language === 'id' ? pageContent?.content_id : pageContent?.content_en;
+  
+  // Hero image should be shared across languages - use English as fallback
+  const heroImage = content?.hero?.image || pageContent?.content_en?.hero?.image;
 
-  const hero = content?.hero || { title: t('Produk Kemasan Kami', 'Our Packaging Products'), subtitle: t('Berbagai pilihan kemasan berkualitas untuk berbagai kebutuhan bisnis Anda.', 'Various quality packaging options for your various business needs.') };
+  const hero = { 
+    ...(content?.hero || { title: t('Produk Kemasan Kami', 'Our Packaging Products'), subtitle: t('Berbagai pilihan kemasan berkualitas untuk berbagai kebutuhan bisnis Anda.', 'Various quality packaging options for your various business needs.') }),
+    image: heroImage 
+  };
   const categories = content?.categories || [
     { icon: 'Coffee', title: t('Kemasan Makanan', 'Food Packaging'), description: t('Paper cup, paper bowl, food container, dan kemasan makanan lainnya.', 'Paper cup, paper bowl, food container, and other food packaging.'), products: ['Paper Cup', 'Paper Bowl', 'Food Container', 'Lunch Box', 'Bento Box'] },
     { icon: 'ShoppingBag', title: t('Kemasan Retail', 'Retail Packaging'), description: t('Paper bag, shopping bag, dan kemasan retail berkualitas.', 'Paper bag, shopping bag, and quality retail packaging.'), products: ['Paper Bag', 'Shopping Bag', 'Carry Bag', 'Gift Bag'] },

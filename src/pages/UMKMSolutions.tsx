@@ -34,11 +34,17 @@ export default function UMKMSolutions() {
   }
 
   const content = language === 'id' ? pageContent?.content_id : pageContent?.content_en;
+  
+  // Hero image should be shared across languages - use English as fallback
+  const heroImage = content?.hero?.image || pageContent?.content_en?.hero?.image;
 
-  const hero = content?.hero || {
-    title: t('Solusi Kemasan untuk UMKM', 'Packaging Solutions for SMEs'),
-    subtitle: t('Kami memahami kebutuhan UMKM. Dapatkan kemasan berkualitas dengan harga terjangkau dan MOQ yang fleksibel.', 'We understand SME needs. Get quality packaging at affordable prices with flexible MOQ.'),
-    buttonText: t('Mulai Konsultasi', 'Start Consultation')
+  const hero = { 
+    ...(content?.hero || {
+      title: t('Solusi Kemasan untuk UMKM', 'Packaging Solutions for SMEs'),
+      subtitle: t('Kami memahami kebutuhan UMKM. Dapatkan kemasan berkualitas dengan harga terjangkau dan MOQ yang fleksibel.', 'We understand SME needs. Get quality packaging at affordable prices with flexible MOQ.'),
+      buttonText: t('Mulai Konsultasi', 'Start Consultation')
+    }),
+    image: heroImage 
   };
   const benefits = content?.benefits || [
     { icon: 'DollarSign', title: t('MOQ Fleksibel', 'Flexible MOQ'), description: t('Minimum order quantity yang terjangkau untuk bisnis kecil dan menengah.', 'Affordable minimum order quantity for small and medium businesses.') },
