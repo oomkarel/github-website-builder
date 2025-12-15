@@ -45,7 +45,9 @@ export function mapDatabaseError(error: any): string {
     return 'Access denied. Please try again.';
   }
   if (error?.code === 'PGRST301') return 'Session expired. Please refresh the page.';
-  if (error?.message?.includes('rate limit')) return 'Too many requests. Please wait a moment.';
+  if (error?.code === 'P0001' || error?.message?.includes('rate limit')) {
+    return 'Too many submissions. Please wait 5 minutes before trying again.';
+  }
   
   return 'An error occurred. Please try again later.';
 }

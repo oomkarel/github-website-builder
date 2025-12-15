@@ -17,6 +17,10 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   MapPin,
 };
 
+// Rate limit: 5 minutes between submissions (matches server-side)
+const RATE_LIMIT_MS = 5 * 60 * 1000;
+const RATE_LIMIT_STORAGE_KEY = 'contact_last_submit';
+
 export default function Contact() {
   const { language, t } = useLanguage();
   const { toast } = useToast();
@@ -48,6 +52,18 @@ export default function Contact() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
+    
+    // Client-side rate limiting check (UX improvement, server enforces actual limit)
+    const lastSubmit = localStorage.getItem(RATE_LIMIT_STORAGE_KEY);
+    if (lastSubmit && Date.now() - parseInt(lastSubmit, 10) < RATE_LIMIT_MS) {
+      const remainingMins = Math.ceil((RATE_LIMIT_MS - (Date.now() - parseInt(lastSubmit, 10))) / 60000);
+      toast({ 
+        title: t('Mohon tunggu', 'Please wait'), 
+        description: t(`Silakan tunggu ${remainingMins} menit sebelum mengirim lagi.`, `Please wait ${remainingMins} minute(s) before submitting again.`), 
+        variant: 'destructive' 
+      });
+      return;
+    }
     
     // Validate form data with zod
     const result = contactSchema.safeParse(form);
@@ -84,6 +100,8 @@ export default function Contact() {
         variant: 'destructive' 
       });
     } else {
+      // Store successful submission time for client-side rate limiting
+      localStorage.setItem(RATE_LIMIT_STORAGE_KEY, Date.now().toString());
       toast({ 
         title: t('Terkirim!', 'Sent!'), 
         description: t('Terima kasih, kami akan segera menghubungi Anda.', 'Thank you, we will contact you soon.') 
