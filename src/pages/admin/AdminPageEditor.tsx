@@ -608,7 +608,7 @@ export default function AdminPageEditor() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => addArrayItem(lang, 'materials', { title: '', description: '' })}
+            onClick={() => addArrayItem(lang, 'materials', { icon: 'ShieldCheck', title: '', description: '' })}
           >
             <Plus className="h-4 w-4 mr-1" /> Add
           </Button>
@@ -621,6 +621,14 @@ export default function AdminPageEditor() {
                 <Button variant="ghost" size="sm" onClick={() => removeArrayItem(lang, 'materials', index)}>
                   <Trash2 className="h-4 w-4 text-destructive" />
                 </Button>
+              </div>
+              <div>
+                <Label>Icon Name (ShieldCheck, Leaf, Award)</Label>
+                <Input
+                  value={item.icon || ''}
+                  onChange={(e) => updateArrayItem(lang, 'materials', index, 'icon', e.target.value)}
+                  placeholder="ShieldCheck, Leaf, Award"
+                />
               </div>
               <div>
                 <Label>Title</Label>

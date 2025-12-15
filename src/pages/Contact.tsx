@@ -154,7 +154,12 @@ export default function Contact() {
         title={content?.seo?.title || t('Hubungi Kami', 'Contact Us')} 
         description={content?.seo?.description || t('Hubungi tim Bungkus Indonesia untuk konsultasi kemasan.', 'Contact the Bungkus Indonesia team for packaging consultation.')} 
       />
-      <section className="pt-32 pb-20 gradient-hero">
+      <section 
+        className="pt-32 pb-20 gradient-hero relative bg-cover bg-center"
+        style={hero.image ? { 
+          backgroundImage: `linear-gradient(to right, hsl(var(--primary) / 0.9), hsl(var(--primary) / 0.7)), url(${hero.image})` 
+        } : undefined}
+      >
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl sm:text-5xl font-display font-bold text-white mb-6">{hero.title}</h1>
           <p className="text-lg text-white/80">{hero.subtitle}</p>
