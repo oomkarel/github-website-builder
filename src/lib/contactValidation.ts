@@ -49,5 +49,11 @@ export function mapDatabaseError(error: any): string {
     return 'Too many submissions. Please wait 5 minutes before trying again.';
   }
   
+  // Validation errors from database triggers
+  if (error?.code === 'P0002') return 'Please enter a valid name (2-100 characters).';
+  if (error?.code === 'P0003') return 'Please enter a valid email address.';
+  if (error?.code === 'P0004') return 'Please enter a valid message (10-2000 characters).';
+  if (error?.code === 'P0005') return 'Please check your phone or company field.';
+  
   return 'An error occurred. Please try again later.';
 }
