@@ -1,10 +1,15 @@
 import React from 'react';
 import { MessageCircle } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useSiteSettings } from '@/hooks/useSiteSettings';
 
 export function WhatsAppButton() {
   const { t } = useLanguage();
-  const phoneNumber = '6281234567890'; // Replace with actual number
+  const { data: settings } = useSiteSettings();
+  
+  const contactSetting = settings?.find(s => s.key === 'contact')?.value as { whatsapp?: string } | undefined;
+  const phoneNumber = contactSetting?.whatsapp || '6281234567890';
+  
   const message = encodeURIComponent(
     t(
       'Halo, saya tertarik dengan layanan kemasan Bungkus Indonesia.',

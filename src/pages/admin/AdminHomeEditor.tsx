@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AdminLayout from '@/components/admin/AdminLayout';
 import ImageUploader from '@/components/admin/ImageUploader';
+import LivePreview from '@/components/admin/LivePreview';
 import { usePageContent, useUpdatePageContent } from '@/hooks/usePageContent';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -114,17 +115,19 @@ export default function AdminHomeEditor() {
           </Button>
         </div>
 
-        <Tabs defaultValue="hero" className="space-y-6">
-          <TabsList className="grid grid-cols-4 lg:grid-cols-8 w-full">
-            <TabsTrigger value="hero">Hero</TabsTrigger>
-            <TabsTrigger value="features">Features</TabsTrigger>
-            <TabsTrigger value="stats">Stats</TabsTrigger>
-            <TabsTrigger value="products">Products</TabsTrigger>
-            <TabsTrigger value="clients">Clients</TabsTrigger>
-            <TabsTrigger value="testimonials">Testimonials</TabsTrigger>
-            <TabsTrigger value="cta">CTA</TabsTrigger>
-            <TabsTrigger value="seo">SEO</TabsTrigger>
-          </TabsList>
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+          <div>
+            <Tabs defaultValue="hero" className="space-y-6">
+              <TabsList className="grid grid-cols-4 lg:grid-cols-8 w-full">
+                <TabsTrigger value="hero">Hero</TabsTrigger>
+                <TabsTrigger value="features">Features</TabsTrigger>
+                <TabsTrigger value="stats">Stats</TabsTrigger>
+                <TabsTrigger value="products">Products</TabsTrigger>
+                <TabsTrigger value="clients">Clients</TabsTrigger>
+                <TabsTrigger value="testimonials">Testimonials</TabsTrigger>
+                <TabsTrigger value="cta">CTA</TabsTrigger>
+                <TabsTrigger value="seo">SEO</TabsTrigger>
+              </TabsList>
 
           {/* Hero Section */}
           <TabsContent value="hero" className="space-y-6">
@@ -987,7 +990,13 @@ export default function AdminHomeEditor() {
               </Card>
             </div>
           </TabsContent>
-        </Tabs>
+            </Tabs>
+          </div>
+          
+          <div className="hidden xl:block sticky top-6">
+            <LivePreview path="/" title="Home Preview" />
+          </div>
+        </div>
       </div>
     </AdminLayout>
   );
