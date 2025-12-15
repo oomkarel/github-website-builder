@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ArrowLeft, Loader2, Save, Plus, Trash2 } from 'lucide-react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import ImageUploader from '@/components/admin/ImageUploader';
+import LivePreview from '@/components/admin/LivePreview';
 
 interface ContentItem {
   icon?: string;
@@ -560,6 +561,9 @@ export default function AdminPageEditor() {
       case 'case-studies':
         sections.push(renderCaseStudiesSection(lang, content));
         break;
+      case 'blog':
+        // Blog page only needs hero and SEO which are already added
+        break;
     }
     
     return sections;
@@ -581,7 +585,18 @@ export default function AdminPageEditor() {
     'products': 'Produk / Products',
     'corporate-solutions': 'Solusi Korporat / Corporate Solutions',
     'umkm-solutions': 'Solusi UMKM / UMKM Solutions',
-    'case-studies': 'Studi Kasus / Case Studies'
+    'case-studies': 'Studi Kasus / Case Studies',
+    'blog': 'Blog'
+  };
+
+  const pageRoutes: Record<string, string> = {
+    'contact': '/hubungi-kami',
+    'about': '/tentang-kami',
+    'products': '/produk',
+    'corporate-solutions': '/solusi-korporat',
+    'umkm-solutions': '/solusi-umkm',
+    'case-studies': '/studi-kasus',
+    'blog': '/blog'
   };
 
   return (
@@ -600,20 +615,31 @@ export default function AdminPageEditor() {
           </Button>
         </div>
 
-        <Tabs defaultValue="en">
-          <TabsList>
-            <TabsTrigger value="en">English</TabsTrigger>
-            <TabsTrigger value="id">Indonesia</TabsTrigger>
-          </TabsList>
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+          <div>
+            <Tabs defaultValue="en">
+              <TabsList>
+                <TabsTrigger value="en">English</TabsTrigger>
+                <TabsTrigger value="id">Indonesia</TabsTrigger>
+              </TabsList>
 
-          <TabsContent value="en" className="space-y-6">
-            {renderPageContent('en', contentEn, setContentEn)}
-          </TabsContent>
+              <TabsContent value="en" className="space-y-6">
+                {renderPageContent('en', contentEn, setContentEn)}
+              </TabsContent>
 
-          <TabsContent value="id" className="space-y-6">
-            {renderPageContent('id', contentId, setContentId)}
-          </TabsContent>
-        </Tabs>
+              <TabsContent value="id" className="space-y-6">
+                {renderPageContent('id', contentId, setContentId)}
+              </TabsContent>
+            </Tabs>
+          </div>
+          
+          <div className="hidden xl:block sticky top-6">
+            <LivePreview 
+              path={pageRoutes[pageKey || ''] || '/'} 
+              title="Live Preview" 
+            />
+          </div>
+        </div>
       </div>
     </AdminLayout>
   );
