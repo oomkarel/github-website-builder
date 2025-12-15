@@ -17,11 +17,24 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
 
 export default function UMKMSolutions() {
   const { language, t } = useLanguage();
-  const { data: pageContent } = usePageContent('umkm-solutions');
+  const { data: pageContent, isLoading } = usePageContent('umkm-solutions');
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <SEO title="UMKM Solutions" description="Loading..." />
+        <section className="pt-32 pb-20 gradient-hero">
+          <div className="container mx-auto px-4 text-center">
+            <div className="h-12 w-96 mx-auto mb-6 bg-white/20 rounded animate-pulse" />
+            <div className="h-6 w-[500px] mx-auto bg-white/20 rounded animate-pulse" />
+          </div>
+        </section>
+      </Layout>
+    );
+  }
 
   const content = language === 'id' ? pageContent?.content_id : pageContent?.content_en;
 
-  // Fallback content
   const hero = content?.hero || {
     title: t('Solusi Kemasan untuk UMKM', 'Packaging Solutions for SMEs'),
     subtitle: t('Kami memahami kebutuhan UMKM. Dapatkan kemasan berkualitas dengan harga terjangkau dan MOQ yang fleksibel.', 'We understand SME needs. Get quality packaging at affordable prices with flexible MOQ.'),
@@ -44,7 +57,12 @@ export default function UMKMSolutions() {
       />
 
       {/* Hero */}
-      <section className="pt-32 pb-20 gradient-hero">
+      <section 
+        className="pt-32 pb-20 gradient-hero relative bg-cover bg-center"
+        style={hero.image ? { 
+          backgroundImage: `linear-gradient(to right, hsl(var(--primary) / 0.9), hsl(var(--primary) / 0.7)), url(${hero.image})` 
+        } : undefined}
+      >
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
             <h1 className="text-4xl sm:text-5xl font-display font-bold text-white mb-6">
