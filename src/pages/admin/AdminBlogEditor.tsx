@@ -263,14 +263,28 @@ export default function AdminBlogEditor() {
             </div>
           </div>
           
-          {!isNew && formData.slug && (
-            <div className="hidden xl:block sticky top-6">
+          <div className="hidden xl:block sticky top-6">
+            {isNew ? (
+              <Card className="h-[600px] flex items-center justify-center">
+                <CardContent className="text-center text-muted-foreground">
+                  <p className="text-lg font-medium mb-2">Blog Preview</p>
+                  <p className="text-sm">Save the blog post to see preview</p>
+                </CardContent>
+              </Card>
+            ) : formData.slug ? (
               <LivePreview 
                 path={`/blog/${formData.slug}`} 
                 title="Blog Preview" 
               />
-            </div>
-          )}
+            ) : (
+              <Card className="h-[600px] flex items-center justify-center">
+                <CardContent className="text-center text-muted-foreground">
+                  <p className="text-lg font-medium mb-2">Blog Preview</p>
+                  <p className="text-sm">Add a slug to see preview</p>
+                </CardContent>
+              </Card>
+            )}
+          </div>
         </div>
       </div>
     </AdminLayout>

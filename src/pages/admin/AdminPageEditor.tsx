@@ -411,46 +411,59 @@ export default function AdminPageEditor() {
 
   const renderAboutSection = (lang: 'en' | 'id', content: Record<string, any>) => (
     <>
-      <Card>
-        <CardHeader>
-          <CardTitle>About Content</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <Label>Story Title</Label>
-            <Input
-              value={content.about?.storyTitle || ''}
-              onChange={(e) => updateField(lang, 'about', 'storyTitle', e.target.value)}
-            />
-          </div>
-          <div>
-            <Label>Story Content</Label>
-            <Textarea
-              value={content.about?.storyContent || ''}
-              onChange={(e) => updateField(lang, 'about', 'storyContent', e.target.value)}
-              rows={5}
-            />
-          </div>
-          <div>
-            <Label>Mission</Label>
-            <Textarea
-              value={content.about?.mission || ''}
-              onChange={(e) => updateField(lang, 'about', 'mission', e.target.value)}
-              rows={3}
-            />
-          </div>
-          <div>
-            <Label>Vision</Label>
-            <Textarea
-              value={content.about?.vision || ''}
-              onChange={(e) => updateField(lang, 'about', 'vision', e.target.value)}
-              rows={3}
-            />
-          </div>
-        </CardContent>
-      </Card>
+      {renderValuesSection(lang, content)}
       {renderTeamSection(lang, content)}
     </>
+  );
+
+  const renderValuesSection = (lang: 'en' | 'id', content: Record<string, any>) => (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle>Values / Mission / Vision</CardTitle>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => addArrayItem(lang, 'values', { icon: 'Target', title: '', description: '' })}
+        >
+          <Plus className="h-4 w-4 mr-1" /> Add
+        </Button>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {(content.values || []).map((item: ContentItem, index: number) => (
+          <div key={index} className="p-4 border rounded-lg space-y-3">
+            <div className="flex justify-between items-center">
+              <span className="font-medium">Value {index + 1}</span>
+              <Button variant="ghost" size="sm" onClick={() => removeArrayItem(lang, 'values', index)}>
+                <Trash2 className="h-4 w-4 text-destructive" />
+              </Button>
+            </div>
+            <div>
+              <Label>Icon Name (Lucide: Target, Eye, Users, etc.)</Label>
+              <Input
+                value={item.icon || ''}
+                onChange={(e) => updateArrayItem(lang, 'values', index, 'icon', e.target.value)}
+                placeholder="Target, Eye, Users, Heart, etc."
+              />
+            </div>
+            <div>
+              <Label>Title</Label>
+              <Input
+                value={item.title || ''}
+                onChange={(e) => updateArrayItem(lang, 'values', index, 'title', e.target.value)}
+              />
+            </div>
+            <div>
+              <Label>Description</Label>
+              <Textarea
+                value={item.description || ''}
+                onChange={(e) => updateArrayItem(lang, 'values', index, 'description', e.target.value)}
+                rows={2}
+              />
+            </div>
+          </div>
+        ))}
+      </CardContent>
+    </Card>
   );
 
   const renderTeamSection = (lang: 'en' | 'id', content: Record<string, any>) => (
