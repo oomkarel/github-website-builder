@@ -9,6 +9,7 @@ import { Layout } from '@/components/layout/Layout';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { usePageContent } from '@/hooks/usePageContent';
+import { contactSchema, mapDatabaseError } from '@/lib/contactValidation';
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Mail,
@@ -42,15 +43,51 @@ export default function Contact() {
     submitting: t('Mengirim...', 'Sending...'),
   };
 
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrors({});
+    
+    // Validate form data with zod
+    const result = contactSchema.safeParse(form);
+    if (!result.success) {
+      const fieldErrors: Record<string, string> = {};
+      result.error.errors.forEach((err) => {
+        if (err.path[0]) {
+          fieldErrors[err.path[0] as string] = err.message;
+        }
+      });
+      setErrors(fieldErrors);
+      toast({ 
+        title: t('Error', 'Error'), 
+        description: t('Silakan periksa formulir Anda.', 'Please check your form.'), 
+        variant: 'destructive' 
+      });
+      return;
+    }
+
     setLoading(true);
-    const { error } = await supabase.from('contact_submissions').insert([form]);
+    const { error } = await supabase.from('contact_submissions').insert([{
+      name: result.data.name,
+      email: result.data.email,
+      phone: result.data.phone || null,
+      company: result.data.company || null,
+      message: result.data.message,
+    }]);
     setLoading(false);
+    
     if (error) {
-      toast({ title: 'Error', description: t('Gagal mengirim pesan.', 'Failed to send message.'), variant: 'destructive' });
+      toast({ 
+        title: 'Error', 
+        description: mapDatabaseError(error), 
+        variant: 'destructive' 
+      });
     } else {
-      toast({ title: t('Terkirim!', 'Sent!'), description: t('Terima kasih, kami akan segera menghubungi Anda.', 'Thank you, we will contact you soon.') });
+      toast({ 
+        title: t('Terkirim!', 'Sent!'), 
+        description: t('Terima kasih, kami akan segera menghubungi Anda.', 'Thank you, we will contact you soon.') 
+      });
       setForm({ name: '', email: '', phone: '', company: '', message: '' });
     }
   };
@@ -85,11 +122,58 @@ export default function Contact() {
               </div>
             </div>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <Input placeholder={formLabels.name} value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} required />
-              <Input type="email" placeholder={formLabels.email} value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} required />
-              <Input placeholder={formLabels.phone} value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} />
-              <Input placeholder={formLabels.company} value={form.company} onChange={e => setForm({ ...form, company: e.target.value })} />
-              <Textarea placeholder={formLabels.message} rows={4} value={form.message} onChange={e => setForm({ ...form, message: e.target.value })} required />
+              <div>
+                <Input 
+                  placeholder={formLabels.name} 
+                  value={form.name} 
+                  onChange={e => setForm({ ...form, name: e.target.value })} 
+                  maxLength={100}
+                  className={errors.name ? 'border-destructive' : ''}
+                />
+                {errors.name && <p className="text-sm text-destructive mt-1">{errors.name}</p>}
+              </div>
+              <div>
+                <Input 
+                  type="email" 
+                  placeholder={formLabels.email} 
+                  value={form.email} 
+                  onChange={e => setForm({ ...form, email: e.target.value })} 
+                  maxLength={255}
+                  className={errors.email ? 'border-destructive' : ''}
+                />
+                {errors.email && <p className="text-sm text-destructive mt-1">{errors.email}</p>}
+              </div>
+              <div>
+                <Input 
+                  placeholder={formLabels.phone} 
+                  value={form.phone} 
+                  onChange={e => setForm({ ...form, phone: e.target.value })} 
+                  maxLength={50}
+                  className={errors.phone ? 'border-destructive' : ''}
+                />
+                {errors.phone && <p className="text-sm text-destructive mt-1">{errors.phone}</p>}
+              </div>
+              <div>
+                <Input 
+                  placeholder={formLabels.company} 
+                  value={form.company} 
+                  onChange={e => setForm({ ...form, company: e.target.value })} 
+                  maxLength={200}
+                  className={errors.company ? 'border-destructive' : ''}
+                />
+                {errors.company && <p className="text-sm text-destructive mt-1">{errors.company}</p>}
+              </div>
+              <div>
+                <Textarea 
+                  placeholder={formLabels.message} 
+                  rows={4} 
+                  value={form.message} 
+                  onChange={e => setForm({ ...form, message: e.target.value })} 
+                  maxLength={2000}
+                  className={errors.message ? 'border-destructive' : ''}
+                />
+                {errors.message && <p className="text-sm text-destructive mt-1">{errors.message}</p>}
+              </div>
               <Button type="submit" className="w-full gap-2" disabled={loading}>
                 <Send className="h-4 w-4" />
                 {loading ? formLabels.submitting : formLabels.submit}
