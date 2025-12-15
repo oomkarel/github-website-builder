@@ -8,8 +8,8 @@ import AdminLayout from '@/components/admin/AdminLayout';
 
 const pageNames: Record<string, { en: string; id: string }> = {
   home: { en: 'Home', id: 'Beranda' },
-  corporate: { en: 'Corporate Solutions', id: 'Solusi Korporat' },
-  umkm: { en: 'UMKM Solutions', id: 'Solusi UMKM' },
+  'corporate-solutions': { en: 'Corporate Solutions', id: 'Solusi Korporat' },
+  'umkm-solutions': { en: 'UMKM Solutions', id: 'Solusi UMKM' },
   products: { en: 'Products', id: 'Produk' },
   'case-studies': { en: 'Case Studies', id: 'Studi Kasus' },
   about: { en: 'About', id: 'Tentang' },

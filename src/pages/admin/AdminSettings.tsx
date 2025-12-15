@@ -17,22 +17,26 @@ export default function AdminSettings() {
   const [logo, setLogo] = useState({ light: '', dark: '' });
   const [contact, setContact] = useState({ email: '', phone: '', whatsapp: '', address: '' });
   const [social, setSocial] = useState({ instagram: '', facebook: '', linkedin: '', youtube: '', twitter: '' });
+  const [favicon, setFavicon] = useState({ url: '' });
 
   useEffect(() => {
     if (settings) {
       const logoSetting = settings.find(s => s.key === 'logo');
       const contactSetting = settings.find(s => s.key === 'contact');
       const socialSetting = settings.find(s => s.key === 'social');
+      const faviconSetting = settings.find(s => s.key === 'favicon');
       
       if (logoSetting?.value) setLogo(logoSetting.value as any);
       if (contactSetting?.value) setContact(contactSetting.value as any);
       if (socialSetting?.value) setSocial(socialSetting.value as any);
+      if (faviconSetting?.value) setFavicon(faviconSetting.value as any);
     }
   }, [settings]);
 
   const handleSaveLogo = () => updateSetting.mutate({ key: 'logo', value: logo });
   const handleSaveContact = () => updateSetting.mutate({ key: 'contact', value: contact });
   const handleSaveSocial = () => updateSetting.mutate({ key: 'social', value: social });
+  const handleSaveFavicon = () => updateSetting.mutate({ key: 'favicon', value: favicon });
 
   if (isLoading) {
     return (
@@ -50,6 +54,25 @@ export default function AdminSettings() {
         <h1 className="text-2xl font-bold">
           {language === 'en' ? 'Site Settings' : 'Pengaturan Situs'}
         </h1>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle>Favicon</CardTitle>
+            <Button size="sm" onClick={handleSaveFavicon} disabled={updateSetting.isPending}>
+              {updateSetting.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            </Button>
+          </CardHeader>
+          <CardContent>
+            <div>
+              <Label>{language === 'en' ? 'Favicon Image (recommended: 32x32 or 64x64 PNG)' : 'Gambar Favicon (disarankan: 32x32 atau 64x64 PNG)'}</Label>
+              <ImageUploader
+                value={favicon.url}
+                onChange={(url) => setFavicon({ url })}
+                folder="favicon"
+              />
+            </div>
+          </CardContent>
+        </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
