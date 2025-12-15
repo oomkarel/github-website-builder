@@ -136,41 +136,67 @@ export default function ImageUploader({ value, onChange, folder = 'general', cla
       />
       
       {value ? (
-        <div className="relative group">
-          {imageError ? (
-            <div className="w-full h-48 rounded-lg border border-border bg-muted flex items-center justify-center">
-              <div className="text-center p-4">
-                <ImageIcon className="h-10 w-10 text-muted-foreground mx-auto mb-2" />
-                <p className="text-sm text-muted-foreground">Image failed to load</p>
-                <p className="text-xs text-muted-foreground truncate max-w-[200px]">{value}</p>
+        <div className="space-y-3">
+          <div className="relative group">
+            {imageError ? (
+              <div className="w-full h-48 rounded-lg border border-border bg-muted flex items-center justify-center">
+                <div className="text-center p-4">
+                  <ImageIcon className="h-10 w-10 text-muted-foreground mx-auto mb-2" />
+                  <p className="text-sm text-muted-foreground">Image failed to load</p>
+                </div>
               </div>
+            ) : (
+              <img
+                src={value}
+                alt="Uploaded"
+                className="w-full h-48 object-cover rounded-lg border border-border"
+                onError={handleImageError}
+                onLoad={handleImageLoad}
+              />
+            )}
+            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={() => inputRef.current?.click()}
+              >
+                Change
+              </Button>
+              <Button
+                type="button"
+                variant="destructive"
+                size="sm"
+                onClick={handleRemove}
+              >
+                <X className="h-4 w-4" />
+              </Button>
             </div>
-          ) : (
-            <img
-              src={value}
-              alt="Uploaded"
-              className="w-full h-48 object-cover rounded-lg border border-border"
-              onError={handleImageError}
-              onLoad={handleImageLoad}
-            />
-          )}
-          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2">
-            <Button
-              type="button"
-              variant="secondary"
-              size="sm"
-              onClick={() => inputRef.current?.click()}
-            >
-              Change
-            </Button>
-            <Button
-              type="button"
-              variant="destructive"
-              size="sm"
-              onClick={handleRemove}
-            >
-              <X className="h-4 w-4" />
-            </Button>
+          </div>
+          
+          {/* Current URL Display and Edit */}
+          <div className="space-y-2">
+            <label className="text-xs font-medium text-muted-foreground">Current Image URL</label>
+            <div className="flex gap-2">
+              <Input
+                value={value}
+                onChange={(e) => {
+                  onChange(e.target.value);
+                  setImageError(false);
+                }}
+                placeholder="Image URL"
+                className="text-xs"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleRemove}
+                className="shrink-0"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </div>
       ) : (
