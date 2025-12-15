@@ -27,10 +27,16 @@ export default function CaseStudies() {
   }
 
   const content = language === 'id' ? pageContent?.content_id : pageContent?.content_en;
+  
+  // Hero image should be shared across languages - use English as fallback
+  const heroImage = content?.hero?.image || pageContent?.content_en?.hero?.image;
 
-  const hero = content?.hero || {
-    title: 'Case Studies',
-    subtitle: t('Temukan bagaimana bisnis lain berhasil dengan solusi kemasan kami.', 'Discover how other businesses have succeeded with our packaging solutions.')
+  const hero = { 
+    ...(content?.hero || {
+      title: 'Case Studies',
+      subtitle: t('Temukan bagaimana bisnis lain berhasil dengan solusi kemasan kami.', 'Discover how other businesses have succeeded with our packaging solutions.')
+    }),
+    image: heroImage 
   };
   const caseStudies = content?.caseStudies || [
     { id: 1, title: t('PT Makanan Nusantara - Transformasi Kemasan', 'PT Makanan Nusantara - Packaging Transformation'), excerpt: t('Bagaimana kami membantu perusahaan F&B besar meningkatkan efisiensi kemasan hingga 40%.', 'How we helped a large F&B company improve packaging efficiency by 40%.'), category: 'Corporate', industry: 'Food & Beverage' },

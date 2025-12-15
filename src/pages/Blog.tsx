@@ -15,9 +15,16 @@ export default function Blog() {
   const { data: pageContent, isLoading: contentLoading } = usePageContent('blog');
 
   const content = language === 'id' ? pageContent?.content_id : pageContent?.content_en;
-  const hero = content?.hero || {
-    title: 'Blog',
-    subtitle: t('Artikel dan tips seputar kemasan.', 'Articles and tips about packaging.')
+  
+  // Hero image should be shared across languages - use English as fallback
+  const heroImage = content?.hero?.image || pageContent?.content_en?.hero?.image;
+  
+  const hero = { 
+    ...(content?.hero || {
+      title: 'Blog',
+      subtitle: t('Artikel dan tips seputar kemasan.', 'Articles and tips about packaging.')
+    }),
+    image: heroImage 
   };
 
   return (

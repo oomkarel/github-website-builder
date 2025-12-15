@@ -45,9 +45,15 @@ export default function Contact() {
   }, []);
 
   const content = language === 'id' ? pageContent?.content_id : pageContent?.content_en;
+  
+  // Hero image should be shared across languages - use English as fallback
+  const heroImage = content?.hero?.image || pageContent?.content_en?.hero?.image;
 
   // Fallback content
-  const hero = content?.hero || { title: t('Hubungi Kami', 'Contact Us'), subtitle: t('Kami siap membantu kebutuhan kemasan Anda.', 'We are ready to help your packaging needs.') };
+  const hero = { 
+    ...(content?.hero || { title: t('Hubungi Kami', 'Contact Us'), subtitle: t('Kami siap membantu kebutuhan kemasan Anda.', 'We are ready to help your packaging needs.') }),
+    image: heroImage 
+  };
   const contactInfo = content?.contactInfo || [
     { icon: 'Mail', text: 'info@bungkusindonesia.com' },
     { icon: 'Phone', text: '+62 21 1234 5678' },

@@ -40,8 +40,14 @@ export default function About() {
   }
 
   const content = language === 'id' ? pageContent?.content_id : pageContent?.content_en;
+  
+  // Hero image should be shared across languages - use English as fallback
+  const heroImage = content?.hero?.image || pageContent?.content_en?.hero?.image;
 
-  const hero = content?.hero || { title: t('Tentang Bungkus Indonesia', 'About Bungkus Indonesia'), subtitle: t('Mitra kemasan terpercaya untuk korporasi dan UMKM di seluruh Indonesia sejak 2015.', 'Trusted packaging partner for corporations and SMEs across Indonesia since 2015.') };
+  const hero = { 
+    ...(content?.hero || { title: t('Tentang Bungkus Indonesia', 'About Bungkus Indonesia'), subtitle: t('Mitra kemasan terpercaya untuk korporasi dan UMKM di seluruh Indonesia sejak 2015.', 'Trusted packaging partner for corporations and SMEs across Indonesia since 2015.') }),
+    image: heroImage 
+  };
   const values = content?.values || [
     { icon: 'Target', title: t('Misi', 'Mission'), description: t('Menyediakan solusi kemasan berkualitas dan terjangkau untuk semua skala bisnis.', 'Providing quality and affordable packaging solutions for all business scales.') },
     { icon: 'Eye', title: t('Visi', 'Vision'), description: t('Menjadi mitra kemasan pilihan utama di Indonesia.', 'To become the preferred packaging partner in Indonesia.') },
