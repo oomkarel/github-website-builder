@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Mail, Phone, MapPin, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,12 +21,28 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
 const RATE_LIMIT_MS = 5 * 60 * 1000;
 const RATE_LIMIT_STORAGE_KEY = 'contact_last_submit';
 
+// Minimum time (in ms) user must wait before submitting (anti-bot)
+const MIN_FORM_TIME_MS = 3000;
+
 export default function Contact() {
   const { language, t } = useLanguage();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({ name: '', email: '', phone: '', company: '', message: '' });
   const { data: pageContent } = usePageContent('contact');
+  
+  // Honeypot field - bots will fill this, humans won't see it
+  const [honeypot, setHoneypot] = useState('');
+  
+  // Track when form was rendered to prevent instant bot submissions
+  const formLoadTime = useRef<number>(Date.now());
+  const [formReady, setFormReady] = useState(false);
+  
+  // Set form ready after minimum time
+  useEffect(() => {
+    const timer = setTimeout(() => setFormReady(true), MIN_FORM_TIME_MS);
+    return () => clearTimeout(timer);
+  }, []);
 
   const content = language === 'id' ? pageContent?.content_id : pageContent?.content_en;
 
@@ -52,6 +68,28 @@ export default function Contact() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
+    
+    // Honeypot check - if filled, silently reject (bot detected)
+    if (honeypot) {
+      // Pretend success to not alert the bot
+      toast({ 
+        title: t('Terkirim!', 'Sent!'), 
+        description: t('Terima kasih, kami akan segera menghubungi Anda.', 'Thank you, we will contact you soon.') 
+      });
+      setForm({ name: '', email: '', phone: '', company: '', message: '' });
+      return;
+    }
+    
+    // Time-based check - form must be visible for minimum time
+    const timeElapsed = Date.now() - formLoadTime.current;
+    if (timeElapsed < MIN_FORM_TIME_MS || !formReady) {
+      toast({ 
+        title: t('Mohon tunggu', 'Please wait'), 
+        description: t('Silakan tunggu beberapa detik sebelum mengirim.', 'Please wait a few seconds before submitting.'), 
+        variant: 'destructive' 
+      });
+      return;
+    }
     
     // Client-side rate limiting check (UX improvement, server enforces actual limit)
     const lastSubmit = localStorage.getItem(RATE_LIMIT_STORAGE_KEY);
@@ -140,6 +178,18 @@ export default function Contact() {
               </div>
             </div>
             <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Honeypot field - hidden from users, bots will fill it */}
+              <div className="absolute -left-[9999px] opacity-0" aria-hidden="true">
+                <Input
+                  type="text"
+                  name="website"
+                  tabIndex={-1}
+                  autoComplete="off"
+                  value={honeypot}
+                  onChange={e => setHoneypot(e.target.value)}
+                  placeholder="Leave this empty"
+                />
+              </div>
               <div>
                 <Input 
                   placeholder={formLabels.name} 
