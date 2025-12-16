@@ -39,7 +39,13 @@ export function Navbar() {
         { href: '/solusi-umkm', label: 'UMKM' },
       ],
     },
-    { href: '/produk', label: t('Produk', 'Products') },
+    {
+      label: t('Produk', 'Products'),
+      children: [
+        { href: '/produk', label: t('Kategori Industri', 'Industry Categories') },
+        { href: '/produk/katalog', label: t('Katalog Produk', 'Product Catalog') },
+      ],
+    },
     { href: '/case-studies', label: 'Case Studies' },
     { href: '/blog', label: 'Blog' },
     { href: '/tentang-kami', label: t('Tentang Kami', 'About Us') },

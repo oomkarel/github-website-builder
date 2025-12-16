@@ -9,7 +9,9 @@ import { Layout } from '@/components/layout/Layout';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { usePageContent } from '@/hooks/usePageContent';
+import { useSiteSetting } from '@/hooks/useSiteSettings';
 import { contactSchema, mapDatabaseError } from '@/lib/contactValidation';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Mail,
@@ -29,7 +31,8 @@ export default function Contact() {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({ name: '', email: '', phone: '', company: '', message: '' });
-  const { data: pageContent } = usePageContent('contact');
+  const { data: pageContent, isLoading: pageLoading } = usePageContent('contact');
+  const { data: contactSettings, isLoading: contactLoading } = useSiteSetting('contact');
   
   // Honeypot field - bots will fill this, humans won't see it
   const [honeypot, setHoneypot] = useState('');
@@ -49,16 +52,22 @@ export default function Contact() {
   // Hero image should be shared across languages - use English as fallback
   const heroImage = content?.hero?.image || pageContent?.content_en?.hero?.image;
 
-  // Fallback content
+  // Use global site_settings for contact info (single source of truth)
+  const globalContact = contactSettings?.value as { email?: string; phone?: string; address?: string; whatsapp?: string } | undefined;
+
   const hero = { 
-    ...(content?.hero || { title: t('Hubungi Kami', 'Contact Us'), subtitle: t('Kami siap membantu kebutuhan kemasan Anda.', 'We are ready to help your packaging needs.') }),
+    title: content?.hero?.title || '',
+    subtitle: content?.hero?.subtitle || '',
     image: heroImage 
   };
-  const contactInfo = content?.contactInfo || [
-    { icon: 'Mail', text: 'info@bungkusindonesia.com' },
-    { icon: 'Phone', text: '+62 21 1234 5678' },
-    { icon: 'MapPin', text: 'Jakarta, Indonesia' },
-  ];
+  
+  // Build contact info from global site_settings
+  const contactInfo = globalContact ? [
+    { icon: 'Mail', text: globalContact.email || '' },
+    { icon: 'Phone', text: globalContact.phone || '' },
+    { icon: 'MapPin', text: globalContact.address || '' },
+  ].filter(item => item.text) : [];
+
   const formLabels = content?.formLabels || {
     name: t('Nama', 'Name'),
     email: 'Email',
@@ -68,7 +77,6 @@ export default function Contact() {
     submit: t('Kirim Pesan', 'Send Message'),
     submitting: t('Mengirim...', 'Sending...'),
   };
-
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -154,6 +162,39 @@ export default function Contact() {
     }
   };
 
+  const isLoading = pageLoading || contactLoading;
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <section className="pt-32 pb-20 gradient-hero">
+          <div className="container mx-auto px-4 text-center">
+            <Skeleton className="h-12 w-80 mx-auto mb-4" />
+            <Skeleton className="h-6 w-64 mx-auto" />
+          </div>
+        </section>
+        <section className="py-24 bg-background">
+          <div className="container mx-auto px-4">
+            <div className="grid lg:grid-cols-2 gap-12 max-w-5xl mx-auto">
+              <div className="space-y-4">
+                <Skeleton className="h-8 w-48" />
+                <Skeleton className="h-6 w-64" />
+                <Skeleton className="h-6 w-56" />
+                <Skeleton className="h-6 w-72" />
+              </div>
+              <div className="space-y-4">
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-32 w-full" />
+              </div>
+            </div>
+          </div>
+        </section>
+      </Layout>
+    );
+  }
+
   return (
     <Layout>
       <SEO 
@@ -167,8 +208,8 @@ export default function Contact() {
         } : undefined}
       >
         <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl sm:text-5xl font-display font-bold text-white mb-6">{hero.title}</h1>
-          <p className="text-lg text-white/80">{hero.subtitle}</p>
+          <h1 className="text-4xl sm:text-5xl font-display font-bold text-white mb-6">{hero.title || t('Hubungi Kami', 'Contact Us')}</h1>
+          <p className="text-lg text-white/80">{hero.subtitle || t('Kami siap membantu kebutuhan kemasan Anda.', 'We are ready to help your packaging needs.')}</p>
         </div>
       </section>
       <section className="py-24 bg-background">

@@ -25,6 +25,7 @@ interface ContentItem {
   client?: string;
   category?: string;
   products?: string[];
+  tags?: string[];
 }
 
 export default function AdminPageEditor() {
@@ -140,40 +141,90 @@ export default function AdminPageEditor() {
     </Card>
   );
 
-  const renderContactSection = (lang: 'en' | 'id', content: Record<string, any>) => (
-    <Card>
+  const renderContactInfoNote = () => (
+    <Card className="bg-muted/50 border-dashed">
       <CardHeader>
-        <CardTitle>Contact Information</CardTitle>
+        <CardTitle className="text-base">Contact Information</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p className="text-sm text-muted-foreground">
+          Contact information (email, phone, address) is managed globally in{' '}
+          <a href="/admin/settings" className="text-primary underline hover:no-underline">
+            Site Settings
+          </a>
+          . This ensures consistency across all pages.
+        </p>
+      </CardContent>
+    </Card>
+  );
+
+  const renderProductCatalogSection = (lang: 'en' | 'id', content: Record<string, any>) => (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle>Products</CardTitle>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => addArrayItem(lang, 'products', { image: '', name: '', description: '', category: '', tags: [] })}
+        >
+          <Plus className="h-4 w-4 mr-1" /> Add Product
+        </Button>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div>
-          <Label>Email</Label>
-          <Input
-            value={content.contact?.email || ''}
-            onChange={(e) => updateField(lang, 'contact', 'email', e.target.value)}
-          />
-        </div>
-        <div>
-          <Label>Phone</Label>
-          <Input
-            value={content.contact?.phone || ''}
-            onChange={(e) => updateField(lang, 'contact', 'phone', e.target.value)}
-          />
-        </div>
-        <div>
-          <Label>Address</Label>
-          <Input
-            value={content.contact?.address || ''}
-            onChange={(e) => updateField(lang, 'contact', 'address', e.target.value)}
-          />
-        </div>
-        <div>
-          <Label>WhatsApp Number</Label>
-          <Input
-            value={content.contact?.whatsapp || ''}
-            onChange={(e) => updateField(lang, 'contact', 'whatsapp', e.target.value)}
-          />
-        </div>
+        {(content.products || []).map((item: any, index: number) => (
+          <div key={index} className="p-4 border rounded-lg space-y-3">
+            <div className="flex justify-between items-center">
+              <span className="font-medium">Product {index + 1}</span>
+              <Button variant="ghost" size="sm" onClick={() => removeArrayItem(lang, 'products', index)}>
+                <Trash2 className="h-4 w-4 text-destructive" />
+              </Button>
+            </div>
+            <div>
+              <Label>Image</Label>
+              <ImageUploader
+                value={item.image || ''}
+                onChange={(url) => updateArrayItem(lang, 'products', index, 'image', url)}
+                folder="products"
+              />
+            </div>
+            <div>
+              <Label>Product Name</Label>
+              <Input
+                value={item.name || ''}
+                onChange={(e) => updateArrayItem(lang, 'products', index, 'name', e.target.value)}
+              />
+            </div>
+            <div>
+              <Label>Description</Label>
+              <Textarea
+                value={item.description || ''}
+                onChange={(e) => updateArrayItem(lang, 'products', index, 'description', e.target.value)}
+                rows={2}
+              />
+            </div>
+            <div>
+              <Label>Category</Label>
+              <Input
+                value={item.category || ''}
+                onChange={(e) => updateArrayItem(lang, 'products', index, 'category', e.target.value)}
+                placeholder="Paper Cup, Paper Bag, Container, etc."
+              />
+            </div>
+            <div>
+              <Label>Tags (comma-separated)</Label>
+              <Input
+                value={(item.tags || []).join(', ')}
+                onChange={(e) => updateArrayItem(lang, 'products', index, 'tags', e.target.value.split(',').map((s: string) => s.trim()).filter(Boolean))}
+                placeholder="Eco-Friendly, Food Grade, Custom"
+              />
+            </div>
+          </div>
+        ))}
+        {(!content.products || content.products.length === 0) && (
+          <p className="text-sm text-muted-foreground text-center py-4">
+            No products yet. Click "Add Product" to add your first product.
+          </p>
+        )}
       </CardContent>
     </Card>
   );
@@ -718,7 +769,7 @@ export default function AdminPageEditor() {
     // Page-specific sections
     switch (pageKey) {
       case 'contact':
-        sections.push(renderContactSection(lang, content));
+        sections.push(renderContactInfoNote());
         break;
       case 'about':
         sections.push(renderAboutSection(lang, content));
@@ -726,6 +777,9 @@ export default function AdminPageEditor() {
       case 'products':
         sections.push(renderCategoriesSection(lang, content));
         sections.push(renderMaterialsSection(lang, content, setContent));
+        break;
+      case 'product-catalog':
+        sections.push(renderProductCatalogSection(lang, content));
         break;
       case 'corporate-solutions':
         sections.push(renderBenefitsSectionHeader(lang, content, setContent));
@@ -761,7 +815,8 @@ export default function AdminPageEditor() {
   const pageLabels: Record<string, string> = {
     'contact': 'Kontak / Contact',
     'about': 'Tentang Kami / About',
-    'products': 'Produk / Products',
+    'products': 'Kategori Industri / Industry Categories',
+    'product-catalog': 'Katalog Produk / Product Catalog',
     'corporate-solutions': 'Solusi Korporat / Corporate Solutions',
     'umkm-solutions': 'Solusi UMKM / UMKM Solutions',
     'case-studies': 'Studi Kasus / Case Studies',
@@ -772,6 +827,7 @@ export default function AdminPageEditor() {
     'contact': '/hubungi-kami',
     'about': '/tentang-kami',
     'products': '/produk',
+    'product-catalog': '/produk/katalog',
     'corporate-solutions': '/solusi-korporat',
     'umkm-solutions': '/solusi-umkm',
     'case-studies': '/studi-kasus',

@@ -12,6 +12,7 @@ import Home from "./pages/Home";
 import CorporateSolutions from "./pages/CorporateSolutions";
 import UMKMSolutions from "./pages/UMKMSolutions";
 import Products from "./pages/Products";
+import ProductCatalog from "./pages/ProductCatalog";
 import CaseStudies from "./pages/CaseStudies";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
@@ -55,6 +56,7 @@ const App = () => (
                 <Route path="/solusi-korporat" element={<CorporateSolutions />} />
                 <Route path="/solusi-umkm" element={<UMKMSolutions />} />
                 <Route path="/produk" element={<Products />} />
+                <Route path="/produk/katalog" element={<ProductCatalog />} />
                 <Route path="/case-studies" element={<CaseStudies />} />
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/blog/:slug" element={<BlogPost />} />
