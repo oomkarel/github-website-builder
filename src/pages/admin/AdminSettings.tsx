@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { Loader2, Save, MessageCircle, Search, Globe } from 'lucide-react';
+import { Loader2, Save, MessageCircle, Search, Globe, Copy, Check } from 'lucide-react';
 import { 
   Select,
   SelectContent,
@@ -17,11 +17,14 @@ import {
 } from '@/components/ui/select';
 import AdminLayout from '@/components/admin/AdminLayout';
 import ImageUploader from '@/components/admin/ImageUploader';
+import { useToast } from '@/hooks/use-toast';
 
 export default function AdminSettings() {
   const { language } = useLanguage();
   const { data: settings, isLoading } = useSiteSettings();
   const updateSetting = useUpdateSiteSetting();
+  const { toast } = useToast();
+  const [copied, setCopied] = useState(false);
 
   const [logo, setLogo] = useState({ light: '', dark: '' });
   const [contact, setContact] = useState({ email: '', phone: '', whatsapp: '', address: '' });
@@ -39,9 +42,30 @@ export default function AdminSettings() {
   const [seo, setSeo] = useState({
     meta_robots: 'index, follow',
     google_analytics_id: '',
+    google_tag_manager_id: '',
+    google_search_console: '',
     sitemap_enabled: true,
     robots_txt: ''
   });
+
+  const handleCopyRobotsTxt = async () => {
+    if (!seo.robots_txt) return;
+    try {
+      await navigator.clipboard.writeText(seo.robots_txt);
+      setCopied(true);
+      toast({
+        title: language === 'en' ? 'Copied!' : 'Disalin!',
+        description: language === 'en' ? 'robots.txt content copied to clipboard' : 'Konten robots.txt disalin ke clipboard'
+      });
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast({
+        title: 'Error',
+        description: language === 'en' ? 'Failed to copy' : 'Gagal menyalin',
+        variant: 'destructive'
+      });
+    }
+  };
 
   useEffect(() => {
     if (settings) {
@@ -214,12 +238,40 @@ export default function AdminSettings() {
                 </Select>
               </div>
               <div>
-                <Label>Google Analytics ID</Label>
+                <Label>Google Analytics 4 ID</Label>
                 <Input 
                   value={seo.google_analytics_id} 
                   onChange={(e) => setSeo(prev => ({ ...prev, google_analytics_id: e.target.value }))}
                   placeholder="G-XXXXXXXXXX"
                 />
+                <p className="text-xs text-muted-foreground mt-1">
+                  {language === 'en' ? 'Your GA4 measurement ID' : 'ID pengukuran GA4 Anda'}
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label>Google Tag Manager ID</Label>
+                <Input 
+                  value={seo.google_tag_manager_id} 
+                  onChange={(e) => setSeo(prev => ({ ...prev, google_tag_manager_id: e.target.value }))}
+                  placeholder="GTM-XXXXXXX"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  {language === 'en' ? 'Your GTM container ID' : 'ID container GTM Anda'}
+                </p>
+              </div>
+              <div>
+                <Label>Google Search Console</Label>
+                <Input 
+                  value={seo.google_search_console} 
+                  onChange={(e) => setSeo(prev => ({ ...prev, google_search_console: e.target.value }))}
+                  placeholder="google-site-verification=..."
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  {language === 'en' ? 'Verification meta tag content' : 'Konten meta tag verifikasi'}
+                </p>
               </div>
             </div>
 
@@ -232,7 +284,20 @@ export default function AdminSettings() {
             </div>
 
             <div>
-              <Label>robots.txt {language === 'en' ? 'Content' : 'Konten'}</Label>
+              <div className="flex items-center justify-between mb-2">
+                <Label>robots.txt {language === 'en' ? 'Content' : 'Konten'}</Label>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleCopyRobotsTxt}
+                  disabled={!seo.robots_txt}
+                  className="gap-1"
+                >
+                  {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+                  {copied ? (language === 'en' ? 'Copied' : 'Disalin') : (language === 'en' ? 'Copy' : 'Salin')}
+                </Button>
+              </div>
               <Textarea 
                 value={seo.robots_txt} 
                 onChange={(e) => setSeo(prev => ({ ...prev, robots_txt: e.target.value }))}
@@ -242,8 +307,8 @@ export default function AdminSettings() {
               />
               <p className="text-xs text-muted-foreground mt-2">
                 {language === 'en' 
-                  ? 'Note: Changes to robots.txt require redeployment to take effect on the static file.' 
-                  : 'Catatan: Perubahan pada robots.txt memerlukan deploy ulang agar berlaku pada file statis.'}
+                  ? 'Note: This is for reference. To update the actual robots.txt file, copy this content and update the public/robots.txt file in your repository, then redeploy.' 
+                  : 'Catatan: Ini hanya untuk referensi. Untuk memperbarui file robots.txt yang sebenarnya, salin konten ini dan perbarui file public/robots.txt di repositori Anda, lalu deploy ulang.'}
               </p>
             </div>
           </CardContent>
