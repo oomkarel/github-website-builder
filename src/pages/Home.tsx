@@ -65,6 +65,8 @@ export default function Home() {
         subtitle={content?.cta?.subtitle}
         primaryButton={content?.cta?.primary_button}
         secondaryButton={content?.cta?.secondary_button}
+        primaryButtonLink={content?.cta?.primary_button_link}
+        secondaryButtonLink={content?.cta?.secondary_button_link}
       />
     </Layout>
   );
