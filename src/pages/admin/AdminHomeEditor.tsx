@@ -10,6 +10,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AdminLayout from '@/components/admin/AdminLayout';
 import ImageUploader from '@/components/admin/ImageUploader';
 import LivePreview from '@/components/admin/LivePreview';
+import IconSelector from '@/components/admin/IconSelector';
+import PageLinkSelector from '@/components/admin/PageLinkSelector';
 import { usePageContent, useUpdatePageContent } from '@/hooks/usePageContent';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -206,19 +208,37 @@ export default function AdminHomeEditor() {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label>Primary CTA</Label>
+                      <Label>Primary CTA Text</Label>
                       <Input
                         value={contentEn.hero?.cta_primary || ''}
                         onChange={(e) => updateSection('en', 'hero', 'cta_primary', e.target.value)}
                       />
                     </div>
                     <div>
-                      <Label>Secondary CTA</Label>
+                      <Label>Secondary CTA Text</Label>
                       <Input
                         value={contentEn.hero?.cta_secondary || ''}
                         onChange={(e) => updateSection('en', 'hero', 'cta_secondary', e.target.value)}
                       />
                     </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <PageLinkSelector
+                      label="Primary CTA Link"
+                      value={contentEn.hero?.cta_primary_link || '/solusi-korporat'}
+                      onChange={(value) => {
+                        updateSection('en', 'hero', 'cta_primary_link', value);
+                        updateSection('id', 'hero', 'cta_primary_link', value);
+                      }}
+                    />
+                    <PageLinkSelector
+                      label="Secondary CTA Link"
+                      value={contentEn.hero?.cta_secondary_link || '/solusi-umkm'}
+                      onChange={(value) => {
+                        updateSection('en', 'hero', 'cta_secondary_link', value);
+                        updateSection('id', 'hero', 'cta_secondary_link', value);
+                      }}
+                    />
                   </div>
                 </CardContent>
               </Card>
@@ -251,14 +271,14 @@ export default function AdminHomeEditor() {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label>Primary CTA</Label>
+                      <Label>Primary CTA Text</Label>
                       <Input
                         value={contentId.hero?.cta_primary || ''}
                         onChange={(e) => updateSection('id', 'hero', 'cta_primary', e.target.value)}
                       />
                     </div>
                     <div>
-                      <Label>Secondary CTA</Label>
+                      <Label>Secondary CTA Text</Label>
                       <Input
                         value={contentId.hero?.cta_secondary || ''}
                         onChange={(e) => updateSection('id', 'hero', 'cta_secondary', e.target.value)}
@@ -306,11 +326,16 @@ export default function AdminHomeEditor() {
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
-                        <Input
-                          placeholder="Icon (Package, Shield, Users, Zap)"
-                          value={item.icon || ''}
-                          onChange={(e) => updateArrayItem('en', 'features', 'items', index, 'icon', e.target.value)}
-                        />
+                        <div>
+                          <Label className="text-xs text-muted-foreground">Icon</Label>
+                          <IconSelector
+                            value={item.icon || 'Package'}
+                            onChange={(value) => {
+                              updateArrayItem('en', 'features', 'items', index, 'icon', value);
+                              updateArrayItem('id', 'features', 'items', index, 'icon', value);
+                            }}
+                          />
+                        </div>
                         <Input
                           placeholder="Title"
                           value={item.title || ''}
@@ -367,11 +392,16 @@ export default function AdminHomeEditor() {
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
-                        <Input
-                          placeholder="Icon"
-                          value={item.icon || ''}
-                          onChange={(e) => updateArrayItem('id', 'features', 'items', index, 'icon', e.target.value)}
-                        />
+                        <div>
+                          <Label className="text-xs text-muted-foreground">Icon</Label>
+                          <IconSelector
+                            value={item.icon || 'Package'}
+                            onChange={(value) => {
+                              updateArrayItem('en', 'features', 'items', index, 'icon', value);
+                              updateArrayItem('id', 'features', 'items', index, 'icon', value);
+                            }}
+                          />
+                        </div>
                         <Input
                           placeholder="Title"
                           value={item.title || ''}
