@@ -9,9 +9,11 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ArrowLeft, Loader2, Save, Plus, Trash2 } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
 import AdminLayout from '@/components/admin/AdminLayout';
 import ImageUploader from '@/components/admin/ImageUploader';
 import LivePreview from '@/components/admin/LivePreview';
+import IconSelector from '@/components/admin/IconSelector';
 
 interface ContentItem {
   icon?: string;
@@ -158,6 +160,146 @@ export default function AdminPageEditor() {
     </Card>
   );
 
+  const renderContactFormSection = (lang: 'en' | 'id', content: Record<string, any>, setContent: React.Dispatch<React.SetStateAction<Record<string, any>>>) => (
+    <>
+      <Card>
+        <CardHeader>
+          <CardTitle>Contact Info Title</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <Label>Title</Label>
+            <Input
+              value={content.contactInfoTitle || ''}
+              onChange={(e) => setContent((prev: Record<string, any>) => ({ ...prev, contactInfoTitle: e.target.value }))}
+              placeholder={lang === 'id' ? 'Informasi Kontak' : 'Contact Information'}
+            />
+          </div>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Form Labels</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <Label>Name Field</Label>
+              <Input
+                value={content.formLabels?.name || ''}
+                onChange={(e) => setContent((prev: Record<string, any>) => ({
+                  ...prev,
+                  formLabels: { ...prev.formLabels, name: e.target.value }
+                }))}
+                placeholder={lang === 'id' ? 'Nama' : 'Name'}
+              />
+            </div>
+            <div>
+              <Label>Email Field</Label>
+              <Input
+                value={content.formLabels?.email || ''}
+                onChange={(e) => setContent((prev: Record<string, any>) => ({
+                  ...prev,
+                  formLabels: { ...prev.formLabels, email: e.target.value }
+                }))}
+                placeholder="Email"
+              />
+            </div>
+            <div>
+              <Label>Phone Field</Label>
+              <Input
+                value={content.formLabels?.phone || ''}
+                onChange={(e) => setContent((prev: Record<string, any>) => ({
+                  ...prev,
+                  formLabels: { ...prev.formLabels, phone: e.target.value }
+                }))}
+                placeholder={lang === 'id' ? 'Telepon' : 'Phone'}
+              />
+            </div>
+            <div>
+              <Label>Company Field</Label>
+              <Input
+                value={content.formLabels?.company || ''}
+                onChange={(e) => setContent((prev: Record<string, any>) => ({
+                  ...prev,
+                  formLabels: { ...prev.formLabels, company: e.target.value }
+                }))}
+                placeholder={lang === 'id' ? 'Perusahaan' : 'Company'}
+              />
+            </div>
+            <div>
+              <Label>Message Field</Label>
+              <Input
+                value={content.formLabels?.message || ''}
+                onChange={(e) => setContent((prev: Record<string, any>) => ({
+                  ...prev,
+                  formLabels: { ...prev.formLabels, message: e.target.value }
+                }))}
+                placeholder={lang === 'id' ? 'Pesan' : 'Message'}
+              />
+            </div>
+            <div>
+              <Label>Submit Button</Label>
+              <Input
+                value={content.formLabels?.submit || ''}
+                onChange={(e) => setContent((prev: Record<string, any>) => ({
+                  ...prev,
+                  formLabels: { ...prev.formLabels, submit: e.target.value }
+                }))}
+                placeholder={lang === 'id' ? 'Kirim Pesan' : 'Send Message'}
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Form Field Visibility</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-sm text-muted-foreground mb-4">
+            Choose which optional fields to show on the contact form. Name and Email are always required.
+          </p>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="show-phone" className="cursor-pointer">Show Phone Field</Label>
+              <Switch
+                id="show-phone"
+                checked={content.formConfig?.showPhone !== false}
+                onCheckedChange={(checked) => setContent((prev: Record<string, any>) => ({
+                  ...prev,
+                  formConfig: { ...prev.formConfig, showPhone: checked }
+                }))}
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="show-company" className="cursor-pointer">Show Company Field</Label>
+              <Switch
+                id="show-company"
+                checked={content.formConfig?.showCompany !== false}
+                onCheckedChange={(checked) => setContent((prev: Record<string, any>) => ({
+                  ...prev,
+                  formConfig: { ...prev.formConfig, showCompany: checked }
+                }))}
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="show-message" className="cursor-pointer">Show Message Field</Label>
+              <Switch
+                id="show-message"
+                checked={content.formConfig?.showMessage !== false}
+                onCheckedChange={(checked) => setContent((prev: Record<string, any>) => ({
+                  ...prev,
+                  formConfig: { ...prev.formConfig, showMessage: checked }
+                }))}
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </>
+  );
+
   const renderProductCatalogSection = (lang: 'en' | 'id', content: Record<string, any>) => (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -251,11 +393,14 @@ export default function AdminPageEditor() {
               </Button>
             </div>
             <div>
-              <Label>Icon Name (Lucide)</Label>
-              <Input
-                value={item.icon || ''}
-                onChange={(e) => updateArrayItem(lang, 'benefits', index, 'icon', e.target.value)}
-                placeholder="Check, Shield, Zap, etc."
+              <Label>Icon</Label>
+              <IconSelector
+                value={item.icon || 'Package'}
+                onChange={(iconName) => {
+                  // Update icon for both languages to keep them in sync
+                  updateArrayItem('en', 'benefits', index, 'icon', iconName);
+                  updateArrayItem('id', 'benefits', index, 'icon', iconName);
+                }}
               />
             </div>
             <div>
@@ -301,10 +446,13 @@ export default function AdminPageEditor() {
               </Button>
             </div>
             <div>
-              <Label>Icon Name (Lucide)</Label>
-              <Input
-                value={item.icon || ''}
-                onChange={(e) => updateArrayItem(lang, 'features', index, 'icon', e.target.value)}
+              <Label>Icon</Label>
+              <IconSelector
+                value={item.icon || 'Star'}
+                onChange={(iconName) => {
+                  updateArrayItem('en', 'features', index, 'icon', iconName);
+                  updateArrayItem('id', 'features', index, 'icon', iconName);
+                }}
               />
             </div>
             <div>
@@ -489,11 +637,13 @@ export default function AdminPageEditor() {
               </Button>
             </div>
             <div>
-              <Label>Icon Name (Lucide: Target, Eye, Users, etc.)</Label>
-              <Input
-                value={item.icon || ''}
-                onChange={(e) => updateArrayItem(lang, 'values', index, 'icon', e.target.value)}
-                placeholder="Target, Eye, Users, Heart, etc."
+              <Label>Icon</Label>
+              <IconSelector
+                value={item.icon || 'Target'}
+                onChange={(iconName) => {
+                  updateArrayItem('en', 'values', index, 'icon', iconName);
+                  updateArrayItem('id', 'values', index, 'icon', iconName);
+                }}
               />
             </div>
             <div>
@@ -588,10 +738,13 @@ export default function AdminPageEditor() {
               </Button>
             </div>
             <div>
-              <Label>Icon Name (Lucide: Package, Coffee, ShoppingBag, Gift)</Label>
-              <Input
-                value={item.icon || ''}
-                onChange={(e) => updateArrayItem(lang, 'categories', index, 'icon', e.target.value)}
+              <Label>Icon</Label>
+              <IconSelector
+                value={item.icon || 'Package'}
+                onChange={(iconName) => {
+                  updateArrayItem('en', 'categories', index, 'icon', iconName);
+                  updateArrayItem('id', 'categories', index, 'icon', iconName);
+                }}
               />
             </div>
             <div>
@@ -770,6 +923,7 @@ export default function AdminPageEditor() {
     switch (pageKey) {
       case 'contact':
         sections.push(renderContactInfoNote());
+        sections.push(renderContactFormSection(lang, content, setContent));
         break;
       case 'about':
         sections.push(renderAboutSection(lang, content));

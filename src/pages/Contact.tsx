@@ -10,7 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { usePageContent } from '@/hooks/usePageContent';
 import { useSiteSetting } from '@/hooks/useSiteSettings';
-import { contactSchema, mapDatabaseError } from '@/lib/contactValidation';
+import { contactSchema, contactSchemaWithMessage, mapDatabaseError } from '@/lib/contactValidation';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -77,6 +77,13 @@ export default function Contact() {
     submit: t('Kirim Pesan', 'Send Message'),
     submitting: t('Mengirim...', 'Sending...'),
   };
+
+  // Form field visibility config (defaults to all visible)
+  const formConfig = content?.formConfig || {
+    showPhone: true,
+    showCompany: true,
+    showMessage: true,
+  };
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -117,8 +124,9 @@ export default function Contact() {
       return;
     }
     
-    // Validate form data with zod
-    const result = contactSchema.safeParse(form);
+    // Use appropriate validation schema based on whether message is required
+    const validationSchema = formConfig.showMessage !== false ? contactSchemaWithMessage : contactSchema;
+    const result = validationSchema.safeParse(form);
     if (!result.success) {
       const fieldErrors: Record<string, string> = {};
       result.error.errors.forEach((err) => {
@@ -141,7 +149,7 @@ export default function Contact() {
       email: result.data.email,
       phone: result.data.phone || null,
       company: result.data.company || null,
-      message: result.data.message,
+      message: result.data.message || '',
     }]);
     setLoading(false);
     
@@ -263,37 +271,43 @@ export default function Contact() {
                 />
                 {errors.email && <p className="text-sm text-destructive mt-1">{errors.email}</p>}
               </div>
-              <div>
-                <Input 
-                  placeholder={formLabels.phone} 
-                  value={form.phone} 
-                  onChange={e => setForm({ ...form, phone: e.target.value })} 
-                  maxLength={50}
-                  className={errors.phone ? 'border-destructive' : ''}
-                />
-                {errors.phone && <p className="text-sm text-destructive mt-1">{errors.phone}</p>}
-              </div>
-              <div>
-                <Input 
-                  placeholder={formLabels.company} 
-                  value={form.company} 
-                  onChange={e => setForm({ ...form, company: e.target.value })} 
-                  maxLength={200}
-                  className={errors.company ? 'border-destructive' : ''}
-                />
-                {errors.company && <p className="text-sm text-destructive mt-1">{errors.company}</p>}
-              </div>
-              <div>
-                <Textarea 
-                  placeholder={formLabels.message} 
-                  rows={4} 
-                  value={form.message} 
-                  onChange={e => setForm({ ...form, message: e.target.value })} 
-                  maxLength={2000}
-                  className={errors.message ? 'border-destructive' : ''}
-                />
-                {errors.message && <p className="text-sm text-destructive mt-1">{errors.message}</p>}
-              </div>
+              {formConfig.showPhone !== false && (
+                <div>
+                  <Input 
+                    placeholder={formLabels.phone || t('Telepon', 'Phone')} 
+                    value={form.phone} 
+                    onChange={e => setForm({ ...form, phone: e.target.value })} 
+                    maxLength={50}
+                    className={errors.phone ? 'border-destructive' : ''}
+                  />
+                  {errors.phone && <p className="text-sm text-destructive mt-1">{errors.phone}</p>}
+                </div>
+              )}
+              {formConfig.showCompany !== false && (
+                <div>
+                  <Input 
+                    placeholder={formLabels.company || t('Perusahaan', 'Company')} 
+                    value={form.company} 
+                    onChange={e => setForm({ ...form, company: e.target.value })} 
+                    maxLength={200}
+                    className={errors.company ? 'border-destructive' : ''}
+                  />
+                  {errors.company && <p className="text-sm text-destructive mt-1">{errors.company}</p>}
+                </div>
+              )}
+              {formConfig.showMessage !== false && (
+                <div>
+                  <Textarea 
+                    placeholder={formLabels.message || t('Pesan', 'Message')} 
+                    rows={4} 
+                    value={form.message} 
+                    onChange={e => setForm({ ...form, message: e.target.value })} 
+                    maxLength={2000}
+                    className={errors.message ? 'border-destructive' : ''}
+                  />
+                  {errors.message && <p className="text-sm text-destructive mt-1">{errors.message}</p>}
+                </div>
+              )}
               <Button type="submit" className="w-full gap-2" disabled={loading}>
                 <Send className="h-4 w-4" />
                 {loading ? formLabels.submitting : formLabels.submit}
