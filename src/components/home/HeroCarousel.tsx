@@ -12,6 +12,8 @@ interface HeroContent {
   badge?: string;
   cta_primary?: string;
   cta_secondary?: string;
+  cta_primary_link?: string;
+  cta_secondary_link?: string;
 }
 
 interface HeroCarouselProps {
@@ -34,6 +36,8 @@ export function HeroCarousel({ content }: HeroCarouselProps) {
   const badge = content?.badge || t('Mitra Kemasan Terpercaya', 'Your Trusted Packaging Partner');
   const ctaPrimary = content?.cta_primary || t('Solusi Korporat', 'Corporate Solutions');
   const ctaSecondary = content?.cta_secondary || t('Solusi UMKM', 'SME Solutions');
+  const ctaPrimaryLink = content?.cta_primary_link || '/solusi-korporat';
+  const ctaSecondaryLink = content?.cta_secondary_link || '/solusi-umkm';
 
   const nextSlide = useCallback(() => {
     setCurrentSlide((prev) => (prev + 1) % images.length);
@@ -47,6 +51,20 @@ export function HeroCarousel({ content }: HeroCarouselProps) {
     const timer = setInterval(nextSlide, 5000);
     return () => clearInterval(timer);
   }, [nextSlide]);
+
+  // Determine if link is external
+  const isExternalLink = (url: string) => url.startsWith('http://') || url.startsWith('https://');
+
+  const renderLink = (to: string, children: React.ReactNode, className: string) => {
+    if (isExternalLink(to)) {
+      return (
+        <a href={to} target="_blank" rel="noopener noreferrer" className={className}>
+          {children}
+        </a>
+      );
+    }
+    return <Link to={to} className={className}>{children}</Link>;
+  };
 
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden">
@@ -87,15 +105,10 @@ export function HeroCarousel({ content }: HeroCarouselProps) {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-up stagger-3">
             <Button asChild size="lg" className="bg-secondary hover:bg-secondary/90 text-secondary-foreground gap-2">
-              <Link to="/solusi-korporat">
-                {ctaPrimary}
-                <ArrowRight className="h-4 w-4" />
-              </Link>
+              {renderLink(ctaPrimaryLink, <>{ctaPrimary}<ArrowRight className="h-4 w-4" /></>, '')}
             </Button>
             <Button asChild size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 bg-transparent">
-              <Link to="/solusi-umkm">
-                {ctaSecondary}
-              </Link>
+              {renderLink(ctaSecondaryLink, ctaSecondary, '')}
             </Button>
           </div>
         </div>

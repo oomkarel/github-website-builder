@@ -1,11 +1,20 @@
 import { useEffect, useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useSiteSettings, useUpdateSiteSetting } from '@/hooks/useSiteSettings';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2, Save } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
+import { Loader2, Save, MessageCircle, Search, Globe } from 'lucide-react';
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import AdminLayout from '@/components/admin/AdminLayout';
 import ImageUploader from '@/components/admin/ImageUploader';
 
@@ -18,6 +27,21 @@ export default function AdminSettings() {
   const [contact, setContact] = useState({ email: '', phone: '', whatsapp: '', address: '' });
   const [social, setSocial] = useState({ instagram: '', facebook: '', linkedin: '', youtube: '', twitter: '' });
   const [favicon, setFavicon] = useState({ url: '' });
+  const [whatsapp, setWhatsapp] = useState({
+    phone: '',
+    message_en: '',
+    message_id: '',
+    button_text_en: '',
+    button_text_id: '',
+    position: 'bottom-right' as 'bottom-right' | 'bottom-left',
+    enabled: true
+  });
+  const [seo, setSeo] = useState({
+    meta_robots: 'index, follow',
+    google_analytics_id: '',
+    sitemap_enabled: true,
+    robots_txt: ''
+  });
 
   useEffect(() => {
     if (settings) {
@@ -25,11 +49,15 @@ export default function AdminSettings() {
       const contactSetting = settings.find(s => s.key === 'contact');
       const socialSetting = settings.find(s => s.key === 'social');
       const faviconSetting = settings.find(s => s.key === 'favicon');
+      const whatsappSetting = settings.find(s => s.key === 'whatsapp');
+      const seoSetting = settings.find(s => s.key === 'seo');
       
       if (logoSetting?.value) setLogo(logoSetting.value as any);
       if (contactSetting?.value) setContact(contactSetting.value as any);
       if (socialSetting?.value) setSocial(socialSetting.value as any);
       if (faviconSetting?.value) setFavicon(faviconSetting.value as any);
+      if (whatsappSetting?.value) setWhatsapp({ ...whatsapp, ...(whatsappSetting.value as any) });
+      if (seoSetting?.value) setSeo({ ...seo, ...(seoSetting.value as any) });
     }
   }, [settings]);
 
@@ -37,6 +65,8 @@ export default function AdminSettings() {
   const handleSaveContact = () => updateSetting.mutate({ key: 'contact', value: contact });
   const handleSaveSocial = () => updateSetting.mutate({ key: 'social', value: social });
   const handleSaveFavicon = () => updateSetting.mutate({ key: 'favicon', value: favicon });
+  const handleSaveWhatsapp = () => updateSetting.mutate({ key: 'whatsapp', value: whatsapp });
+  const handleSaveSeo = () => updateSetting.mutate({ key: 'seo', value: seo });
 
   if (isLoading) {
     return (
@@ -54,6 +84,170 @@ export default function AdminSettings() {
         <h1 className="text-2xl font-bold">
           {language === 'en' ? 'Site Settings' : 'Pengaturan Situs'}
         </h1>
+
+        {/* WhatsApp Button Settings */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div className="flex items-center gap-3">
+              <MessageCircle className="h-5 w-5 text-[#25D366]" />
+              <div>
+                <CardTitle>{language === 'en' ? 'WhatsApp Button' : 'Tombol WhatsApp'}</CardTitle>
+                <CardDescription>
+                  {language === 'en' ? 'Configure the floating WhatsApp chat button' : 'Konfigurasi tombol chat WhatsApp mengambang'}
+                </CardDescription>
+              </div>
+            </div>
+            <Button size="sm" onClick={handleSaveWhatsapp} disabled={updateSetting.isPending}>
+              {updateSetting.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            </Button>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="flex items-center justify-between">
+              <Label>{language === 'en' ? 'Enable WhatsApp Button' : 'Aktifkan Tombol WhatsApp'}</Label>
+              <Switch 
+                checked={whatsapp.enabled} 
+                onCheckedChange={(checked) => setWhatsapp(prev => ({ ...prev, enabled: checked }))}
+              />
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label>{language === 'en' ? 'Phone Number (with country code)' : 'Nomor Telepon (dengan kode negara)'}</Label>
+                <Input 
+                  value={whatsapp.phone} 
+                  onChange={(e) => setWhatsapp(prev => ({ ...prev, phone: e.target.value }))}
+                  placeholder="6281234567890"
+                />
+              </div>
+              <div>
+                <Label>{language === 'en' ? 'Position' : 'Posisi'}</Label>
+                <Select 
+                  value={whatsapp.position} 
+                  onValueChange={(value: 'bottom-right' | 'bottom-left') => setWhatsapp(prev => ({ ...prev, position: value }))}
+                >
+                  <SelectTrigger className="bg-background">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background border shadow-lg z-50">
+                    <SelectItem value="bottom-right">{language === 'en' ? 'Bottom Right' : 'Kanan Bawah'}</SelectItem>
+                    <SelectItem value="bottom-left">{language === 'en' ? 'Bottom Left' : 'Kiri Bawah'}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label>Button Text (English)</Label>
+                <Input 
+                  value={whatsapp.button_text_en} 
+                  onChange={(e) => setWhatsapp(prev => ({ ...prev, button_text_en: e.target.value }))}
+                  placeholder="Chat with Us"
+                />
+              </div>
+              <div>
+                <Label>Button Text (Indonesian)</Label>
+                <Input 
+                  value={whatsapp.button_text_id} 
+                  onChange={(e) => setWhatsapp(prev => ({ ...prev, button_text_id: e.target.value }))}
+                  placeholder="Chat dengan Kami"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label>Message Template (English)</Label>
+                <Textarea 
+                  value={whatsapp.message_en} 
+                  onChange={(e) => setWhatsapp(prev => ({ ...prev, message_en: e.target.value }))}
+                  placeholder="Hello, I am interested in your packaging services."
+                  rows={3}
+                />
+              </div>
+              <div>
+                <Label>Message Template (Indonesian)</Label>
+                <Textarea 
+                  value={whatsapp.message_id} 
+                  onChange={(e) => setWhatsapp(prev => ({ ...prev, message_id: e.target.value }))}
+                  placeholder="Halo, saya tertarik dengan layanan kemasan Anda."
+                  rows={3}
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* SEO Settings */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Search className="h-5 w-5 text-primary" />
+              <div>
+                <CardTitle>{language === 'en' ? 'SEO & Indexing' : 'SEO & Pengindeksan'}</CardTitle>
+                <CardDescription>
+                  {language === 'en' ? 'Configure search engine optimization settings' : 'Konfigurasi pengaturan optimasi mesin pencari'}
+                </CardDescription>
+              </div>
+            </div>
+            <Button size="sm" onClick={handleSaveSeo} disabled={updateSetting.isPending}>
+              {updateSetting.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            </Button>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label>{language === 'en' ? 'Meta Robots Default' : 'Default Meta Robots'}</Label>
+                <Select 
+                  value={seo.meta_robots} 
+                  onValueChange={(value) => setSeo(prev => ({ ...prev, meta_robots: value }))}
+                >
+                  <SelectTrigger className="bg-background">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background border shadow-lg z-50">
+                    <SelectItem value="index, follow">index, follow (Recommended)</SelectItem>
+                    <SelectItem value="index, nofollow">index, nofollow</SelectItem>
+                    <SelectItem value="noindex, follow">noindex, follow</SelectItem>
+                    <SelectItem value="noindex, nofollow">noindex, nofollow</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Google Analytics ID</Label>
+                <Input 
+                  value={seo.google_analytics_id} 
+                  onChange={(e) => setSeo(prev => ({ ...prev, google_analytics_id: e.target.value }))}
+                  placeholder="G-XXXXXXXXXX"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <Label>{language === 'en' ? 'Enable Sitemap' : 'Aktifkan Sitemap'}</Label>
+              <Switch 
+                checked={seo.sitemap_enabled} 
+                onCheckedChange={(checked) => setSeo(prev => ({ ...prev, sitemap_enabled: checked }))}
+              />
+            </div>
+
+            <div>
+              <Label>robots.txt {language === 'en' ? 'Content' : 'Konten'}</Label>
+              <Textarea 
+                value={seo.robots_txt} 
+                onChange={(e) => setSeo(prev => ({ ...prev, robots_txt: e.target.value }))}
+                placeholder="User-agent: *&#10;Allow: /&#10;&#10;Sitemap: https://yourdomain.com/sitemap.xml"
+                rows={6}
+                className="font-mono text-sm"
+              />
+              <p className="text-xs text-muted-foreground mt-2">
+                {language === 'en' 
+                  ? 'Note: Changes to robots.txt require redeployment to take effect on the static file.' 
+                  : 'Catatan: Perubahan pada robots.txt memerlukan deploy ulang agar berlaku pada file statis.'}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
