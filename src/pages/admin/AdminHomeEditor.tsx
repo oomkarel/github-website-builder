@@ -893,6 +893,31 @@ export default function AdminHomeEditor() {
 
           {/* CTA Section */}
           <TabsContent value="cta" className="space-y-6">
+            {/* CTA Button Links - Shared across languages */}
+            <Card>
+              <CardHeader>
+                <CardTitle>CTA Button Links (Both Languages)</CardTitle>
+              </CardHeader>
+              <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <PageLinkSelector
+                  label="Primary Button Link"
+                  value={contentEn.cta?.primary_button_link || '/hubungi-kami'}
+                  onChange={(value) => {
+                    updateSection('en', 'cta', 'primary_button_link', value);
+                    updateSection('id', 'cta', 'primary_button_link', value);
+                  }}
+                />
+                <PageLinkSelector
+                  label="Secondary Button Link"
+                  value={contentEn.cta?.secondary_button_link || '/produk'}
+                  onChange={(value) => {
+                    updateSection('en', 'cta', 'secondary_button_link', value);
+                    updateSection('id', 'cta', 'secondary_button_link', value);
+                  }}
+                />
+              </CardContent>
+            </Card>
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card>
                 <CardHeader>
@@ -915,14 +940,14 @@ export default function AdminHomeEditor() {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label>Primary Button</Label>
+                      <Label>Primary Button Text</Label>
                       <Input
                         value={contentEn.cta?.primary_button || ''}
                         onChange={(e) => updateSection('en', 'cta', 'primary_button', e.target.value)}
                       />
                     </div>
                     <div>
-                      <Label>Secondary Button</Label>
+                      <Label>Secondary Button Text</Label>
                       <Input
                         value={contentEn.cta?.secondary_button || ''}
                         onChange={(e) => updateSection('en', 'cta', 'secondary_button', e.target.value)}
@@ -953,14 +978,14 @@ export default function AdminHomeEditor() {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label>Primary Button</Label>
+                      <Label>Primary Button Text</Label>
                       <Input
                         value={contentId.cta?.primary_button || ''}
                         onChange={(e) => updateSection('id', 'cta', 'primary_button', e.target.value)}
                       />
                     </div>
                     <div>
-                      <Label>Secondary Button</Label>
+                      <Label>Secondary Button Text</Label>
                       <Input
                         value={contentId.cta?.secondary_button || ''}
                         onChange={(e) => updateSection('id', 'cta', 'secondary_button', e.target.value)}

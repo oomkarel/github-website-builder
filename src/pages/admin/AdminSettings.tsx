@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/select';
 import AdminLayout from '@/components/admin/AdminLayout';
 import ImageUploader from '@/components/admin/ImageUploader';
+import PageLinkSelector from '@/components/admin/PageLinkSelector';
 import { useToast } from '@/hooks/use-toast';
 
 export default function AdminSettings() {
@@ -47,6 +48,14 @@ export default function AdminSettings() {
     sitemap_enabled: true,
     robots_txt: ''
   });
+  const [ctaDefaults, setCtaDefaults] = useState({
+    primary_button_link: '/hubungi-kami',
+    secondary_button_link: '/produk',
+    primary_button_text_en: 'Contact Us',
+    primary_button_text_id: 'Hubungi Kami',
+    secondary_button_text_en: 'View Products',
+    secondary_button_text_id: 'Lihat Produk'
+  });
 
   const handleCopyRobotsTxt = async () => {
     if (!seo.robots_txt) return;
@@ -75,6 +84,7 @@ export default function AdminSettings() {
       const faviconSetting = settings.find(s => s.key === 'favicon');
       const whatsappSetting = settings.find(s => s.key === 'whatsapp');
       const seoSetting = settings.find(s => s.key === 'seo');
+      const ctaDefaultsSetting = settings.find(s => s.key === 'cta_defaults');
       
       if (logoSetting?.value) setLogo(logoSetting.value as any);
       if (contactSetting?.value) setContact(contactSetting.value as any);
@@ -82,6 +92,7 @@ export default function AdminSettings() {
       if (faviconSetting?.value) setFavicon(faviconSetting.value as any);
       if (whatsappSetting?.value) setWhatsapp({ ...whatsapp, ...(whatsappSetting.value as any) });
       if (seoSetting?.value) setSeo({ ...seo, ...(seoSetting.value as any) });
+      if (ctaDefaultsSetting?.value) setCtaDefaults({ ...ctaDefaults, ...(ctaDefaultsSetting.value as any) });
     }
   }, [settings]);
 
@@ -91,6 +102,7 @@ export default function AdminSettings() {
   const handleSaveFavicon = () => updateSetting.mutate({ key: 'favicon', value: favicon });
   const handleSaveWhatsapp = () => updateSetting.mutate({ key: 'whatsapp', value: whatsapp });
   const handleSaveSeo = () => updateSetting.mutate({ key: 'seo', value: seo });
+  const handleSaveCtaDefaults = () => updateSetting.mutate({ key: 'cta_defaults', value: ctaDefaults });
 
   if (isLoading) {
     return (
@@ -196,6 +208,74 @@ export default function AdminSettings() {
                   onChange={(e) => setWhatsapp(prev => ({ ...prev, message_id: e.target.value }))}
                   placeholder="Halo, saya tertarik dengan layanan kemasan Anda."
                   rows={3}
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Global CTA Settings */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Globe className="h-5 w-5 text-primary" />
+              <div>
+                <CardTitle>{language === 'en' ? 'Global CTA Settings' : 'Pengaturan CTA Global'}</CardTitle>
+                <CardDescription>
+                  {language === 'en' ? 'Default CTA button settings for all pages (can be overridden per page)' : 'Pengaturan tombol CTA default untuk semua halaman (bisa ditimpa per halaman)'}
+                </CardDescription>
+              </div>
+            </div>
+            <Button size="sm" onClick={handleSaveCtaDefaults} disabled={updateSetting.isPending}>
+              {updateSetting.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            </Button>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <PageLinkSelector
+                label={language === 'en' ? 'Primary Button Link' : 'Link Tombol Utama'}
+                value={ctaDefaults.primary_button_link}
+                onChange={(value) => setCtaDefaults(prev => ({ ...prev, primary_button_link: value }))}
+              />
+              <PageLinkSelector
+                label={language === 'en' ? 'Secondary Button Link' : 'Link Tombol Sekunder'}
+                value={ctaDefaults.secondary_button_link}
+                onChange={(value) => setCtaDefaults(prev => ({ ...prev, secondary_button_link: value }))}
+              />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label>{language === 'en' ? 'Primary Button Text (English)' : 'Teks Tombol Utama (Inggris)'}</Label>
+                <Input 
+                  value={ctaDefaults.primary_button_text_en} 
+                  onChange={(e) => setCtaDefaults(prev => ({ ...prev, primary_button_text_en: e.target.value }))}
+                  placeholder="Contact Us"
+                />
+              </div>
+              <div>
+                <Label>{language === 'en' ? 'Primary Button Text (Indonesian)' : 'Teks Tombol Utama (Indonesia)'}</Label>
+                <Input 
+                  value={ctaDefaults.primary_button_text_id} 
+                  onChange={(e) => setCtaDefaults(prev => ({ ...prev, primary_button_text_id: e.target.value }))}
+                  placeholder="Hubungi Kami"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label>{language === 'en' ? 'Secondary Button Text (English)' : 'Teks Tombol Sekunder (Inggris)'}</Label>
+                <Input 
+                  value={ctaDefaults.secondary_button_text_en} 
+                  onChange={(e) => setCtaDefaults(prev => ({ ...prev, secondary_button_text_en: e.target.value }))}
+                  placeholder="View Products"
+                />
+              </div>
+              <div>
+                <Label>{language === 'en' ? 'Secondary Button Text (Indonesian)' : 'Teks Tombol Sekunder (Indonesia)'}</Label>
+                <Input 
+                  value={ctaDefaults.secondary_button_text_id} 
+                  onChange={(e) => setCtaDefaults(prev => ({ ...prev, secondary_button_text_id: e.target.value }))}
+                  placeholder="Lihat Produk"
                 />
               </div>
             </div>
