@@ -259,39 +259,61 @@ export default function AdminPageEditor() {
         <CardContent className="space-y-4">
           <p className="text-sm text-muted-foreground mb-4">
             Choose which optional fields to show on the contact form. Name and Email are always required.
+            These settings apply to both languages.
           </p>
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <Label htmlFor="show-phone" className="cursor-pointer">Show Phone Field</Label>
               <Switch
                 id="show-phone"
-                checked={content.formConfig?.showPhone !== false}
-                onCheckedChange={(checked) => setContent((prev: Record<string, any>) => ({
-                  ...prev,
-                  formConfig: { ...prev.formConfig, showPhone: checked }
-                }))}
+                checked={contentEn.formConfig?.showPhone !== false}
+                onCheckedChange={(checked) => {
+                  // Sync formConfig to both languages
+                  setContentEn((prev: Record<string, any>) => ({
+                    ...prev,
+                    formConfig: { ...prev.formConfig, showPhone: checked }
+                  }));
+                  setContentId((prev: Record<string, any>) => ({
+                    ...prev,
+                    formConfig: { ...prev.formConfig, showPhone: checked }
+                  }));
+                }}
               />
             </div>
             <div className="flex items-center justify-between">
               <Label htmlFor="show-company" className="cursor-pointer">Show Company Field</Label>
               <Switch
                 id="show-company"
-                checked={content.formConfig?.showCompany !== false}
-                onCheckedChange={(checked) => setContent((prev: Record<string, any>) => ({
-                  ...prev,
-                  formConfig: { ...prev.formConfig, showCompany: checked }
-                }))}
+                checked={contentEn.formConfig?.showCompany !== false}
+                onCheckedChange={(checked) => {
+                  // Sync formConfig to both languages
+                  setContentEn((prev: Record<string, any>) => ({
+                    ...prev,
+                    formConfig: { ...prev.formConfig, showCompany: checked }
+                  }));
+                  setContentId((prev: Record<string, any>) => ({
+                    ...prev,
+                    formConfig: { ...prev.formConfig, showCompany: checked }
+                  }));
+                }}
               />
             </div>
             <div className="flex items-center justify-between">
               <Label htmlFor="show-message" className="cursor-pointer">Show Message Field</Label>
               <Switch
                 id="show-message"
-                checked={content.formConfig?.showMessage !== false}
-                onCheckedChange={(checked) => setContent((prev: Record<string, any>) => ({
-                  ...prev,
-                  formConfig: { ...prev.formConfig, showMessage: checked }
-                }))}
+                checked={contentEn.formConfig?.showMessage !== false}
+                onCheckedChange={(checked) => {
+                  // Sync formConfig to both languages
+                  setContentEn((prev: Record<string, any>) => ({
+                    ...prev,
+                    formConfig: { ...prev.formConfig, showMessage: checked }
+                  }));
+                  setContentId((prev: Record<string, any>) => ({
+                    ...prev,
+                    formConfig: { ...prev.formConfig, showMessage: checked }
+                  }));
+                }}
               />
             </div>
           </div>

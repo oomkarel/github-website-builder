@@ -78,8 +78,8 @@ export default function Contact() {
     submitting: t('Mengirim...', 'Sending...'),
   };
 
-  // Form field visibility config (defaults to all visible)
-  const formConfig = content?.formConfig || {
+  // Form field visibility config - use English content as source of truth (not language-specific)
+  const formConfig = pageContent?.content_en?.formConfig || {
     showPhone: true,
     showCompany: true,
     showMessage: true,
