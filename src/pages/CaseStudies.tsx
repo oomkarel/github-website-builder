@@ -15,7 +15,7 @@ export default function CaseStudies() {
   if (isLoading) {
     return (
       <Layout>
-        <SEO title="Case Studies" description="Loading..." />
+        <SEO title="Case Studies" description="Loading..." pageKey="case-studies" />
         <section className="pt-32 pb-20 gradient-hero">
           <div className="container mx-auto px-4 text-center">
             <div className="h-12 w-64 mx-auto mb-6 bg-white/20 rounded animate-pulse" />
@@ -49,6 +49,7 @@ export default function CaseStudies() {
       <SEO
         title={content?.seo?.title || 'Case Studies'}
         description={content?.seo?.description || t('Cerita sukses klien Bungkus Indonesia dalam transformasi kemasan bisnis mereka.', 'Success stories of Bungkus Indonesia clients in transforming their business packaging.')}
+        pageKey="case-studies"
       />
 
       {/* Hero */}

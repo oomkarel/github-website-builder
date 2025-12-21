@@ -46,6 +46,7 @@ export default function TermsConditions() {
       <SEO
         title={content?.seo?.title || t('Syarat & Ketentuan', 'Terms & Conditions')}
         description={content?.seo?.description || t('Syarat dan Ketentuan Bungkus Indonesia', 'Bungkus Indonesia Terms and Conditions')}
+        pageKey="terms-conditions"
       />
       <section className="pt-32 pb-20 gradient-hero">
         <div className="container mx-auto px-4 text-center">

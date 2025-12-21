@@ -32,6 +32,7 @@ export default function Blog() {
       <SEO 
         title={content?.seo?.title || 'Blog'} 
         description={content?.seo?.description || t('Artikel dan tips seputar kemasan dari Bungkus Indonesia.', 'Articles and packaging tips from Bungkus Indonesia.')} 
+        pageKey="blog"
       />
       
       {/* Hero Section */}

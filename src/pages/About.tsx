@@ -59,6 +59,7 @@ export default function About() {
       <SEO
         title={content?.seo?.title || t('Tentang Kami', 'About Us')}
         description={content?.seo?.description || t('Tentang Bungkus Indonesia - mitra kemasan terpercaya untuk bisnis Indonesia.', 'About Bungkus Indonesia - trusted packaging partner for Indonesian businesses.')}
+        pageKey="about"
       />
       <section 
         className="pt-32 pb-20 gradient-hero relative bg-cover bg-center"

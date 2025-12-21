@@ -66,6 +66,7 @@ export default function ProductCatalog() {
       <SEO 
         title={content?.seo?.title || hero.title}
         description={content?.seo?.description || hero.subtitle}
+        pageKey="product-catalog"
       />
       
       {/* Hero Section */}

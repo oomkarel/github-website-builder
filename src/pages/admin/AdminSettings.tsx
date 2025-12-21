@@ -46,7 +46,8 @@ export default function AdminSettings() {
     google_tag_manager_id: '',
     google_search_console: '',
     sitemap_enabled: true,
-    robots_txt: ''
+    robots_txt: '',
+    page_indexing: {} as Record<string, boolean>
   });
   const [ctaDefaults, setCtaDefaults] = useState({
     primary_button_link: '/hubungi-kami',
@@ -361,6 +362,49 @@ export default function AdminSettings() {
                 checked={seo.sitemap_enabled} 
                 onCheckedChange={(checked) => setSeo(prev => ({ ...prev, sitemap_enabled: checked }))}
               />
+            </div>
+
+            {/* Page Indexing Controls */}
+            <div className="space-y-4">
+              <div>
+                <Label className="text-base font-medium">{language === 'en' ? 'Page Indexing' : 'Pengindeksan Halaman'}</Label>
+                <p className="text-sm text-muted-foreground">
+                  {language === 'en' 
+                    ? 'Enable or disable search engine indexing for each page' 
+                    : 'Aktifkan atau nonaktifkan pengindeksan mesin pencari untuk setiap halaman'}
+                </p>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {[
+                  { key: 'home', label: 'Home / Beranda' },
+                  { key: 'about', label: 'About / Tentang' },
+                  { key: 'products', label: 'Products / Produk' },
+                  { key: 'product-catalog', label: 'Product Catalog / Katalog Produk' },
+                  { key: 'corporate-solutions', label: 'Corporate Solutions / Solusi Korporat' },
+                  { key: 'umkm-solutions', label: 'UMKM Solutions / Solusi UMKM' },
+                  { key: 'case-studies', label: 'Case Studies / Studi Kasus' },
+                  { key: 'blog', label: 'Blog' },
+                  { key: 'contact', label: 'Contact / Kontak' },
+                  { key: 'terms-conditions', label: 'Terms & Conditions / Syarat & Ketentuan' },
+                  { key: 'privacy-policy', label: 'Privacy Policy / Kebijakan Privasi' },
+                ].map((page) => (
+                  <div key={page.key} className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
+                    <span className="text-sm font-medium">{page.label}</span>
+                    <Switch 
+                      checked={seo.page_indexing[page.key] !== false}
+                      onCheckedChange={(checked) => setSeo(prev => ({ 
+                        ...prev, 
+                        page_indexing: { ...prev.page_indexing, [page.key]: checked }
+                      }))}
+                    />
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {language === 'en' 
+                  ? 'Pages with indexing disabled will have "noindex, nofollow" meta tag.' 
+                  : 'Halaman dengan pengindeksan dinonaktifkan akan memiliki meta tag "noindex, nofollow".'}
+              </p>
             </div>
 
             <div>
