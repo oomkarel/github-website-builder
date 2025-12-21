@@ -15,7 +15,9 @@ const pageNames: Record<string, { en: string; id: string }> = {
   'case-studies': { en: 'Case Studies', id: 'Studi Kasus' },
   about: { en: 'About', id: 'Tentang' },
   contact: { en: 'Contact', id: 'Kontak' },
-  blog: { en: 'Blog', id: 'Blog' }
+  blog: { en: 'Blog', id: 'Blog' },
+  'privacy-policy': { en: 'Privacy Policy', id: 'Kebijakan Privasi' },
+  'terms-conditions': { en: 'Terms & Conditions', id: 'Syarat & Ketentuan' }
 };
 
 export default function AdminPages() {

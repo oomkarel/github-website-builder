@@ -50,6 +50,7 @@ export default function Home() {
         title={content?.clients?.title}
         subtitle={content?.clients?.subtitle}
         logos={content?.clients?.logos}
+        marqueeSpeed={content?.clients?.marquee_speed}
       />
 
       {/* Testimonials Section */}

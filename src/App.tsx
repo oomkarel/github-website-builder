@@ -18,6 +18,8 @@ import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsConditions from "./pages/TermsConditions";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
@@ -64,6 +66,8 @@ const App = () => (
                 <Route path="/blog/:slug" element={<BlogPost />} />
                 <Route path="/tentang-kami" element={<About />} />
                 <Route path="/hubungi-kami" element={<Contact />} />
+                <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route path="/terms" element={<TermsConditions />} />
                 <Route path="/auth" element={<Auth />} />
                 
                 {/* Admin Routes */}

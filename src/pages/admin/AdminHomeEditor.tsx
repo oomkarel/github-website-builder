@@ -699,6 +699,34 @@ export default function AdminHomeEditor() {
               </Card>
             </div>
 
+            {/* Marquee Speed Control */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Marquee Settings</CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Speed control only applies when you have 5+ logos (marquee mode)
+                </p>
+              </CardHeader>
+              <CardContent>
+                <div>
+                  <Label>Animation Speed</Label>
+                  <select
+                    className="w-full mt-2 p-2 border rounded-md bg-background"
+                    value={contentEn.clients?.marquee_speed || 'normal'}
+                    onChange={(e) => {
+                      updateSection('en', 'clients', 'marquee_speed', e.target.value);
+                      updateSection('id', 'clients', 'marquee_speed', e.target.value);
+                    }}
+                  >
+                    <option value="slow">Slow (45s)</option>
+                    <option value="normal">Normal (30s)</option>
+                    <option value="fast">Fast (15s)</option>
+                    <option value="very-fast">Very Fast (10s)</option>
+                  </select>
+                </div>
+              </CardContent>
+            </Card>
+
             <Card>
               <CardHeader>
                 <CardTitle>Client Logos (Drag to Reorder)</CardTitle>
