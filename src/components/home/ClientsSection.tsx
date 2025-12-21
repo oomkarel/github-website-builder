@@ -11,9 +11,17 @@ interface ClientsSectionProps {
   title?: string;
   subtitle?: string;
   logos?: ClientLogo[];
+  marqueeSpeed?: 'slow' | 'normal' | 'fast' | 'very-fast';
 }
 
-export function ClientsSection({ title, subtitle, logos }: ClientsSectionProps) {
+const speedMap = {
+  'slow': 45,
+  'normal': 30,
+  'fast': 15,
+  'very-fast': 10
+};
+
+export function ClientsSection({ title, subtitle, logos, marqueeSpeed = 'normal' }: ClientsSectionProps) {
   const { t } = useLanguage();
 
   const displayTitle = title || t('Dipercaya oleh Brand Terkemuka', 'Trusted by Leading Brands');
@@ -25,9 +33,7 @@ export function ClientsSection({ title, subtitle, logos }: ClientsSectionProps) 
   }));
 
   const useMarquee = displayLogos.length > 4;
-
-  // For marquee, duplicate logos to create seamless loop
-  const marqueeLogos = useMarquee ? [...displayLogos, ...displayLogos] : displayLogos;
+  const animationDuration = speedMap[marqueeSpeed] || 30;
 
   return (
     <section className="py-16 bg-background overflow-hidden">
@@ -48,26 +54,55 @@ export function ClientsSection({ title, subtitle, logos }: ClientsSectionProps) 
             <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
             <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
             
-            <div className="flex animate-marquee hover:[animation-play-state:paused]">
-              {marqueeLogos.map((client, index) => (
-                <div
-                  key={index}
-                  className="flex-shrink-0 w-48 h-32 mx-4 flex items-center justify-center p-6 rounded-xl bg-muted/50 border border-border hover:bg-muted transition-colors group"
-                >
-                  {client.image ? (
-                    <img
-                      src={client.image}
-                      alt={client.name}
-                      className="max-h-20 max-w-full object-contain opacity-70 group-hover:opacity-100 transition-opacity grayscale group-hover:grayscale-0"
-                    />
-                  ) : (
-                    <div className="flex flex-col items-center gap-2 text-muted-foreground group-hover:text-foreground transition-colors">
-                      <Building2 className="h-10 w-10" />
-                      <span className="text-sm font-medium text-center">{client.name}</span>
-                    </div>
-                  )}
-                </div>
-              ))}
+            <div className="overflow-hidden">
+              <div 
+                className="flex hover:[animation-play-state:paused]"
+                style={{ 
+                  animation: `marquee ${animationDuration}s linear infinite`,
+                  width: 'max-content'
+                }}
+              >
+                {/* First set of logos */}
+                {displayLogos.map((client, index) => (
+                  <div
+                    key={`first-${index}`}
+                    className="flex-shrink-0 w-48 h-32 mx-4 flex items-center justify-center p-6 rounded-xl bg-muted/50 border border-border hover:bg-muted transition-colors group"
+                  >
+                    {client.image ? (
+                      <img
+                        src={client.image}
+                        alt={client.name}
+                        className="max-h-20 max-w-full object-contain opacity-80 group-hover:opacity-100 transition-opacity"
+                      />
+                    ) : (
+                      <div className="flex flex-col items-center gap-2 text-muted-foreground group-hover:text-foreground transition-colors">
+                        <Building2 className="h-10 w-10" />
+                        <span className="text-sm font-medium text-center">{client.name}</span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+                {/* Duplicate set for seamless infinite loop */}
+                {displayLogos.map((client, index) => (
+                  <div
+                    key={`second-${index}`}
+                    className="flex-shrink-0 w-48 h-32 mx-4 flex items-center justify-center p-6 rounded-xl bg-muted/50 border border-border hover:bg-muted transition-colors group"
+                  >
+                    {client.image ? (
+                      <img
+                        src={client.image}
+                        alt={client.name}
+                        className="max-h-20 max-w-full object-contain opacity-80 group-hover:opacity-100 transition-opacity"
+                      />
+                    ) : (
+                      <div className="flex flex-col items-center gap-2 text-muted-foreground group-hover:text-foreground transition-colors">
+                        <Building2 className="h-10 w-10" />
+                        <span className="text-sm font-medium text-center">{client.name}</span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         ) : (
@@ -87,7 +122,7 @@ export function ClientsSection({ title, subtitle, logos }: ClientsSectionProps) 
                   <img
                     src={client.image}
                     alt={client.name}
-                    className="max-h-20 max-w-full object-contain opacity-70 group-hover:opacity-100 transition-opacity grayscale group-hover:grayscale-0"
+                    className="max-h-20 max-w-full object-contain opacity-80 group-hover:opacity-100 transition-opacity"
                   />
                 ) : (
                   <div className="flex flex-col items-center gap-3 text-muted-foreground group-hover:text-foreground transition-colors">
