@@ -4,6 +4,7 @@ import { Menu, X, ChevronDown, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSiteSettings } from '@/hooks/useSiteSettings';
 import logoWhite from '@/assets/logo-white.png';
 import logoDarkBlue from '@/assets/logo-dark-blue.png';
 import {
@@ -19,6 +20,9 @@ export function Navbar() {
   const { language, setLanguage, t } = useLanguage();
   const { user, isAdmin } = useAuth();
   const location = useLocation();
+  const { data: settings } = useSiteSettings();
+
+  const logoSetting = settings?.find(s => s.key === 'logo')?.value as { light?: string; dark?: string } | undefined;
 
   const isHome = location.pathname === '/';
 
@@ -56,7 +60,11 @@ export function Navbar() {
     : 'bg-background/95 backdrop-blur-md shadow-sm';
   
   const textColor = isHome && !isScrolled ? 'text-white' : 'text-foreground';
-  const logo = isHome && !isScrolled ? logoWhite : logoDarkBlue;
+  
+  // Use CMS logo if available, fallback to static assets
+  const logo = isHome && !isScrolled 
+    ? (logoSetting?.dark || logoWhite) 
+    : (logoSetting?.light || logoDarkBlue);
 
   // Dynamic button styling for "Hubungi Kami"
   const contactButtonClass = isHome && !isScrolled
