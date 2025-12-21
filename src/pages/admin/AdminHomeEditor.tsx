@@ -701,39 +701,84 @@ export default function AdminHomeEditor() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Client Logos</CardTitle>
+                <CardTitle>Client Logos (Drag to Reorder)</CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  {(contentEn.clients?.logos || []).length <= 4 
+                    ? 'Logos will display in a static grid (1-4 logos)'
+                    : 'Logos will scroll in an infinite marquee (5+ logos)'}
+                </p>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                   {(contentEn.clients?.logos || []).map((logo: any, index: number) => (
-                    <div key={index} className="relative p-4 border rounded-lg">
+                    <div 
+                      key={index} 
+                      className="relative p-4 border rounded-lg bg-card cursor-grab active:cursor-grabbing"
+                      draggable
+                      onDragStart={(e) => {
+                        e.dataTransfer.setData('text/plain', index.toString());
+                        e.currentTarget.classList.add('opacity-50');
+                      }}
+                      onDragEnd={(e) => {
+                        e.currentTarget.classList.remove('opacity-50');
+                      }}
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        e.currentTarget.classList.add('ring-2', 'ring-primary');
+                      }}
+                      onDragLeave={(e) => {
+                        e.currentTarget.classList.remove('ring-2', 'ring-primary');
+                      }}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        e.currentTarget.classList.remove('ring-2', 'ring-primary');
+                        const fromIndex = parseInt(e.dataTransfer.getData('text/plain'));
+                        const toIndex = index;
+                        if (fromIndex !== toIndex) {
+                          // Reorder logos in both EN and ID
+                          const logosEn = [...(contentEn.clients?.logos || [])];
+                          const logosId = [...(contentId.clients?.logos || [])];
+                          const [movedEn] = logosEn.splice(fromIndex, 1);
+                          const [movedId] = logosId.splice(fromIndex, 1);
+                          logosEn.splice(toIndex, 0, movedEn);
+                          logosId.splice(toIndex, 0, movedId);
+                          updateSection('en', 'clients', 'logos', logosEn);
+                          updateSection('id', 'clients', 'logos', logosId);
+                        }
+                      }}
+                    >
+                      <div className="absolute top-2 left-2 cursor-grab">
+                        <GripVertical className="h-4 w-4 text-muted-foreground" />
+                      </div>
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="absolute -top-2 -right-2 h-6 w-6 p-0"
+                        className="absolute -top-2 -right-2 h-6 w-6 p-0 bg-destructive text-destructive-foreground hover:bg-destructive/90"
                         onClick={() => {
                           removeArrayItem('en', 'clients', 'logos', index);
                           removeArrayItem('id', 'clients', 'logos', index);
                         }}
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="h-3 w-3" />
                       </Button>
-                      <ImageUploader
-                        value={logo.image || ''}
-                        onChange={(url) => {
-                          updateArrayItem('en', 'clients', 'logos', index, 'image', url);
-                          updateArrayItem('id', 'clients', 'logos', index, 'image', url);
-                        }}
-                      />
-                      <Input
-                        placeholder="Company Name"
-                        className="mt-2"
-                        value={logo.name || ''}
-                        onChange={(e) => {
-                          updateArrayItem('en', 'clients', 'logos', index, 'name', e.target.value);
-                          updateArrayItem('id', 'clients', 'logos', index, 'name', e.target.value);
-                        }}
-                      />
+                      <div className="pt-4">
+                        <ImageUploader
+                          value={logo.image || ''}
+                          onChange={(url) => {
+                            updateArrayItem('en', 'clients', 'logos', index, 'image', url);
+                            updateArrayItem('id', 'clients', 'logos', index, 'image', url);
+                          }}
+                        />
+                        <Input
+                          placeholder="Company Name"
+                          className="mt-2"
+                          value={logo.name || ''}
+                          onChange={(e) => {
+                            updateArrayItem('en', 'clients', 'logos', index, 'name', e.target.value);
+                            updateArrayItem('id', 'clients', 'logos', index, 'name', e.target.value);
+                          }}
+                        />
+                      </div>
                     </div>
                   ))}
                   <button
@@ -741,7 +786,7 @@ export default function AdminHomeEditor() {
                       addArrayItem('en', 'clients', 'logos', { name: '', image: '' });
                       addArrayItem('id', 'clients', 'logos', { name: '', image: '' });
                     }}
-                    className="p-4 border-2 border-dashed rounded-lg flex items-center justify-center hover:bg-muted/50 transition-colors min-h-[150px]"
+                    className="p-4 border-2 border-dashed rounded-lg flex items-center justify-center hover:bg-muted/50 transition-colors min-h-[180px]"
                   >
                     <Plus className="h-8 w-8 text-muted-foreground" />
                   </button>
