@@ -46,6 +46,7 @@ export default function PrivacyPolicy() {
       <SEO
         title={content?.seo?.title || t('Kebijakan Privasi', 'Privacy Policy')}
         description={content?.seo?.description || t('Kebijakan Privasi Bungkus Indonesia', 'Bungkus Indonesia Privacy Policy')}
+        pageKey="privacy-policy"
       />
       <section className="pt-32 pb-20 gradient-hero">
         <div className="container mx-auto px-4 text-center">

@@ -22,7 +22,7 @@ export default function CorporateSolutions() {
   if (isLoading) {
     return (
       <Layout>
-        <SEO title="Corporate Solutions" description="Loading..." />
+        <SEO title="Corporate Solutions" description="Loading..." pageKey="corporate-solutions" />
         <section className="pt-32 pb-20 gradient-hero">
           <div className="container mx-auto px-4 text-center">
             <div className="h-12 w-96 mx-auto mb-6 bg-white/20 rounded animate-pulse" />
@@ -66,6 +66,7 @@ export default function CorporateSolutions() {
       <SEO
         title={content?.seo?.title || t('Solusi Korporat', 'Corporate Solutions')}
         description={content?.seo?.description || t('Solusi kemasan untuk korporasi dengan kapasitas produksi besar dan layanan profesional.', 'Packaging solutions for corporations with large production capacity and professional services.')}
+        pageKey="corporate-solutions"
       />
 
       {/* Hero */}

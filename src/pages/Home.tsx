@@ -23,6 +23,7 @@ export default function Home() {
         title={content?.meta_title || 'Bungkus Indonesia - Solusi Kemasan'}
         description={content?.meta_description || ''}
         keywords="kemasan, packaging, food packaging, Indonesia, UMKM, corporate"
+        pageKey="home"
       />
 
       {/* Hero Section with Carousel */}

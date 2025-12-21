@@ -69,6 +69,7 @@ export default function Products() {
       <SEO
         title={content?.seo?.title || t('Produk', 'Products')}
         description={content?.seo?.description || t('Katalog produk kemasan Bungkus Indonesia: kemasan makanan, retail, custom, dan premium.', 'Bungkus Indonesia packaging product catalog: food, retail, custom, and premium packaging.')}
+        pageKey="products"
       />
 
       {/* Hero */}

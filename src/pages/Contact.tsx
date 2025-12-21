@@ -208,6 +208,7 @@ export default function Contact() {
       <SEO 
         title={content?.seo?.title || t('Hubungi Kami', 'Contact Us')} 
         description={content?.seo?.description || t('Hubungi tim Bungkus Indonesia untuk konsultasi kemasan.', 'Contact the Bungkus Indonesia team for packaging consultation.')} 
+        pageKey="contact"
       />
       <section 
         className="pt-32 pb-20 gradient-hero relative bg-cover bg-center"

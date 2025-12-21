@@ -22,7 +22,7 @@ export default function UMKMSolutions() {
   if (isLoading) {
     return (
       <Layout>
-        <SEO title="UMKM Solutions" description="Loading..." />
+        <SEO title="UMKM Solutions" description="Loading..." pageKey="umkm-solutions" />
         <section className="pt-32 pb-20 gradient-hero">
           <div className="container mx-auto px-4 text-center">
             <div className="h-12 w-96 mx-auto mb-6 bg-white/20 rounded animate-pulse" />
@@ -60,6 +60,7 @@ export default function UMKMSolutions() {
       <SEO
         title={content?.seo?.title || t('Solusi UMKM', 'SME Solutions')}
         description={content?.seo?.description || t('Solusi kemasan terjangkau untuk UMKM dengan MOQ fleksibel dan desain custom.', 'Affordable packaging solutions for SMEs with flexible MOQ and custom design.')}
+        pageKey="umkm-solutions"
       />
 
       {/* Hero */}
