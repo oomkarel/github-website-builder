@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { Loader2, Save, MessageCircle, Search, Globe, Copy, Check } from 'lucide-react';
+import { Loader2, Save, MessageCircle, Search, Globe, Copy, Check, Megaphone, ShieldCheck } from 'lucide-react';
 import { 
   Select,
   SelectContent,
@@ -47,7 +47,15 @@ export default function AdminSettings() {
     google_search_console: '',
     sitemap_enabled: true,
     robots_txt: '',
-    page_indexing: {} as Record<string, boolean>
+    page_indexing: {} as Record<string, boolean>,
+    // Advertising Tags
+    meta_pixel_id: '',
+    google_ads_id: '',
+    google_ads_conversion_label: '',
+    tiktok_pixel_id: '',
+    // Domain Verification
+    meta_domain_verification: '',
+    tiktok_domain_verification: ''
   });
   const [ctaDefaults, setCtaDefaults] = useState({
     primary_button_link: '/hubungi-kami',
@@ -331,29 +339,16 @@ export default function AdminSettings() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label>Google Tag Manager ID</Label>
-                <Input 
-                  value={seo.google_tag_manager_id} 
-                  onChange={(e) => setSeo(prev => ({ ...prev, google_tag_manager_id: e.target.value }))}
-                  placeholder="GTM-XXXXXXX"
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  {language === 'en' ? 'Your GTM container ID' : 'ID container GTM Anda'}
-                </p>
-              </div>
-              <div>
-                <Label>Google Search Console</Label>
-                <Input 
-                  value={seo.google_search_console} 
-                  onChange={(e) => setSeo(prev => ({ ...prev, google_search_console: e.target.value }))}
-                  placeholder="google-site-verification=..."
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  {language === 'en' ? 'Verification meta tag content' : 'Konten meta tag verifikasi'}
-                </p>
-              </div>
+            <div>
+              <Label>Google Tag Manager ID</Label>
+              <Input 
+                value={seo.google_tag_manager_id} 
+                onChange={(e) => setSeo(prev => ({ ...prev, google_tag_manager_id: e.target.value }))}
+                placeholder="GTM-XXXXXXX"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                {language === 'en' ? 'Your GTM container ID' : 'ID container GTM Anda'}
+              </p>
             </div>
 
             <div className="flex items-center justify-between">
@@ -434,6 +429,130 @@ export default function AdminSettings() {
                   ? 'Note: This is for reference. To update the actual robots.txt file, copy this content and update the public/robots.txt file in your repository, then redeploy.' 
                   : 'Catatan: Ini hanya untuk referensi. Untuk memperbarui file robots.txt yang sebenarnya, salin konten ini dan perbarui file public/robots.txt di repositori Anda, lalu deploy ulang.'}
               </p>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Advertising Tags */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Megaphone className="h-5 w-5 text-primary" />
+              <div>
+                <CardTitle>{language === 'en' ? 'Advertising Tags' : 'Tag Iklan'}</CardTitle>
+                <CardDescription>
+                  {language === 'en' ? 'Configure advertising pixel and conversion tracking' : 'Konfigurasi pixel iklan dan pelacakan konversi'}
+                </CardDescription>
+              </div>
+            </div>
+            <Button size="sm" onClick={handleSaveSeo} disabled={updateSetting.isPending}>
+              {updateSetting.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            </Button>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label>Meta (Facebook) Pixel ID</Label>
+                <Input 
+                  value={seo.meta_pixel_id} 
+                  onChange={(e) => setSeo(prev => ({ ...prev, meta_pixel_id: e.target.value }))}
+                  placeholder="123456789012345"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  {language === 'en' ? 'Your Meta Pixel ID from Events Manager' : 'ID Meta Pixel dari Events Manager'}
+                </p>
+              </div>
+              <div>
+                <Label>TikTok Pixel ID</Label>
+                <Input 
+                  value={seo.tiktok_pixel_id} 
+                  onChange={(e) => setSeo(prev => ({ ...prev, tiktok_pixel_id: e.target.value }))}
+                  placeholder="XXXXXXXXXX"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  {language === 'en' ? 'Your TikTok Pixel ID from TikTok Ads Manager' : 'ID TikTok Pixel dari TikTok Ads Manager'}
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label>Google Ads Conversion ID</Label>
+                <Input 
+                  value={seo.google_ads_id} 
+                  onChange={(e) => setSeo(prev => ({ ...prev, google_ads_id: e.target.value }))}
+                  placeholder="AW-XXXXXXXXX"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  {language === 'en' ? 'Your Google Ads conversion tracking ID' : 'ID pelacakan konversi Google Ads'}
+                </p>
+              </div>
+              <div>
+                <Label>Google Ads Conversion Label ({language === 'en' ? 'Optional' : 'Opsional'})</Label>
+                <Input 
+                  value={seo.google_ads_conversion_label} 
+                  onChange={(e) => setSeo(prev => ({ ...prev, google_ads_conversion_label: e.target.value }))}
+                  placeholder="AbCdEfGhIjK"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  {language === 'en' ? 'Conversion label for specific conversion actions' : 'Label konversi untuk tindakan konversi tertentu'}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Domain Verification */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div className="flex items-center gap-3">
+              <ShieldCheck className="h-5 w-5 text-primary" />
+              <div>
+                <CardTitle>{language === 'en' ? 'Domain Verification' : 'Verifikasi Domain'}</CardTitle>
+                <CardDescription>
+                  {language === 'en' ? 'Verify domain ownership for advertising platforms' : 'Verifikasi kepemilikan domain untuk platform iklan'}
+                </CardDescription>
+              </div>
+            </div>
+            <Button size="sm" onClick={handleSaveSeo} disabled={updateSetting.isPending}>
+              {updateSetting.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            </Button>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <Label>Google Search Console</Label>
+              <Input 
+                value={seo.google_search_console} 
+                onChange={(e) => setSeo(prev => ({ ...prev, google_search_console: e.target.value }))}
+                placeholder="verification-code-here"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                {language === 'en' ? 'Content of google-site-verification meta tag' : 'Konten meta tag google-site-verification'}
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label>Meta (Facebook) Domain Verification</Label>
+                <Input 
+                  value={seo.meta_domain_verification} 
+                  onChange={(e) => setSeo(prev => ({ ...prev, meta_domain_verification: e.target.value }))}
+                  placeholder="abcdef1234567890"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  {language === 'en' ? 'From Meta Business Suite → Brand Safety → Domains' : 'Dari Meta Business Suite → Keamanan Brand → Domain'}
+                </p>
+              </div>
+              <div>
+                <Label>TikTok Domain Verification</Label>
+                <Input 
+                  value={seo.tiktok_domain_verification} 
+                  onChange={(e) => setSeo(prev => ({ ...prev, tiktok_domain_verification: e.target.value }))}
+                  placeholder="verification-code-here"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  {language === 'en' ? 'From TikTok Ads Manager → Assets → Events' : 'Dari TikTok Ads Manager → Aset → Events'}
+                </p>
+              </div>
             </div>
           </CardContent>
         </Card>
