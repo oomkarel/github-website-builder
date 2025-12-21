@@ -38,14 +38,14 @@ import AdminHomeEditor from "./pages/admin/AdminHomeEditor";
 import { PromoPopup } from "./components/common/PromoPopup";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import { DynamicFavicon } from "./components/common/DynamicFavicon";
-import { GoogleTracking } from "./components/common/GoogleTracking";
+import { TrackingScripts } from "./components/common/TrackingScripts";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <HelmetProvider>
     <QueryClientProvider client={queryClient}>
-      <GoogleTracking />
+      <TrackingScripts />
       <LanguageProvider>
         <AuthProvider>
           <TooltipProvider>
