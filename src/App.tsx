@@ -34,6 +34,9 @@ import AdminLeads from "./pages/admin/AdminLeads";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminHomeEditor from "./pages/admin/AdminHomeEditor";
 import AdminMenus from "./pages/admin/AdminMenus";
+import AdminCustomPages from "./pages/admin/AdminCustomPages";
+import AdminCustomPageEditor from "./pages/admin/AdminCustomPageEditor";
+import CustomPage from "./pages/CustomPage";
 
 // Components
 import { PromoPopup } from "./components/common/PromoPopup";
@@ -84,6 +87,11 @@ const App = () => (
                 <Route path="/admin/blogs/:id" element={<ProtectedRoute><AdminBlogEditor /></ProtectedRoute>} />
                 <Route path="/admin/leads" element={<ProtectedRoute><AdminLeads /></ProtectedRoute>} />
                 <Route path="/admin/settings" element={<ProtectedRoute><AdminSettings /></ProtectedRoute>} />
+                <Route path="/admin/custom-pages" element={<ProtectedRoute><AdminCustomPages /></ProtectedRoute>} />
+                <Route path="/admin/custom-pages/:id" element={<ProtectedRoute><AdminCustomPageEditor /></ProtectedRoute>} />
+                
+                {/* Custom Pages Route */}
+                <Route path="/p/:slug" element={<CustomPage />} />
                 
                 <Route path="*" element={<NotFound />} />
               </Routes>

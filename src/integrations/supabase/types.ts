@@ -110,6 +110,77 @@ export type Database = {
         }
         Relationships: []
       }
+      custom_pages: {
+        Row: {
+          content_en: Json | null
+          content_id: Json | null
+          created_at: string | null
+          id: string
+          is_in_menu: boolean | null
+          meta_description_en: string | null
+          meta_description_id: string | null
+          meta_title_en: string | null
+          meta_title_id: string | null
+          og_image: string | null
+          parent_id: string | null
+          slug: string
+          sort_order: number | null
+          status: string
+          template: string
+          title_en: string
+          title_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          content_en?: Json | null
+          content_id?: Json | null
+          created_at?: string | null
+          id?: string
+          is_in_menu?: boolean | null
+          meta_description_en?: string | null
+          meta_description_id?: string | null
+          meta_title_en?: string | null
+          meta_title_id?: string | null
+          og_image?: string | null
+          parent_id?: string | null
+          slug: string
+          sort_order?: number | null
+          status?: string
+          template?: string
+          title_en: string
+          title_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          content_en?: Json | null
+          content_id?: Json | null
+          created_at?: string | null
+          id?: string
+          is_in_menu?: boolean | null
+          meta_description_en?: string | null
+          meta_description_id?: string | null
+          meta_title_en?: string | null
+          meta_title_id?: string | null
+          og_image?: string | null
+          parent_id?: string | null
+          slug?: string
+          sort_order?: number | null
+          status?: string
+          template?: string
+          title_en?: string
+          title_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "custom_pages_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "custom_pages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       navigation_menus: {
         Row: {
           created_at: string | null

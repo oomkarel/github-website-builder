@@ -39,9 +39,7 @@ import {
   Eye, 
   EyeOff,
   ChevronRight,
-  Menu as MenuIcon,
-  ArrowUp,
-  ArrowDown
+  Menu as MenuIcon
 } from 'lucide-react';
 import { 
   useNavigationMenus,
@@ -53,6 +51,23 @@ import {
   NavigationMenu 
 } from '@/hooks/useNavigationMenus';
 import { cn } from '@/lib/utils';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface MenuFormData {
   label_en: string;
@@ -70,9 +85,189 @@ const defaultFormData: MenuFormData = {
   is_visible: true,
 };
 
+interface SortableMenuItemProps {
+  menu: NavigationMenu;
+  level: number;
+  onEdit: (menu: NavigationMenu) => void;
+  onDelete: (id: string) => void;
+  onToggleVisibility: (menu: NavigationMenu) => void;
+  onAddChild: (parentId: string) => void;
+  language: 'en' | 'id';
+  isPending: boolean;
+}
+
+function SortableMenuItem({ 
+  menu, 
+  level, 
+  onEdit, 
+  onDelete, 
+  onToggleVisibility, 
+  onAddChild,
+  language,
+  isPending 
+}: SortableMenuItemProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: menu.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    marginLeft: level * 24,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style}>
+      <div 
+        className={cn(
+          "flex items-center gap-2 p-3 rounded-lg border bg-card hover:bg-muted/50 transition-colors mb-2",
+          !menu.is_visible && "opacity-50",
+          isDragging && "shadow-lg ring-2 ring-primary"
+        )}
+      >
+        <button
+          className="cursor-grab active:cursor-grabbing touch-none"
+          {...attributes}
+          {...listeners}
+        >
+          <GripVertical className="h-4 w-4 text-muted-foreground" />
+        </button>
+        
+        {level > 0 && <ChevronRight className="h-4 w-4 text-muted-foreground" />}
+        
+        <div className="flex-1 min-w-0">
+          <div className="font-medium truncate">
+            {language === 'en' ? menu.label_en : menu.label_id}
+          </div>
+          {menu.href && (
+            <div className="text-xs text-muted-foreground truncate">{menu.href}</div>
+          )}
+          {!menu.href && (
+            <div className="text-xs text-muted-foreground italic">
+              {language === 'en' ? 'Dropdown parent (no link)' : 'Parent dropdown (tanpa link)'}
+            </div>
+          )}
+        </div>
+
+        <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+            onClick={() => onToggleVisibility(menu)}
+            disabled={isPending}
+          >
+            {menu.is_visible ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+            onClick={() => onEdit(menu)}
+          >
+            <Pencil className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-destructive hover:text-destructive"
+            onClick={() => onDelete(menu.id)}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+
+      {menu.children && menu.children.length > 0 && (
+        <div className="space-y-0">
+          <SortableMenuList
+            items={menu.children}
+            level={level + 1}
+            onEdit={onEdit}
+            onDelete={onDelete}
+            onToggleVisibility={onToggleVisibility}
+            onAddChild={onAddChild}
+            language={language}
+            isPending={isPending}
+          />
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-muted-foreground"
+            style={{ marginLeft: (level + 1) * 24 }}
+            onClick={() => onAddChild(menu.id)}
+          >
+            <Plus className="h-4 w-4 mr-1" />
+            {language === 'en' ? 'Add sub-menu' : 'Tambah sub-menu'}
+          </Button>
+        </div>
+      )}
+      
+      {(!menu.children || menu.children.length === 0) && !menu.parent_id && (
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-muted-foreground mb-2"
+          style={{ marginLeft: 24 }}
+          onClick={() => onAddChild(menu.id)}
+        >
+          <Plus className="h-4 w-4 mr-1" />
+          {language === 'en' ? 'Add sub-menu' : 'Tambah sub-menu'}
+        </Button>
+      )}
+    </div>
+  );
+}
+
+interface SortableMenuListProps {
+  items: NavigationMenu[];
+  level: number;
+  onEdit: (menu: NavigationMenu) => void;
+  onDelete: (id: string) => void;
+  onToggleVisibility: (menu: NavigationMenu) => void;
+  onAddChild: (parentId: string) => void;
+  language: 'en' | 'id';
+  isPending: boolean;
+}
+
+function SortableMenuList({ 
+  items, 
+  level, 
+  onEdit, 
+  onDelete, 
+  onToggleVisibility, 
+  onAddChild,
+  language,
+  isPending 
+}: SortableMenuListProps) {
+  return (
+    <SortableContext items={items.map(i => i.id)} strategy={verticalListSortingStrategy}>
+      {items.map(menu => (
+        <SortableMenuItem
+          key={menu.id}
+          menu={menu}
+          level={level}
+          onEdit={onEdit}
+          onDelete={onDelete}
+          onToggleVisibility={onToggleVisibility}
+          onAddChild={onAddChild}
+          language={language}
+          isPending={isPending}
+        />
+      ))}
+    </SortableContext>
+  );
+}
+
 export default function AdminMenus() {
   const { language } = useLanguage();
-  const { data: hierarchicalMenus, isLoading } = useNavigationMenusHierarchy();
+  const { data: hierarchicalMenus, isLoading, refetch } = useNavigationMenusHierarchy();
   const { data: flatMenus } = useNavigationMenus();
   const createMenu = useCreateNavigationMenu();
   const updateMenu = useUpdateNavigationMenu();
@@ -83,6 +278,17 @@ export default function AdminMenus() {
   const [editingMenu, setEditingMenu] = useState<NavigationMenu | null>(null);
   const [deleteMenuId, setDeleteMenuId] = useState<string | null>(null);
   const [formData, setFormData] = useState<MenuFormData>(defaultFormData);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   const handleOpenCreate = (parentId?: string) => {
     setEditingMenu(null);
@@ -138,128 +344,38 @@ export default function AdminMenus() {
     });
   };
 
-  const handleMoveUp = async (menu: NavigationMenu, siblings: NavigationMenu[]) => {
-    const index = siblings.findIndex(s => s.id === menu.id);
-    if (index <= 0) return;
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    
+    if (!over || active.id === over.id || !flatMenus) return;
 
-    const prevItem = siblings[index - 1];
-    await reorderMenus.mutateAsync([
-      { id: menu.id, sort_order: prevItem.sort_order },
-      { id: prevItem.id, sort_order: menu.sort_order },
-    ]);
-  };
+    const activeMenu = flatMenus.find(m => m.id === active.id);
+    const overMenu = flatMenus.find(m => m.id === over.id);
+    
+    if (!activeMenu || !overMenu) return;
+    
+    // Only allow reordering within same parent level
+    if (activeMenu.parent_id !== overMenu.parent_id) return;
 
-  const handleMoveDown = async (menu: NavigationMenu, siblings: NavigationMenu[]) => {
-    const index = siblings.findIndex(s => s.id === menu.id);
-    if (index >= siblings.length - 1) return;
+    const siblings = flatMenus.filter(m => m.parent_id === activeMenu.parent_id)
+      .sort((a, b) => a.sort_order - b.sort_order);
+    
+    const oldIndex = siblings.findIndex(m => m.id === active.id);
+    const newIndex = siblings.findIndex(m => m.id === over.id);
+    
+    if (oldIndex === -1 || newIndex === -1) return;
 
-    const nextItem = siblings[index + 1];
-    await reorderMenus.mutateAsync([
-      { id: menu.id, sort_order: nextItem.sort_order },
-      { id: nextItem.id, sort_order: menu.sort_order },
-    ]);
+    const newOrder = arrayMove(siblings, oldIndex, newIndex);
+    
+    const updates = newOrder.map((menu, index) => ({
+      id: menu.id,
+      sort_order: index,
+    }));
+
+    await reorderMenus.mutateAsync(updates);
   };
 
   const parentOptions = flatMenus?.filter(m => !m.parent_id) || [];
-
-  const MenuItemRow = ({ menu, siblings, level = 0 }: { menu: NavigationMenu; siblings: NavigationMenu[]; level?: number }) => {
-    const index = siblings.findIndex(s => s.id === menu.id);
-    const isFirst = index === 0;
-    const isLast = index === siblings.length - 1;
-
-    return (
-      <>
-        <div 
-          className={cn(
-            "flex items-center gap-2 p-3 rounded-lg border bg-card hover:bg-muted/50 transition-colors",
-            !menu.is_visible && "opacity-50"
-          )}
-          style={{ marginLeft: level * 24 }}
-        >
-          <GripVertical className="h-4 w-4 text-muted-foreground cursor-grab" />
-          
-          {level > 0 && <ChevronRight className="h-4 w-4 text-muted-foreground" />}
-          
-          <div className="flex-1 min-w-0">
-            <div className="font-medium truncate">
-              {language === 'en' ? menu.label_en : menu.label_id}
-            </div>
-            {menu.href && (
-              <div className="text-xs text-muted-foreground truncate">{menu.href}</div>
-            )}
-            {!menu.href && (
-              <div className="text-xs text-muted-foreground italic">
-                {language === 'en' ? 'Dropdown parent (no link)' : 'Parent dropdown (tanpa link)'}
-              </div>
-            )}
-          </div>
-
-          <div className="flex items-center gap-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              onClick={() => handleMoveUp(menu, siblings)}
-              disabled={isFirst || reorderMenus.isPending}
-            >
-              <ArrowUp className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              onClick={() => handleMoveDown(menu, siblings)}
-              disabled={isLast || reorderMenus.isPending}
-            >
-              <ArrowDown className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              onClick={() => handleToggleVisibility(menu)}
-              disabled={updateMenu.isPending}
-            >
-              {menu.is_visible ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8"
-              onClick={() => handleOpenEdit(menu)}
-            >
-              <Pencil className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 text-destructive hover:text-destructive"
-              onClick={() => setDeleteMenuId(menu.id)}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-
-        {menu.children && menu.children.length > 0 && (
-          <div className="space-y-2 mt-2">
-            {menu.children.map(child => (
-              <MenuItemRow key={child.id} menu={child} siblings={menu.children!} level={level + 1} />
-            ))}
-            <Button
-              variant="ghost"
-              size="sm"
-              className="ml-6 text-muted-foreground"
-              onClick={() => handleOpenCreate(menu.id)}
-            >
-              <Plus className="h-4 w-4 mr-1" />
-              {language === 'en' ? 'Add sub-menu' : 'Tambah sub-menu'}
-            </Button>
-          </div>
-        )}
-      </>
-    );
-  };
 
   if (isLoading) {
     return (
@@ -282,8 +398,8 @@ export default function AdminMenus() {
             </h1>
             <p className="text-muted-foreground mt-1">
               {language === 'en' 
-                ? 'Manage website navigation menu items and structure' 
-                : 'Kelola item dan struktur menu navigasi website'}
+                ? 'Drag and drop to reorder menu items' 
+                : 'Seret dan lepas untuk mengatur urutan menu'}
             </p>
           </div>
           <Button onClick={() => handleOpenCreate()}>
@@ -297,15 +413,28 @@ export default function AdminMenus() {
             <CardTitle>{language === 'en' ? 'Menu Structure' : 'Struktur Menu'}</CardTitle>
             <CardDescription>
               {language === 'en' 
-                ? 'Drag to reorder, click edit to modify labels and links' 
-                : 'Seret untuk mengatur urutan, klik edit untuk mengubah label dan link'}
+                ? 'Drag the grip icon to reorder items within the same level' 
+                : 'Seret ikon grip untuk mengatur urutan item di level yang sama'}
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-2">
+          <CardContent>
             {hierarchicalMenus && hierarchicalMenus.length > 0 ? (
-              hierarchicalMenus.map(menu => (
-                <MenuItemRow key={menu.id} menu={menu} siblings={hierarchicalMenus} />
-              ))
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={handleDragEnd}
+              >
+                <SortableMenuList
+                  items={hierarchicalMenus}
+                  level={0}
+                  onEdit={handleOpenEdit}
+                  onDelete={setDeleteMenuId}
+                  onToggleVisibility={handleToggleVisibility}
+                  onAddChild={handleOpenCreate}
+                  language={language as 'en' | 'id'}
+                  isPending={updateMenu.isPending}
+                />
+              </DndContext>
             ) : (
               <div className="text-center py-8 text-muted-foreground">
                 {language === 'en' ? 'No menu items yet. Add your first menu item.' : 'Belum ada menu. Tambahkan menu pertama Anda.'}
