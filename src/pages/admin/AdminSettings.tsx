@@ -586,11 +586,25 @@ export default function AdminSettings() {
               <Label>Google Search Console</Label>
               <Input 
                 value={seo.google_search_console} 
-                onChange={(e) => setSeo(prev => ({ ...prev, google_search_console: e.target.value }))}
-                placeholder="verification-code-here"
+                onChange={(e) => {
+                  // Auto-strip the prefix if user pastes the full tag
+                  let value = e.target.value;
+                  if (value.includes('google-site-verification=')) {
+                    value = value.replace(/.*google-site-verification[=:"\s]+/i, '').replace(/["']/g, '').trim();
+                  }
+                  // Also handle if they paste the full meta tag
+                  if (value.includes('content=')) {
+                    const match = value.match(/content=["']?([^"'\s>]+)/i);
+                    if (match) value = match[1];
+                  }
+                  setSeo(prev => ({ ...prev, google_search_console: value }));
+                }}
+                placeholder="AbCdEfGhIjKlMnOpQrStUvWxYz123456"
               />
               <p className="text-xs text-muted-foreground mt-1">
-                {language === 'en' ? 'Content of google-site-verification meta tag' : 'Konten meta tag google-site-verification'}
+                {language === 'en' 
+                  ? 'Enter ONLY the verification code (e.g., AbCdEfGhIjKlMnOpQrStUvWxYz123456). Do NOT include "google-site-verification=" prefix.' 
+                  : 'Masukkan HANYA kode verifikasi (contoh: AbCdEfGhIjKlMnOpQrStUvWxYz123456). JANGAN sertakan prefix "google-site-verification=".'}
               </p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
