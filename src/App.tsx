@@ -39,6 +39,7 @@ import { PromoPopup } from "./components/common/PromoPopup";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import { DynamicFavicon } from "./components/common/DynamicFavicon";
 import { TrackingScripts } from "./components/common/TrackingScripts";
+import { SchemaMarkup } from "./components/common/SchemaMarkup";
 
 const queryClient = new QueryClient();
 
@@ -54,6 +55,7 @@ const App = () => (
             <BrowserRouter>
               <ScrollToTop />
               <DynamicFavicon />
+              <SchemaMarkup />
               <Routes>
                 {/* Public Routes */}
                 <Route path="/" element={<Home />} />

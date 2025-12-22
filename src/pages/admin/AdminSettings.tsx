@@ -55,7 +55,13 @@ export default function AdminSettings() {
     tiktok_pixel_id: '',
     // Domain Verification
     meta_domain_verification: '',
-    tiktok_domain_verification: ''
+    tiktok_domain_verification: '',
+    // Site-wide SEO
+    site_url: '',
+    site_name: '',
+    default_description_en: '',
+    default_description_id: '',
+    default_og_image: ''
   });
   const [ctaDefaults, setCtaDefaults] = useState({
     primary_button_link: '/hubungi-kami',
@@ -308,6 +314,63 @@ export default function AdminSettings() {
             </Button>
           </CardHeader>
           <CardContent className="space-y-6">
+            {/* Site-wide SEO Settings */}
+            <div className="p-4 rounded-lg border bg-muted/30 space-y-4">
+              <Label className="text-base font-medium">{language === 'en' ? 'Site Information' : 'Informasi Situs'}</Label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label>{language === 'en' ? 'Website URL' : 'URL Website'}</Label>
+                  <Input 
+                    value={seo.site_url} 
+                    onChange={(e) => setSeo(prev => ({ ...prev, site_url: e.target.value }))}
+                    placeholder="https://bungkusindonesia.com"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {language === 'en' ? 'Used for canonical URLs and sitemap' : 'Digunakan untuk URL kanonik dan sitemap'}
+                  </p>
+                </div>
+                <div>
+                  <Label>{language === 'en' ? 'Site Name' : 'Nama Situs'}</Label>
+                  <Input 
+                    value={seo.site_name} 
+                    onChange={(e) => setSeo(prev => ({ ...prev, site_name: e.target.value }))}
+                    placeholder="Bungkus Indonesia"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label>{language === 'en' ? 'Default Description (English)' : 'Deskripsi Default (Inggris)'}</Label>
+                  <Textarea 
+                    value={seo.default_description_en} 
+                    onChange={(e) => setSeo(prev => ({ ...prev, default_description_en: e.target.value }))}
+                    placeholder="Premium packaging solutions for businesses of all sizes"
+                    rows={2}
+                  />
+                </div>
+                <div>
+                  <Label>{language === 'en' ? 'Default Description (Indonesian)' : 'Deskripsi Default (Indonesia)'}</Label>
+                  <Textarea 
+                    value={seo.default_description_id} 
+                    onChange={(e) => setSeo(prev => ({ ...prev, default_description_id: e.target.value }))}
+                    placeholder="Solusi kemasan premium untuk bisnis segala ukuran"
+                    rows={2}
+                  />
+                </div>
+              </div>
+              <div>
+                <Label>{language === 'en' ? 'Default OG Image URL' : 'URL Gambar OG Default'}</Label>
+                <Input 
+                  value={seo.default_og_image} 
+                  onChange={(e) => setSeo(prev => ({ ...prev, default_og_image: e.target.value }))}
+                  placeholder="https://bungkusindonesia.com/og-image.png"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  {language === 'en' ? 'Default image for social sharing when no page-specific image is set' : 'Gambar default untuk berbagi sosial jika tidak ada gambar spesifik halaman'}
+                </p>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label>{language === 'en' ? 'Meta Robots Default' : 'Default Meta Robots'}</Label>
