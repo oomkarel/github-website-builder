@@ -57,6 +57,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       label: language === 'en' ? 'Navigation' : 'Navigasi' 
     },
     { 
+      href: '/admin/custom-pages', 
+      icon: FileText, 
+      label: language === 'en' ? 'Custom Pages' : 'Halaman Kustom' 
+    },
+    { 
       href: '/admin/blogs', 
       icon: BookOpen, 
       label: 'Blog' 
