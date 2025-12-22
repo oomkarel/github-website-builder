@@ -110,6 +110,53 @@ export type Database = {
         }
         Relationships: []
       }
+      navigation_menus: {
+        Row: {
+          created_at: string | null
+          href: string | null
+          icon: string | null
+          id: string
+          is_visible: boolean | null
+          label_en: string
+          label_id: string
+          parent_id: string | null
+          sort_order: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          href?: string | null
+          icon?: string | null
+          id?: string
+          is_visible?: boolean | null
+          label_en: string
+          label_id: string
+          parent_id?: string | null
+          sort_order?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          href?: string | null
+          icon?: string | null
+          id?: string
+          is_visible?: boolean | null
+          label_en?: string
+          label_id?: string
+          parent_id?: string | null
+          sort_order?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "navigation_menus_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "navigation_menus"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       page_content: {
         Row: {
           content_en: Json | null

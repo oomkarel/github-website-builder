@@ -33,6 +33,7 @@ import AdminBlogEditor from "./pages/admin/AdminBlogEditor";
 import AdminLeads from "./pages/admin/AdminLeads";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminHomeEditor from "./pages/admin/AdminHomeEditor";
+import AdminMenus from "./pages/admin/AdminMenus";
 
 // Components
 import { PromoPopup } from "./components/common/PromoPopup";
@@ -77,6 +78,7 @@ const App = () => (
                 <Route path="/admin/pages" element={<ProtectedRoute><AdminPages /></ProtectedRoute>} />
                 <Route path="/admin/pages/:pageKey" element={<ProtectedRoute><AdminPageEditor /></ProtectedRoute>} />
                 <Route path="/admin/home" element={<ProtectedRoute><AdminHomeEditor /></ProtectedRoute>} />
+                <Route path="/admin/menus" element={<ProtectedRoute><AdminMenus /></ProtectedRoute>} />
                 <Route path="/admin/blogs" element={<ProtectedRoute><AdminBlogs /></ProtectedRoute>} />
                 <Route path="/admin/blogs/new" element={<ProtectedRoute><AdminBlogEditor /></ProtectedRoute>} />
                 <Route path="/admin/blogs/:id" element={<ProtectedRoute><AdminBlogEditor /></ProtectedRoute>} />
