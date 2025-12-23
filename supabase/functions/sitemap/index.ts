@@ -37,7 +37,7 @@ serve(async (req) => {
       });
     }
 
-    const baseUrl = seo?.site_url || 'https://bungkusindonesia.com';
+    const baseUrl = seo?.site_url || 'https://bungkusin.co.id';
     const pageIndexing = seo?.page_indexing || {};
 
     // Define all static pages with their routes

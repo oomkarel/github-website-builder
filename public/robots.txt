@@ -29,4 +29,4 @@ Disallow: /admin/
 Disallow: /auth
 
 # Sitemap
-Sitemap: https://ahhhiqcnnwpfbgdggvct.supabase.co/functions/v1/sitemap
+Sitemap: https://bungkusin.co.id/sitemap.xml
