@@ -25,7 +25,7 @@ import {
   generateSlug
 } from '@/hooks/useCustomPages';
 import ImageUploader from '@/components/admin/ImageUploader';
-import RichTextEditor from '@/components/admin/RichTextEditor';
+import ContentBlockEditor, { ContentBlock } from '@/components/admin/ContentBlockEditor';
 
 interface PageFormData {
   title_en: string;
@@ -74,8 +74,8 @@ export default function AdminCustomPageEditor() {
 
   const [formData, setFormData] = useState<PageFormData>(defaultFormData);
   const [autoSlug, setAutoSlug] = useState(true);
-  const [contentEnHtml, setContentEnHtml] = useState('');
-  const [contentIdHtml, setContentIdHtml] = useState('');
+  const [blocksEn, setBlocksEn] = useState<ContentBlock[]>([]);
+  const [blocksId, setBlocksId] = useState<ContentBlock[]>([]);
 
   useEffect(() => {
     if (existingPage) {
@@ -95,11 +95,11 @@ export default function AdminCustomPageEditor() {
         og_image: existingPage.og_image || '',
         is_in_menu: existingPage.is_in_menu,
       });
-      // Extract HTML from content array if it exists
-      const enContent = existingPage.content_en?.find((c: any) => c.type === 'html');
-      const idContent = existingPage.content_id?.find((c: any) => c.type === 'html');
-      setContentEnHtml(enContent?.content || '');
-      setContentIdHtml(idContent?.content || '');
+      // Extract blocks from content arrays
+      const enBlocks = Array.isArray(existingPage.content_en) ? existingPage.content_en : [];
+      const idBlocks = Array.isArray(existingPage.content_id) ? existingPage.content_id : [];
+      setBlocksEn(enBlocks as ContentBlock[]);
+      setBlocksId(idBlocks as ContentBlock[]);
       setAutoSlug(false);
     }
   }, [existingPage]);
@@ -111,14 +111,10 @@ export default function AdminCustomPageEditor() {
   }, [formData.title_en, autoSlug]);
 
   const handleSave = async () => {
-    // Pack HTML content into content arrays
-    const contentEn = contentEnHtml ? [{ type: 'html', content: contentEnHtml }] : [];
-    const contentId = contentIdHtml ? [{ type: 'html', content: contentIdHtml }] : [];
-
     const pageData = {
       ...formData,
-      content_en: contentEn,
-      content_id: contentId,
+      content_en: blocksEn,
+      content_id: blocksId,
       sort_order: 0,
     };
 
@@ -260,16 +256,16 @@ export default function AdminCustomPageEditor() {
               <CardContent className="space-y-6">
                 <div>
                   <Label className="mb-2 block">Content (English)</Label>
-                  <RichTextEditor
-                    value={contentEnHtml}
-                    onChange={setContentEnHtml}
+                  <ContentBlockEditor
+                    blocks={blocksEn}
+                    onChange={setBlocksEn}
                   />
                 </div>
                 <div>
                   <Label className="mb-2 block">Content (Indonesian)</Label>
-                  <RichTextEditor
-                    value={contentIdHtml}
-                    onChange={setContentIdHtml}
+                  <ContentBlockEditor
+                    blocks={blocksId}
+                    onChange={setBlocksId}
                   />
                 </div>
               </CardContent>
