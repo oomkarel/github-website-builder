@@ -7,14 +7,14 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { SEO } from '@/components/common/SEO';
 import { SchemaMarkup } from '@/components/common/SchemaMarkup';
 import { Layout } from '@/components/layout/Layout';
-import { useBlog } from '@/hooks/useBlogs';
+import { useBlogBySlug } from '@/hooks/useBlogs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useSiteSetting } from '@/hooks/useSiteSettings';
 
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
   const { language, t } = useLanguage();
-  const { data: blog, isLoading } = useBlog(slug || '');
+  const { data: blog, isLoading } = useBlogBySlug(slug || '');
 
   if (isLoading) {
     return (
@@ -70,6 +70,7 @@ export default function BlogPost() {
         url={blogUrl}
         type="article"
         image={blog.featured_image || undefined}
+        pageKey="blog"
       />
       
       <SchemaMarkup 
