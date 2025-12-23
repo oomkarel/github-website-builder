@@ -44,7 +44,6 @@ export default function AdminSettings() {
     meta_robots: 'index, follow',
     google_analytics_id: '',
     google_tag_manager_id: '',
-    google_search_console: '',
     sitemap_enabled: true,
     robots_txt: '',
     page_indexing: {} as Record<string, boolean>,
@@ -61,7 +60,21 @@ export default function AdminSettings() {
     site_name: '',
     default_description_en: '',
     default_description_id: '',
-    default_og_image: ''
+    default_og_image: '',
+    // Schema Markup
+    schema: {
+      business_type: 'Organization' as 'Organization' | 'LocalBusiness' | 'Corporation',
+      industry: '',
+      founding_date: '',
+      employee_count: '',
+      price_range: '',
+      opening_hours: '',
+      geo_lat: '',
+      geo_lng: '',
+      service_area: '',
+      aggregate_rating: '',
+      review_count: '',
+    }
   });
   const [ctaDefaults, setCtaDefaults] = useState({
     primary_button_link: '/hubungi-kami',
@@ -582,31 +595,6 @@ export default function AdminSettings() {
             </Button>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div>
-              <Label>Google Search Console</Label>
-              <Input 
-                value={seo.google_search_console} 
-                onChange={(e) => {
-                  // Auto-strip the prefix if user pastes the full tag
-                  let value = e.target.value;
-                  if (value.includes('google-site-verification=')) {
-                    value = value.replace(/.*google-site-verification[=:"\s]+/i, '').replace(/["']/g, '').trim();
-                  }
-                  // Also handle if they paste the full meta tag
-                  if (value.includes('content=')) {
-                    const match = value.match(/content=["']?([^"'\s>]+)/i);
-                    if (match) value = match[1];
-                  }
-                  setSeo(prev => ({ ...prev, google_search_console: value }));
-                }}
-                placeholder="AbCdEfGhIjKlMnOpQrStUvWxYz123456"
-              />
-              <p className="text-xs text-muted-foreground mt-1">
-                {language === 'en' 
-                  ? 'Enter ONLY the verification code (e.g., AbCdEfGhIjKlMnOpQrStUvWxYz123456). Do NOT include "google-site-verification=" prefix.' 
-                  : 'Masukkan HANYA kode verifikasi (contoh: AbCdEfGhIjKlMnOpQrStUvWxYz123456). JANGAN sertakan prefix "google-site-verification=".'}
-              </p>
-            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label>Meta (Facebook) Domain Verification</Label>
@@ -629,6 +617,167 @@ export default function AdminSettings() {
                 <p className="text-xs text-muted-foreground mt-1">
                   {language === 'en' ? 'From TikTok Ads Manager → Assets → Events' : 'Dari TikTok Ads Manager → Aset → Events'}
                 </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Schema Markup Editor */}
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Globe className="h-5 w-5 text-primary" />
+              <div>
+                <CardTitle>{language === 'en' ? 'Schema Markup' : 'Schema Markup'}</CardTitle>
+                <CardDescription>
+                  {language === 'en' ? 'Configure structured data for rich search results' : 'Konfigurasi data terstruktur untuk hasil pencarian kaya'}
+                </CardDescription>
+              </div>
+            </div>
+            <Button size="sm" onClick={handleSaveSeo} disabled={updateSetting.isPending}>
+              {updateSetting.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            </Button>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label>{language === 'en' ? 'Business Type' : 'Tipe Bisnis'}</Label>
+                <Select 
+                  value={seo.schema?.business_type || 'Organization'} 
+                  onValueChange={(value) => setSeo(prev => ({ ...prev, schema: { ...prev.schema, business_type: value as any } }))}
+                >
+                  <SelectTrigger className="bg-background">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background border shadow-lg z-50">
+                    <SelectItem value="Organization">{language === 'en' ? 'Organization (General)' : 'Organisasi (Umum)'}</SelectItem>
+                    <SelectItem value="LocalBusiness">{language === 'en' ? 'Local Business' : 'Bisnis Lokal'}</SelectItem>
+                    <SelectItem value="Corporation">{language === 'en' ? 'Corporation' : 'Korporasi'}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>{language === 'en' ? 'Industry / Category' : 'Industri / Kategori'}</Label>
+                <Input 
+                  value={seo.schema?.industry || ''} 
+                  onChange={(e) => setSeo(prev => ({ ...prev, schema: { ...prev.schema, industry: e.target.value } }))}
+                  placeholder="Packaging, Manufacturing"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label>{language === 'en' ? 'Founding Date' : 'Tanggal Pendirian'}</Label>
+                <Input 
+                  type="date"
+                  value={seo.schema?.founding_date || ''} 
+                  onChange={(e) => setSeo(prev => ({ ...prev, schema: { ...prev.schema, founding_date: e.target.value } }))}
+                />
+              </div>
+              <div>
+                <Label>{language === 'en' ? 'Number of Employees' : 'Jumlah Karyawan'}</Label>
+                <Select 
+                  value={seo.schema?.employee_count || ''} 
+                  onValueChange={(value) => setSeo(prev => ({ ...prev, schema: { ...prev.schema, employee_count: value } }))}
+                >
+                  <SelectTrigger className="bg-background">
+                    <SelectValue placeholder={language === 'en' ? 'Select range' : 'Pilih rentang'} />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background border shadow-lg z-50">
+                    <SelectItem value="1-10">1-10</SelectItem>
+                    <SelectItem value="11-50">11-50</SelectItem>
+                    <SelectItem value="51-200">51-200</SelectItem>
+                    <SelectItem value="201-500">201-500</SelectItem>
+                    <SelectItem value="500+">500+</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label>{language === 'en' ? 'Price Range' : 'Rentang Harga'}</Label>
+                <Select 
+                  value={seo.schema?.price_range || ''} 
+                  onValueChange={(value) => setSeo(prev => ({ ...prev, schema: { ...prev.schema, price_range: value } }))}
+                >
+                  <SelectTrigger className="bg-background">
+                    <SelectValue placeholder={language === 'en' ? 'Select price range' : 'Pilih rentang harga'} />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background border shadow-lg z-50">
+                    <SelectItem value="$">$ ({language === 'en' ? 'Budget' : 'Ekonomis'})</SelectItem>
+                    <SelectItem value="$$">$$ ({language === 'en' ? 'Moderate' : 'Menengah'})</SelectItem>
+                    <SelectItem value="$$$">$$$ ({language === 'en' ? 'Premium' : 'Premium'})</SelectItem>
+                    <SelectItem value="$$$$">$$$$ ({language === 'en' ? 'Luxury' : 'Mewah'})</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>{language === 'en' ? 'Opening Hours' : 'Jam Operasional'}</Label>
+                <Input 
+                  value={seo.schema?.opening_hours || ''} 
+                  onChange={(e) => setSeo(prev => ({ ...prev, schema: { ...prev.schema, opening_hours: e.target.value } }))}
+                  placeholder="Mo-Fr 09:00-17:00"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  {language === 'en' ? 'Format: Mo-Fr 09:00-17:00, Sa 10:00-14:00' : 'Format: Mo-Fr 09:00-17:00, Sa 10:00-14:00'}
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label>{language === 'en' ? 'Latitude' : 'Garis Lintang'}</Label>
+                <Input 
+                  value={seo.schema?.geo_lat || ''} 
+                  onChange={(e) => setSeo(prev => ({ ...prev, schema: { ...prev.schema, geo_lat: e.target.value } }))}
+                  placeholder="-6.2088"
+                />
+              </div>
+              <div>
+                <Label>{language === 'en' ? 'Longitude' : 'Garis Bujur'}</Label>
+                <Input 
+                  value={seo.schema?.geo_lng || ''} 
+                  onChange={(e) => setSeo(prev => ({ ...prev, schema: { ...prev.schema, geo_lng: e.target.value } }))}
+                  placeholder="106.8456"
+                />
+              </div>
+            </div>
+
+            <div>
+              <Label>{language === 'en' ? 'Service Area' : 'Area Layanan'}</Label>
+              <Input 
+                value={seo.schema?.service_area || ''} 
+                onChange={(e) => setSeo(prev => ({ ...prev, schema: { ...prev.schema, service_area: e.target.value } }))}
+                placeholder="Jakarta, Bandung, Surabaya, Indonesia"
+              />
+            </div>
+
+            <div className="p-4 rounded-lg border bg-muted/30 space-y-4">
+              <Label className="text-base font-medium">{language === 'en' ? 'Ratings & Reviews' : 'Rating & Ulasan'}</Label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label>{language === 'en' ? 'Average Rating (1-5)' : 'Rating Rata-rata (1-5)'}</Label>
+                  <Input 
+                    type="number"
+                    min="1"
+                    max="5"
+                    step="0.1"
+                    value={seo.schema?.aggregate_rating || ''} 
+                    onChange={(e) => setSeo(prev => ({ ...prev, schema: { ...prev.schema, aggregate_rating: e.target.value } }))}
+                    placeholder="4.8"
+                  />
+                </div>
+                <div>
+                  <Label>{language === 'en' ? 'Number of Reviews' : 'Jumlah Ulasan'}</Label>
+                  <Input 
+                    type="number"
+                    value={seo.schema?.review_count || ''} 
+                    onChange={(e) => setSeo(prev => ({ ...prev, schema: { ...prev.schema, review_count: e.target.value } }))}
+                    placeholder="127"
+                  />
+                </div>
               </div>
             </div>
           </CardContent>

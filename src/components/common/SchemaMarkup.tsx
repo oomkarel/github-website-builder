@@ -3,6 +3,20 @@ import { Helmet } from 'react-helmet-async';
 import { useSiteSettings } from '@/hooks/useSiteSettings';
 import { useLocation } from 'react-router-dom';
 
+interface SchemaSettings {
+  business_type?: 'Organization' | 'LocalBusiness' | 'Corporation';
+  industry?: string;
+  founding_date?: string;
+  employee_count?: string;
+  price_range?: string;
+  opening_hours?: string;
+  geo_lat?: string;
+  geo_lng?: string;
+  service_area?: string;
+  aggregate_rating?: string;
+  review_count?: string;
+}
+
 interface SchemaMarkupProps {
   type?: 'website' | 'article' | 'organization';
   article?: {
@@ -26,6 +40,7 @@ export function SchemaMarkup({ type = 'website', article, breadcrumbs }: SchemaM
     default_description_en?: string;
     default_description_id?: string;
     default_og_image?: string;
+    schema?: SchemaSettings;
   } | undefined;
 
   const socialSetting = settings?.find(s => s.key === 'social')?.value as {
@@ -50,6 +65,7 @@ export function SchemaMarkup({ type = 'website', article, breadcrumbs }: SchemaM
   const baseUrl = seoSetting?.site_url || 'https://bungkusindonesia.com';
   const siteName = seoSetting?.site_name || 'Bungkus Indonesia';
   const currentUrl = `${baseUrl}${location.pathname}`;
+  const schema = seoSetting?.schema;
 
   // Build social links array
   const sameAs: string[] = [];
@@ -59,10 +75,55 @@ export function SchemaMarkup({ type = 'website', article, breadcrumbs }: SchemaM
   if (socialSetting?.youtube) sameAs.push(socialSetting.youtube.startsWith('http') ? socialSetting.youtube : `https://youtube.com/@${socialSetting.youtube}`);
   if (socialSetting?.twitter) sameAs.push(`https://twitter.com/${socialSetting.twitter.replace('@', '')}`);
 
-  // Organization Schema
-  const organizationSchema = {
+  // Parse opening hours if available
+  const parseOpeningHours = (hoursString?: string) => {
+    if (!hoursString) return undefined;
+    // Format: Mo-Fr 09:00-17:00, Sa 10:00-14:00
+    const specs: Array<{ '@type': string; dayOfWeek: string[]; opens: string; closes: string }> = [];
+    const parts = hoursString.split(',').map(p => p.trim());
+    
+    parts.forEach(part => {
+      const match = part.match(/^(\w+(?:-\w+)?)\s+(\d{2}:\d{2})-(\d{2}:\d{2})$/);
+      if (match) {
+        const [, days, opens, closes] = match;
+        const dayMap: Record<string, string> = {
+          'Mo': 'Monday', 'Tu': 'Tuesday', 'We': 'Wednesday', 
+          'Th': 'Thursday', 'Fr': 'Friday', 'Sa': 'Saturday', 'Su': 'Sunday'
+        };
+        
+        let dayOfWeek: string[] = [];
+        if (days.includes('-')) {
+          const [start, end] = days.split('-');
+          const allDays = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
+          const startIdx = allDays.indexOf(start);
+          const endIdx = allDays.indexOf(end);
+          if (startIdx !== -1 && endIdx !== -1) {
+            dayOfWeek = allDays.slice(startIdx, endIdx + 1).map(d => dayMap[d]);
+          }
+        } else {
+          dayOfWeek = [dayMap[days]].filter(Boolean);
+        }
+        
+        if (dayOfWeek.length > 0) {
+          specs.push({
+            '@type': 'OpeningHoursSpecification',
+            dayOfWeek,
+            opens,
+            closes
+          });
+        }
+      }
+    });
+    
+    return specs.length > 0 ? specs : undefined;
+  };
+
+  // Build organization/business schema based on type
+  const businessType = schema?.business_type || 'Organization';
+  
+  const organizationSchema: Record<string, unknown> = {
     '@context': 'https://schema.org',
-    '@type': 'Organization',
+    '@type': businessType,
     name: siteName,
     url: baseUrl,
     logo: logoSetting?.light || `${baseUrl}/og-image.png`,
@@ -75,6 +136,60 @@ export function SchemaMarkup({ type = 'website', article, breadcrumbs }: SchemaM
     } : undefined,
     sameAs: sameAs.length > 0 ? sameAs : undefined,
   };
+
+  // Add schema-specific fields
+  if (schema?.industry) {
+    organizationSchema.industry = schema.industry;
+  }
+  
+  if (schema?.founding_date) {
+    organizationSchema.foundingDate = schema.founding_date;
+  }
+  
+  if (schema?.employee_count) {
+    organizationSchema.numberOfEmployees = {
+      '@type': 'QuantitativeValue',
+      value: schema.employee_count
+    };
+  }
+
+  // LocalBusiness specific fields
+  if (businessType === 'LocalBusiness') {
+    if (schema?.price_range) {
+      organizationSchema.priceRange = schema.price_range;
+    }
+    
+    const openingHours = parseOpeningHours(schema?.opening_hours);
+    if (openingHours) {
+      organizationSchema.openingHoursSpecification = openingHours;
+    }
+    
+    if (schema?.geo_lat && schema?.geo_lng) {
+      organizationSchema.geo = {
+        '@type': 'GeoCoordinates',
+        latitude: parseFloat(schema.geo_lat),
+        longitude: parseFloat(schema.geo_lng)
+      };
+    }
+    
+    if (schema?.service_area) {
+      organizationSchema.areaServed = schema.service_area.split(',').map(area => ({
+        '@type': 'Place',
+        name: area.trim()
+      }));
+    }
+  }
+
+  // Add aggregate rating if available
+  if (schema?.aggregate_rating && schema?.review_count) {
+    organizationSchema.aggregateRating = {
+      '@type': 'AggregateRating',
+      ratingValue: parseFloat(schema.aggregate_rating),
+      reviewCount: parseInt(schema.review_count),
+      bestRating: 5,
+      worstRating: 1
+    };
+  }
 
   // WebSite Schema with SearchAction
   const websiteSchema = {
