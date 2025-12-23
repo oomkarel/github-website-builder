@@ -45,14 +45,14 @@ serve(async (req) => {
       { key: 'home', path: '/', priority: '1.0', changefreq: 'weekly' },
       { key: 'about', path: '/tentang-kami', priority: '0.8', changefreq: 'monthly' },
       { key: 'products', path: '/produk', priority: '0.9', changefreq: 'weekly' },
-      { key: 'product-catalog', path: '/katalog-produk', priority: '0.8', changefreq: 'weekly' },
+      { key: 'product-catalog', path: '/produk/katalog', priority: '0.8', changefreq: 'weekly' },
       { key: 'corporate-solutions', path: '/solusi-korporat', priority: '0.8', changefreq: 'monthly' },
       { key: 'umkm-solutions', path: '/solusi-umkm', priority: '0.8', changefreq: 'monthly' },
-      { key: 'case-studies', path: '/studi-kasus', priority: '0.7', changefreq: 'monthly' },
+      { key: 'case-studies', path: '/case-studies', priority: '0.7', changefreq: 'monthly' },
       { key: 'blog', path: '/blog', priority: '0.8', changefreq: 'daily' },
       { key: 'contact', path: '/hubungi-kami', priority: '0.7', changefreq: 'monthly' },
-      { key: 'terms-conditions', path: '/syarat-ketentuan', priority: '0.3', changefreq: 'yearly' },
-      { key: 'privacy-policy', path: '/kebijakan-privasi', priority: '0.3', changefreq: 'yearly' },
+      { key: 'terms-conditions', path: '/terms', priority: '0.3', changefreq: 'yearly' },
+      { key: 'privacy-policy', path: '/privacy', priority: '0.3', changefreq: 'yearly' },
     ];
 
     // Filter pages based on indexing settings (default is indexed)
