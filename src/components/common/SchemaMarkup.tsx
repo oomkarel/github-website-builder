@@ -62,10 +62,16 @@ export function SchemaMarkup({ type = 'website', article, breadcrumbs }: SchemaM
     dark?: string;
   } | undefined;
 
-  const baseUrl = seoSetting?.site_url || 'https://bungkusindonesia.com';
-  const siteName = seoSetting?.site_name || 'Bungkus Indonesia';
-  const currentUrl = `${baseUrl}${location.pathname}`;
+  // No hardcoded fallbacks - all data must come from CMS
+  const baseUrl = seoSetting?.site_url || '';
+  const siteName = seoSetting?.site_name || '';
+  const currentUrl = baseUrl ? `${baseUrl}${location.pathname}` : '';
   const schema = seoSetting?.schema;
+  
+  // Don't render schema markup if essential data is missing
+  if (!baseUrl || !siteName) {
+    return null;
+  }
 
   // Build social links array
   const sameAs: string[] = [];
@@ -126,8 +132,8 @@ export function SchemaMarkup({ type = 'website', article, breadcrumbs }: SchemaM
     '@type': businessType,
     name: siteName,
     url: baseUrl,
-    logo: logoSetting?.light || `${baseUrl}/og-image.png`,
-    description: seoSetting?.default_description_en || 'Premium packaging solutions for businesses of all sizes',
+    logo: logoSetting?.light || (baseUrl ? `${baseUrl}/og-image.png` : undefined),
+    description: seoSetting?.default_description_en,
     email: contactSetting?.email,
     telephone: contactSetting?.phone,
     address: contactSetting?.address ? {
@@ -225,7 +231,7 @@ export function SchemaMarkup({ type = 'website', article, breadcrumbs }: SchemaM
     '@type': 'Article',
     headline: article.title,
     description: article.description,
-    image: article.image || seoSetting?.default_og_image || `${baseUrl}/og-image.png`,
+    image: article.image || seoSetting?.default_og_image || (baseUrl ? `${baseUrl}/og-image.png` : undefined),
     datePublished: article.datePublished,
     dateModified: article.dateModified || article.datePublished,
     author: {
@@ -238,7 +244,7 @@ export function SchemaMarkup({ type = 'website', article, breadcrumbs }: SchemaM
       name: siteName,
       logo: {
         '@type': 'ImageObject',
-        url: logoSetting?.light || `${baseUrl}/og-image.png`,
+        url: logoSetting?.light || (baseUrl ? `${baseUrl}/og-image.png` : undefined),
       },
     },
     mainEntityOfPage: {
