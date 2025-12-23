@@ -34,7 +34,7 @@ import ImageUploader from './ImageUploader';
 import RichTextEditor from './RichTextEditor';
 import { cn } from '@/lib/utils';
 
-export type BlockType = 'hero' | 'text' | 'image_gallery' | 'cta' | 'features' | 'testimonial' | 'video' | 'faq';
+export type BlockType = 'hero' | 'text' | 'image_gallery' | 'cta' | 'features' | 'testimonial' | 'video' | 'faq' | 'pricing_table' | 'team_members' | 'stats_counter' | 'contact_form';
 
 export interface ContentBlock {
   id: string;
@@ -93,6 +93,26 @@ const blockTypeConfig: Record<BlockType, {
     label: { en: 'FAQ', id: 'FAQ' },
     description: { en: 'Frequently asked questions', id: 'Pertanyaan yang sering diajukan' }
   },
+  pricing_table: { 
+    icon: Grid3X3, 
+    label: { en: 'Pricing Table', id: 'Tabel Harga' },
+    description: { en: 'Pricing plans comparison table', id: 'Tabel perbandingan paket harga' }
+  },
+  team_members: { 
+    icon: Star, 
+    label: { en: 'Team Members', id: 'Anggota Tim' },
+    description: { en: 'Team member cards with photos', id: 'Kartu anggota tim dengan foto' }
+  },
+  stats_counter: { 
+    icon: Grid3X3, 
+    label: { en: 'Stats Counter', id: 'Penghitung Statistik' },
+    description: { en: 'Animated statistics display', id: 'Tampilan statistik animasi' }
+  },
+  contact_form: { 
+    icon: Type, 
+    label: { en: 'Contact Form', id: 'Formulir Kontak' },
+    description: { en: 'Contact form with fields', id: 'Formulir kontak dengan bidang' }
+  },
 };
 
 function generateId() {
@@ -117,6 +137,14 @@ function getDefaultBlockData(type: BlockType): Record<string, any> {
       return { youtube_url: '' };
     case 'faq':
       return { items: [] };
+    case 'pricing_table':
+      return { plans: [] };
+    case 'team_members':
+      return { members: [] };
+    case 'stats_counter':
+      return { stats: [] };
+    case 'contact_form':
+      return { title: '', description: '', email_to: '', fields: ['name', 'email', 'message'] };
     default:
       return {};
   }
@@ -460,6 +488,255 @@ function FAQBlockEditor({ data, onChange }: { data: Record<string, any>; onChang
   );
 }
 
+function PricingTableBlockEditor({ data, onChange }: { data: Record<string, any>; onChange: (data: Record<string, any>) => void }) {
+  const { language } = useLanguage();
+  const plans = data.plans || [];
+  
+  const addPlan = () => {
+    onChange({ ...data, plans: [...plans, { name: '', price: '', period: '/month', features: [], is_popular: false, button_text: '', button_link: '' }] });
+  };
+  
+  const updatePlan = (index: number, field: string, value: any) => {
+    const newPlans = [...plans];
+    newPlans[index] = { ...newPlans[index], [field]: value };
+    onChange({ ...data, plans: newPlans });
+  };
+  
+  const removePlan = (index: number) => {
+    const newPlans = plans.filter((_: any, i: number) => i !== index);
+    onChange({ ...data, plans: newPlans });
+  };
+
+  return (
+    <div className="space-y-4">
+      {plans.map((plan: any, idx: number) => (
+        <div key={idx} className="p-4 border rounded-lg space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="font-medium">{language === 'en' ? 'Plan' : 'Paket'} {idx + 1}</span>
+            <Button type="button" variant="ghost" size="icon" onClick={() => removePlan(idx)}>
+              <Trash2 className="h-4 w-4 text-destructive" />
+            </Button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div>
+              <Label>{language === 'en' ? 'Plan Name' : 'Nama Paket'}</Label>
+              <Input value={plan.name || ''} onChange={(e) => updatePlan(idx, 'name', e.target.value)} placeholder="Basic, Pro, Enterprise..." />
+            </div>
+            <div>
+              <Label>{language === 'en' ? 'Price' : 'Harga'}</Label>
+              <Input value={plan.price || ''} onChange={(e) => updatePlan(idx, 'price', e.target.value)} placeholder="$99, Rp500.000..." />
+            </div>
+            <div>
+              <Label>{language === 'en' ? 'Period' : 'Periode'}</Label>
+              <Input value={plan.period || ''} onChange={(e) => updatePlan(idx, 'period', e.target.value)} placeholder="/month, /year..." />
+            </div>
+          </div>
+          <div>
+            <Label>{language === 'en' ? 'Features (one per line)' : 'Fitur (satu per baris)'}</Label>
+            <Textarea 
+              value={(plan.features || []).join('\n')} 
+              onChange={(e) => updatePlan(idx, 'features', e.target.value.split('\n').filter(Boolean))} 
+              rows={4} 
+              placeholder="Feature 1&#10;Feature 2&#10;Feature 3"
+            />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <Label>{language === 'en' ? 'Button Text' : 'Teks Tombol'}</Label>
+              <Input value={plan.button_text || ''} onChange={(e) => updatePlan(idx, 'button_text', e.target.value)} />
+            </div>
+            <div>
+              <Label>{language === 'en' ? 'Button Link' : 'Link Tombol'}</Label>
+              <Input value={plan.button_link || ''} onChange={(e) => updatePlan(idx, 'button_link', e.target.value)} />
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={plan.is_popular || false}
+              onChange={(e) => updatePlan(idx, 'is_popular', e.target.checked)}
+              className="h-4 w-4"
+            />
+            <Label>{language === 'en' ? 'Mark as Popular/Recommended' : 'Tandai sebagai Populer/Direkomendasikan'}</Label>
+          </div>
+        </div>
+      ))}
+      <Button type="button" variant="outline" size="sm" onClick={addPlan}>
+        <Plus className="h-4 w-4 mr-2" />
+        {language === 'en' ? 'Add Pricing Plan' : 'Tambah Paket Harga'}
+      </Button>
+    </div>
+  );
+}
+
+function TeamMembersBlockEditor({ data, onChange }: { data: Record<string, any>; onChange: (data: Record<string, any>) => void }) {
+  const { language } = useLanguage();
+  const members = data.members || [];
+  
+  const addMember = () => {
+    onChange({ ...data, members: [...members, { name: '', role: '', image: '', bio: '', social_links: [] }] });
+  };
+  
+  const updateMember = (index: number, field: string, value: any) => {
+    const newMembers = [...members];
+    newMembers[index] = { ...newMembers[index], [field]: value };
+    onChange({ ...data, members: newMembers });
+  };
+  
+  const removeMember = (index: number) => {
+    const newMembers = members.filter((_: any, i: number) => i !== index);
+    onChange({ ...data, members: newMembers });
+  };
+
+  return (
+    <div className="space-y-4">
+      {members.map((member: any, idx: number) => (
+        <div key={idx} className="p-4 border rounded-lg space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="font-medium">{language === 'en' ? 'Team Member' : 'Anggota Tim'} {idx + 1}</span>
+            <Button type="button" variant="ghost" size="icon" onClick={() => removeMember(idx)}>
+              <Trash2 className="h-4 w-4 text-destructive" />
+            </Button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <Label>{language === 'en' ? 'Name' : 'Nama'}</Label>
+              <Input value={member.name || ''} onChange={(e) => updateMember(idx, 'name', e.target.value)} />
+            </div>
+            <div>
+              <Label>{language === 'en' ? 'Role/Position' : 'Jabatan'}</Label>
+              <Input value={member.role || ''} onChange={(e) => updateMember(idx, 'role', e.target.value)} />
+            </div>
+          </div>
+          <div>
+            <Label>{language === 'en' ? 'Photo' : 'Foto'}</Label>
+            <ImageUploader value={member.image || ''} onChange={(url) => updateMember(idx, 'image', url)} folder="team" />
+          </div>
+          <div>
+            <Label>{language === 'en' ? 'Bio' : 'Bio'}</Label>
+            <Textarea value={member.bio || ''} onChange={(e) => updateMember(idx, 'bio', e.target.value)} rows={2} />
+          </div>
+          <div>
+            <Label>{language === 'en' ? 'LinkedIn URL' : 'URL LinkedIn'}</Label>
+            <Input value={member.linkedin || ''} onChange={(e) => updateMember(idx, 'linkedin', e.target.value)} placeholder="https://linkedin.com/in/..." />
+          </div>
+        </div>
+      ))}
+      <Button type="button" variant="outline" size="sm" onClick={addMember}>
+        <Plus className="h-4 w-4 mr-2" />
+        {language === 'en' ? 'Add Team Member' : 'Tambah Anggota Tim'}
+      </Button>
+    </div>
+  );
+}
+
+function StatsCounterBlockEditor({ data, onChange }: { data: Record<string, any>; onChange: (data: Record<string, any>) => void }) {
+  const { language } = useLanguage();
+  const stats = data.stats || [];
+  
+  const addStat = () => {
+    onChange({ ...data, stats: [...stats, { value: '', label: '', prefix: '', suffix: '' }] });
+  };
+  
+  const updateStat = (index: number, field: string, value: string) => {
+    const newStats = [...stats];
+    newStats[index] = { ...newStats[index], [field]: value };
+    onChange({ ...data, stats: newStats });
+  };
+  
+  const removeStat = (index: number) => {
+    const newStats = stats.filter((_: any, i: number) => i !== index);
+    onChange({ ...data, stats: newStats });
+  };
+
+  return (
+    <div className="space-y-4">
+      {stats.map((stat: any, idx: number) => (
+        <div key={idx} className="p-4 border rounded-lg space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="font-medium">{language === 'en' ? 'Stat' : 'Statistik'} {idx + 1}</span>
+            <Button type="button" variant="ghost" size="icon" onClick={() => removeStat(idx)}>
+              <Trash2 className="h-4 w-4 text-destructive" />
+            </Button>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div>
+              <Label>{language === 'en' ? 'Prefix' : 'Awalan'}</Label>
+              <Input value={stat.prefix || ''} onChange={(e) => updateStat(idx, 'prefix', e.target.value)} placeholder="$, Rp, +..." />
+            </div>
+            <div>
+              <Label>{language === 'en' ? 'Value' : 'Nilai'}</Label>
+              <Input value={stat.value || ''} onChange={(e) => updateStat(idx, 'value', e.target.value)} placeholder="1000, 50, 99..." />
+            </div>
+            <div>
+              <Label>{language === 'en' ? 'Suffix' : 'Akhiran'}</Label>
+              <Input value={stat.suffix || ''} onChange={(e) => updateStat(idx, 'suffix', e.target.value)} placeholder="+, %, K..." />
+            </div>
+            <div>
+              <Label>{language === 'en' ? 'Label' : 'Label'}</Label>
+              <Input value={stat.label || ''} onChange={(e) => updateStat(idx, 'label', e.target.value)} placeholder="Customers, Projects..." />
+            </div>
+          </div>
+        </div>
+      ))}
+      <Button type="button" variant="outline" size="sm" onClick={addStat}>
+        <Plus className="h-4 w-4 mr-2" />
+        {language === 'en' ? 'Add Stat' : 'Tambah Statistik'}
+      </Button>
+    </div>
+  );
+}
+
+function ContactFormBlockEditor({ data, onChange }: { data: Record<string, any>; onChange: (data: Record<string, any>) => void }) {
+  const { language } = useLanguage();
+  const fields = data.fields || ['name', 'email', 'message'];
+  
+  const availableFields = ['name', 'email', 'phone', 'company', 'subject', 'message'];
+
+  return (
+    <div className="space-y-4">
+      <div>
+        <Label>{language === 'en' ? 'Form Title' : 'Judul Formulir'}</Label>
+        <Input value={data.title || ''} onChange={(e) => onChange({ ...data, title: e.target.value })} />
+      </div>
+      <div>
+        <Label>{language === 'en' ? 'Description' : 'Deskripsi'}</Label>
+        <Textarea value={data.description || ''} onChange={(e) => onChange({ ...data, description: e.target.value })} rows={2} />
+      </div>
+      <div>
+        <Label>{language === 'en' ? 'Send To Email' : 'Kirim ke Email'}</Label>
+        <Input value={data.email_to || ''} onChange={(e) => onChange({ ...data, email_to: e.target.value })} placeholder="contact@example.com" />
+      </div>
+      <div>
+        <Label>{language === 'en' ? 'Form Fields' : 'Bidang Formulir'}</Label>
+        <div className="flex flex-wrap gap-2 mt-2">
+          {availableFields.map((field) => (
+            <label key={field} className="flex items-center gap-2 p-2 border rounded cursor-pointer hover:bg-muted">
+              <input
+                type="checkbox"
+                checked={fields.includes(field)}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    onChange({ ...data, fields: [...fields, field] });
+                  } else {
+                    onChange({ ...data, fields: fields.filter((f: string) => f !== field) });
+                  }
+                }}
+                className="h-4 w-4"
+              />
+              <span className="capitalize">{field}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+      <div>
+        <Label>{language === 'en' ? 'Submit Button Text' : 'Teks Tombol Kirim'}</Label>
+        <Input value={data.button_text || ''} onChange={(e) => onChange({ ...data, button_text: e.target.value })} placeholder="Send Message" />
+      </div>
+    </div>
+  );
+}
+
 function BlockEditor({ block, onChange }: { block: ContentBlock; onChange: (data: Record<string, any>) => void }) {
   switch (block.type) {
     case 'hero':
@@ -478,6 +755,14 @@ function BlockEditor({ block, onChange }: { block: ContentBlock; onChange: (data
       return <VideoBlockEditor data={block.data} onChange={onChange} />;
     case 'faq':
       return <FAQBlockEditor data={block.data} onChange={onChange} />;
+    case 'pricing_table':
+      return <PricingTableBlockEditor data={block.data} onChange={onChange} />;
+    case 'team_members':
+      return <TeamMembersBlockEditor data={block.data} onChange={onChange} />;
+    case 'stats_counter':
+      return <StatsCounterBlockEditor data={block.data} onChange={onChange} />;
+    case 'contact_form':
+      return <ContactFormBlockEditor data={block.data} onChange={onChange} />;
     default:
       return null;
   }
