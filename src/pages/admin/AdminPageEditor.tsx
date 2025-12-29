@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { usePageContent, useUpdatePageContent } from '@/hooks/usePageContent';
@@ -14,6 +14,7 @@ import AdminLayout from '@/components/admin/AdminLayout';
 import ImageUploader from '@/components/admin/ImageUploader';
 import LivePreview from '@/components/admin/LivePreview';
 import IconSelector from '@/components/admin/IconSelector';
+import SEOAudit from '@/components/admin/SEOAudit';
 
 interface ContentItem {
   icon?: string;
@@ -1044,11 +1045,37 @@ export default function AdminPageEditor() {
             </Tabs>
           </div>
           
-          <div className="hidden xl:block sticky top-6">
+          <div className="hidden xl:block sticky top-6 space-y-6">
             <LivePreview 
               path={pageRoutes[pageKey || ''] || '/'} 
               title="Live Preview" 
             />
+            
+            {/* SEO Audit Panel */}
+            <Tabs defaultValue="id">
+              <TabsList className="w-full">
+                <TabsTrigger value="id" className="flex-1">SEO (ID)</TabsTrigger>
+                <TabsTrigger value="en" className="flex-1">SEO (EN)</TabsTrigger>
+              </TabsList>
+              <TabsContent value="id" className="mt-4">
+                <SEOAudit
+                  title={contentId?.hero?.title || contentId?.title || ''}
+                  metaTitle={contentId?.meta_title || contentId?.hero?.title || ''}
+                  metaDescription={contentId?.meta_description || contentId?.hero?.subtitle || ''}
+                  content={JSON.stringify(contentId)}
+                  language="id"
+                />
+              </TabsContent>
+              <TabsContent value="en" className="mt-4">
+                <SEOAudit
+                  title={contentEn?.hero?.title || contentEn?.title || ''}
+                  metaTitle={contentEn?.meta_title || contentEn?.hero?.title || ''}
+                  metaDescription={contentEn?.meta_description || contentEn?.hero?.subtitle || ''}
+                  content={JSON.stringify(contentEn)}
+                  language="en"
+                />
+              </TabsContent>
+            </Tabs>
           </div>
         </div>
       </div>
