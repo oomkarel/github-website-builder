@@ -1,5 +1,4 @@
 import React from 'react';
-import { useLanguage } from '@/contexts/LanguageContext';
 import { Building2 } from 'lucide-react';
 
 interface ClientLogo {
@@ -22,30 +21,31 @@ const speedMap = {
 };
 
 export function ClientsSection({ title, subtitle, logos, marqueeSpeed = 'normal' }: ClientsSectionProps) {
-  const { t } = useLanguage();
+  // Don't render if no logos provided (CMS not configured)
+  if (!logos || logos.length === 0) {
+    return null;
+  }
 
-  const displayTitle = title || t('Dipercaya oleh Brand Terkemuka', 'Trusted by Leading Brands');
-  const displaySubtitle = subtitle || t('Kami bangga melayani perusahaan-perusahaan luar biasa ini.', 'We are proud to serve these amazing companies.');
-  
-  const displayLogos = logos?.length ? logos : Array(6).fill(null).map((_, i) => ({
-    name: `Company ${i + 1}`,
-    image: ''
-  }));
-
-  const useMarquee = displayLogos.length > 4;
+  const useMarquee = logos.length > 4;
   const animationDuration = speedMap[marqueeSpeed] || 30;
 
   return (
     <section className="py-16 bg-background overflow-hidden">
       <div className="container mx-auto px-4">
-        <div className="text-center max-w-3xl mx-auto mb-12">
-          <h2 className="text-2xl sm:text-3xl font-display font-bold text-foreground mb-3">
-            {displayTitle}
-          </h2>
-          <p className="text-muted-foreground">
-            {displaySubtitle}
-          </p>
-        </div>
+        {(title || subtitle) && (
+          <div className="text-center max-w-3xl mx-auto mb-12">
+            {title && (
+              <h2 className="text-2xl sm:text-3xl font-display font-bold text-foreground mb-3">
+                {title}
+              </h2>
+            )}
+            {subtitle && (
+              <p className="text-muted-foreground">
+                {subtitle}
+              </p>
+            )}
+          </div>
+        )}
 
         {useMarquee ? (
           /* Infinite scrolling marquee for 5+ logos */
@@ -63,7 +63,7 @@ export function ClientsSection({ title, subtitle, logos, marqueeSpeed = 'normal'
                 }}
               >
                 {/* First set of logos */}
-                {displayLogos.map((client, index) => (
+                {logos.map((client, index) => (
                   <div
                     key={`first-${index}`}
                     className="flex-shrink-0 w-48 h-32 mx-4 flex items-center justify-center p-6 rounded-xl bg-muted/50 border border-border hover:bg-muted transition-colors group"
@@ -83,7 +83,7 @@ export function ClientsSection({ title, subtitle, logos, marqueeSpeed = 'normal'
                   </div>
                 ))}
                 {/* Duplicate set for seamless infinite loop */}
-                {displayLogos.map((client, index) => (
+                {logos.map((client, index) => (
                   <div
                     key={`second-${index}`}
                     className="flex-shrink-0 w-48 h-32 mx-4 flex items-center justify-center p-6 rounded-xl bg-muted/50 border border-border hover:bg-muted transition-colors group"
@@ -108,12 +108,12 @@ export function ClientsSection({ title, subtitle, logos, marqueeSpeed = 'normal'
         ) : (
           /* Static grid for 1-4 logos */
           <div className={`grid gap-8 items-center justify-items-center ${
-            displayLogos.length === 1 ? 'grid-cols-1 max-w-xs mx-auto' :
-            displayLogos.length === 2 ? 'grid-cols-2 max-w-lg mx-auto' :
-            displayLogos.length === 3 ? 'grid-cols-3 max-w-2xl mx-auto' :
+            logos.length === 1 ? 'grid-cols-1 max-w-xs mx-auto' :
+            logos.length === 2 ? 'grid-cols-2 max-w-lg mx-auto' :
+            logos.length === 3 ? 'grid-cols-3 max-w-2xl mx-auto' :
             'grid-cols-2 md:grid-cols-4 max-w-4xl mx-auto'
           }`}>
-            {displayLogos.map((client, index) => (
+            {logos.map((client, index) => (
               <div
                 key={index}
                 className="w-full h-36 flex items-center justify-center p-6 rounded-xl bg-muted/50 border border-border hover:bg-muted transition-colors group"
