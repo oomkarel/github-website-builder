@@ -13,6 +13,36 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Users,
 };
 
+function AboutPageSkeleton() {
+  return (
+    <>
+      {/* Hero Skeleton */}
+      <section className="pt-32 pb-20 gradient-hero">
+        <div className="container mx-auto px-4 text-center">
+          <Skeleton className="h-12 w-80 mx-auto mb-6 bg-white/20" />
+          <Skeleton className="h-6 w-full max-w-2xl mx-auto bg-white/20" />
+        </div>
+      </section>
+
+      {/* Values Skeleton */}
+      <section className="py-24 bg-background">
+        <div className="container mx-auto px-4">
+          <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="text-center p-8 rounded-2xl border border-border">
+                <Skeleton className="w-14 h-14 rounded-xl mx-auto mb-4" />
+                <Skeleton className="h-6 w-24 mx-auto mb-3" />
+                <Skeleton className="h-4 w-full mb-2" />
+                <Skeleton className="h-4 w-3/4 mx-auto" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    </>
+  );
+}
+
 export default function About() {
   const { language, t } = useLanguage();
   const { data: pageContent, isLoading } = usePageContent('about');
@@ -20,21 +50,8 @@ export default function About() {
   if (isLoading) {
     return (
       <Layout>
-        <section className="pt-32 pb-20 gradient-hero">
-          <div className="container mx-auto px-4 text-center">
-            <Skeleton className="h-12 w-96 mx-auto mb-6 bg-white/20" />
-            <Skeleton className="h-6 w-[500px] mx-auto bg-white/20" />
-          </div>
-        </section>
-        <section className="py-24 bg-background">
-          <div className="container mx-auto px-4">
-            <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-              {[1, 2, 3].map((i) => (
-                <Skeleton key={i} className="h-48 rounded-2xl" />
-              ))}
-            </div>
-          </div>
-        </section>
+        <SEO title="About" description="" pageKey="about" />
+        <AboutPageSkeleton />
       </Layout>
     );
   }
@@ -44,15 +61,10 @@ export default function About() {
   // Hero image should be shared across languages - use English as fallback
   const heroImage = content?.hero?.image || pageContent?.content_en?.hero?.image;
 
-  const hero = { 
-    ...(content?.hero || { title: t('Tentang Bungkus Indonesia', 'About Bungkus Indonesia'), subtitle: t('Mitra kemasan terpercaya untuk korporasi dan UMKM di seluruh Indonesia sejak 2015.', 'Trusted packaging partner for corporations and SMEs across Indonesia since 2015.') }),
-    image: heroImage 
-  };
-  const values = content?.values || [
-    { icon: 'Target', title: t('Misi', 'Mission'), description: t('Menyediakan solusi kemasan berkualitas dan terjangkau untuk semua skala bisnis.', 'Providing quality and affordable packaging solutions for all business scales.') },
-    { icon: 'Eye', title: t('Visi', 'Vision'), description: t('Menjadi mitra kemasan pilihan utama di Indonesia.', 'To become the preferred packaging partner in Indonesia.') },
-    { icon: 'Users', title: t('Nilai', 'Values'), description: t('Kualitas, integritas, dan kemitraan jangka panjang.', 'Quality, integrity, and long-term partnership.') },
-  ];
+  const heroTitle = content?.hero?.title || t('Tentang Bungkus Indonesia', 'About Bungkus Indonesia');
+  const heroSubtitle = content?.hero?.subtitle || t('Mitra kemasan terpercaya untuk korporasi dan UMKM di seluruh Indonesia sejak 2015.', 'Trusted packaging partner for corporations and SMEs across Indonesia since 2015.');
+  
+  const values = content?.values || [];
 
   return (
     <Layout>
@@ -63,37 +75,41 @@ export default function About() {
       />
       <section 
         className="pt-32 pb-20 gradient-hero relative bg-cover bg-center"
-        style={hero.image ? { 
-          backgroundImage: `linear-gradient(to right, hsl(var(--primary) / 0.9), hsl(var(--primary) / 0.7)), url(${hero.image})` 
+        style={heroImage ? { 
+          backgroundImage: `linear-gradient(to right, hsl(var(--primary) / 0.9), hsl(var(--primary) / 0.7)), url(${heroImage})` 
         } : undefined}
       >
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl sm:text-5xl font-display font-bold text-white mb-6">
-            {hero.title}
+            {heroTitle}
           </h1>
           <p className="text-lg text-white/80 max-w-2xl mx-auto">
-            {hero.subtitle}
+            {heroSubtitle}
           </p>
         </div>
       </section>
-      <section className="py-24 bg-background">
-        <div className="container mx-auto px-4">
-          <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            {values.map((item: any, i: number) => {
-              const IconComponent = iconMap[item.icon] || Target;
-              return (
-                <div key={i} className="text-center p-8 rounded-2xl bg-card border border-border hover:border-secondary/50 transition-all duration-300 hover-lift">
-                  <div className="w-14 h-14 rounded-xl bg-secondary/10 flex items-center justify-center mx-auto mb-4">
-                    <IconComponent className="h-7 w-7 text-secondary" />
+
+      {values.length > 0 && (
+        <section className="py-24 bg-background">
+          <div className="container mx-auto px-4">
+            <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+              {values.map((item: any, i: number) => {
+                const IconComponent = iconMap[item.icon] || Target;
+                return (
+                  <div key={i} className="text-center p-8 rounded-2xl bg-card border border-border hover:border-secondary/50 transition-all duration-300 hover-lift">
+                    <div className="w-14 h-14 rounded-xl bg-secondary/10 flex items-center justify-center mx-auto mb-4">
+                      <IconComponent className="h-7 w-7 text-secondary" />
+                    </div>
+                    <h3 className="text-xl font-display font-semibold mb-3">{item.title}</h3>
+                    <p className="text-muted-foreground">{item.description}</p>
                   </div>
-                  <h3 className="text-xl font-display font-semibold mb-3">{item.title}</h3>
-                  <p className="text-muted-foreground">{item.description}</p>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
+
       <CTASection />
     </Layout>
   );
