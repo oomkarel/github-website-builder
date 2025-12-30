@@ -14,18 +14,45 @@ export default function Blog() {
   const { data: blogs, isLoading: blogsLoading } = useBlogs(true);
   const { data: pageContent, isLoading: contentLoading } = usePageContent('blog');
 
+  // Show full loading state when content is loading
+  if (contentLoading) {
+    return (
+      <Layout>
+        <SEO title="Blog" description="" pageKey="blog" />
+        {/* Hero Skeleton */}
+        <section className="pt-32 pb-20 gradient-hero">
+          <div className="container mx-auto px-4 text-center">
+            <Skeleton className="h-12 w-48 mx-auto mb-6 bg-white/20" />
+            <Skeleton className="h-6 w-96 mx-auto bg-white/20" />
+          </div>
+        </section>
+        {/* Blog Grid Skeleton */}
+        <section className="py-16 bg-background">
+          <div className="container mx-auto px-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="space-y-4">
+                  <Skeleton className="h-48 w-full rounded-lg" />
+                  <Skeleton className="h-4 w-20" />
+                  <Skeleton className="h-6 w-full" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-3/4" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      </Layout>
+    );
+  }
+
   const content = language === 'id' ? pageContent?.content_id : pageContent?.content_en;
   
   // Hero image should be shared across languages - use English as fallback
   const heroImage = content?.hero?.image || pageContent?.content_en?.hero?.image;
   
-  const hero = { 
-    ...(content?.hero || {
-      title: 'Blog',
-      subtitle: t('Artikel dan tips seputar kemasan.', 'Articles and tips about packaging.')
-    }),
-    image: heroImage 
-  };
+  const heroTitle = content?.hero?.title || 'Blog';
+  const heroSubtitle = content?.hero?.subtitle || t('Artikel dan tips seputar kemasan.', 'Articles and tips about packaging.');
 
   return (
     <Layout>
@@ -38,13 +65,13 @@ export default function Blog() {
       {/* Hero Section */}
       <section 
         className="pt-32 pb-20 gradient-hero relative bg-cover bg-center"
-        style={hero.image ? { 
-          backgroundImage: `linear-gradient(to right, hsl(var(--primary) / 0.9), hsl(var(--primary) / 0.7)), url(${hero.image})` 
+        style={heroImage ? { 
+          backgroundImage: `linear-gradient(to right, hsl(var(--primary) / 0.9), hsl(var(--primary) / 0.7)), url(${heroImage})` 
         } : undefined}
       >
         <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl sm:text-5xl font-display font-bold text-white mb-6">{hero.title}</h1>
-          <p className="text-lg text-white/80">{hero.subtitle}</p>
+          <h1 className="text-4xl sm:text-5xl font-display font-bold text-white mb-6">{heroTitle}</h1>
+          <p className="text-lg text-white/80">{heroSubtitle}</p>
         </div>
       </section>
 
