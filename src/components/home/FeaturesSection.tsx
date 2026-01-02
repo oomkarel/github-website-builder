@@ -1,12 +1,6 @@
 import React from 'react';
-import { Package, Shield, Users, Zap, LucideIcon } from 'lucide-react';
-
-const iconMap: Record<string, LucideIcon> = {
-  Package,
-  Shield,
-  Users,
-  Zap,
-};
+import { Package } from 'lucide-react';
+import { iconMap } from '@/lib/iconMap';
 
 interface FeatureItem {
   icon?: string;

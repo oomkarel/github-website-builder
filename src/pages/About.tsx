@@ -1,17 +1,12 @@
 import React from 'react';
-import { Target, Eye, Users } from 'lucide-react';
+import { Target } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { SEO } from '@/components/common/SEO';
 import { Layout } from '@/components/layout/Layout';
 import { CTASection } from '@/components/home/CTASection';
 import { usePageContent } from '@/hooks/usePageContent';
 import { Skeleton } from '@/components/ui/skeleton';
-
-const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
-  Target,
-  Eye,
-  Users,
-};
+import { iconMap } from '@/lib/iconMap';
 
 function AboutPageSkeleton() {
   return (
@@ -110,7 +105,14 @@ export default function About() {
         </section>
       )}
 
-      <CTASection />
+      <CTASection 
+        title={content?.cta?.title}
+        subtitle={content?.cta?.subtitle}
+        primaryButton={content?.cta?.primary_button}
+        secondaryButton={content?.cta?.secondary_button}
+        primaryButtonLink={content?.cta?.primary_button_link}
+        secondaryButtonLink={content?.cta?.secondary_button_link}
+      />
     </Layout>
   );
 }

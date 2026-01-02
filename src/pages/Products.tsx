@@ -1,18 +1,12 @@
 import React from 'react';
-import { Package, Coffee, ShoppingBag, Gift, ShieldCheck, Leaf, Award } from 'lucide-react';
+import { Package, ShieldCheck, Leaf, Award } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { SEO } from '@/components/common/SEO';
 import { Layout } from '@/components/layout/Layout';
 import { CTASection } from '@/components/home/CTASection';
 import { usePageContent } from '@/hooks/usePageContent';
 import { Skeleton } from '@/components/ui/skeleton';
-
-const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
-  Package,
-  Coffee,
-  ShoppingBag,
-  Gift,
-};
+import { iconMap } from '@/lib/iconMap';
 
 const materialIcons = [ShieldCheck, Leaf, Award];
 
@@ -213,7 +207,14 @@ export default function Products() {
         </section>
       )}
 
-      <CTASection />
+      <CTASection 
+        title={content?.cta?.title}
+        subtitle={content?.cta?.subtitle}
+        primaryButton={content?.cta?.primary_button}
+        secondaryButton={content?.cta?.secondary_button}
+        primaryButtonLink={content?.cta?.primary_button_link}
+        secondaryButtonLink={content?.cta?.secondary_button_link}
+      />
     </Layout>
   );
 }
