@@ -935,6 +935,90 @@ export default function AdminPageEditor() {
     </Card>
   );
 
+  const renderCTASection = (lang: 'en' | 'id', content: Record<string, any>, setContent: React.Dispatch<React.SetStateAction<Record<string, any>>>) => (
+    <Card>
+      <CardHeader>
+        <CardTitle>Call to Action Section</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div>
+          <Label>Title</Label>
+          <Input
+            value={content.cta?.title || ''}
+            onChange={(e) => setContent((prev: Record<string, any>) => ({
+              ...prev,
+              cta: { ...prev.cta, title: e.target.value }
+            }))}
+            placeholder={lang === 'id' ? 'Siap Memulai Kemitraan dengan Kami?' : 'Ready to Start a Partnership with Us?'}
+          />
+        </div>
+        <div>
+          <Label>Subtitle</Label>
+          <Textarea
+            value={content.cta?.subtitle || ''}
+            onChange={(e) => setContent((prev: Record<string, any>) => ({
+              ...prev,
+              cta: { ...prev.cta, subtitle: e.target.value }
+            }))}
+            placeholder={lang === 'id' ? 'Hubungi kami sekarang untuk konsultasi gratis.' : 'Contact us now for free consultation.'}
+            rows={2}
+          />
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label>Primary Button Text</Label>
+            <Input
+              value={content.cta?.primary_button || ''}
+              onChange={(e) => setContent((prev: Record<string, any>) => ({
+                ...prev,
+                cta: { ...prev.cta, primary_button: e.target.value }
+              }))}
+              placeholder={lang === 'id' ? 'Hubungi Kami' : 'Contact Us'}
+            />
+          </div>
+          <div>
+            <Label>Primary Button Link</Label>
+            <Input
+              value={content.cta?.primary_button_link || ''}
+              onChange={(e) => setContent((prev: Record<string, any>) => ({
+                ...prev,
+                cta: { ...prev.cta, primary_button_link: e.target.value }
+              }))}
+              placeholder="/hubungi-kami"
+            />
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label>Secondary Button Text</Label>
+            <Input
+              value={content.cta?.secondary_button || ''}
+              onChange={(e) => setContent((prev: Record<string, any>) => ({
+                ...prev,
+                cta: { ...prev.cta, secondary_button: e.target.value }
+              }))}
+              placeholder={lang === 'id' ? 'Lihat Produk' : 'View Products'}
+            />
+          </div>
+          <div>
+            <Label>Secondary Button Link</Label>
+            <Input
+              value={content.cta?.secondary_button_link || ''}
+              onChange={(e) => setContent((prev: Record<string, any>) => ({
+                ...prev,
+                cta: { ...prev.cta, secondary_button_link: e.target.value }
+              }))}
+              placeholder="/produk"
+            />
+          </div>
+        </div>
+        <p className="text-sm text-muted-foreground">
+          Leave fields empty to use the global CTA defaults from Site Settings.
+        </p>
+      </CardContent>
+    </Card>
+  );
+
   const renderPageContent = (lang: 'en' | 'id', content: Record<string, any>, setContent: React.Dispatch<React.SetStateAction<Record<string, any>>>) => {
     const sections = [];
     
@@ -950,10 +1034,12 @@ export default function AdminPageEditor() {
         break;
       case 'about':
         sections.push(renderAboutSection(lang, content));
+        sections.push(renderCTASection(lang, content, setContent));
         break;
       case 'products':
         sections.push(renderCategoriesSection(lang, content));
         sections.push(renderMaterialsSection(lang, content, setContent));
+        sections.push(renderCTASection(lang, content, setContent));
         break;
       case 'product-catalog':
         sections.push(renderProductCatalogSection(lang, content));
@@ -962,17 +1048,20 @@ export default function AdminPageEditor() {
         sections.push(renderBenefitsSectionHeader(lang, content, setContent));
         sections.push(renderBenefitsSection(lang, content));
         sections.push(renderProcessSection(lang, content, setContent));
+        sections.push(renderCTASection(lang, content, setContent));
         break;
       case 'umkm-solutions':
         sections.push(renderBenefitsSectionHeader(lang, content, setContent));
         sections.push(renderBenefitsSection(lang, content));
         sections.push(renderSuccessSection(lang, content, setContent));
+        sections.push(renderCTASection(lang, content, setContent));
         break;
       case 'case-studies':
         sections.push(renderCaseStudiesSection(lang, content));
+        sections.push(renderCTASection(lang, content, setContent));
         break;
       case 'blog':
-        // Blog page only needs hero and SEO which are already added
+        sections.push(renderCTASection(lang, content, setContent));
         break;
     }
     

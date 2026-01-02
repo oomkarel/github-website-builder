@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { SEO } from '@/components/common/SEO';
 import { Layout } from '@/components/layout/Layout';
+import { CTASection } from '@/components/home/CTASection';
 import { useBlogs } from '@/hooks/useBlogs';
 import { usePageContent } from '@/hooks/usePageContent';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -167,6 +168,15 @@ export default function Blog() {
           )}
         </div>
       </section>
+      
+      <CTASection 
+        title={content?.cta?.title}
+        subtitle={content?.cta?.subtitle}
+        primaryButton={content?.cta?.primary_button}
+        secondaryButton={content?.cta?.secondary_button}
+        primaryButtonLink={content?.cta?.primary_button_link}
+        secondaryButtonLink={content?.cta?.secondary_button_link}
+      />
     </Layout>
   );
 }

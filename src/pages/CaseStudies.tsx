@@ -141,7 +141,14 @@ export default function CaseStudies() {
         </section>
       )}
 
-      <CTASection />
+      <CTASection 
+        title={content?.cta?.title}
+        subtitle={content?.cta?.subtitle}
+        primaryButton={content?.cta?.primary_button}
+        secondaryButton={content?.cta?.secondary_button}
+        primaryButtonLink={content?.cta?.primary_button_link}
+        secondaryButtonLink={content?.cta?.secondary_button_link}
+      />
     </Layout>
   );
 }
