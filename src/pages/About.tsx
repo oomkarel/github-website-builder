@@ -60,6 +60,7 @@ export default function About() {
   const heroSubtitle = content?.hero?.subtitle || t('Mitra kemasan terpercaya untuk korporasi dan UMKM di seluruh Indonesia sejak 2015.', 'Trusted packaging partner for corporations and SMEs across Indonesia since 2015.');
   
   const values = content?.values || [];
+  const team = content?.team || [];
 
   return (
     <Layout>
@@ -100,6 +101,39 @@ export default function About() {
                   </div>
                 );
               })}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {team.length > 0 && (
+        <section className="py-24 bg-muted/30">
+          <div className="container mx-auto px-4">
+            <h2 className="text-3xl font-display font-bold text-center mb-12">
+              {t('Tim Kami', 'Our Team')}
+            </h2>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 max-w-6xl mx-auto">
+              {team.map((member: any, i: number) => (
+                <div key={i} className="text-center group">
+                  <div className="relative w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden bg-muted">
+                    {member.image ? (
+                      <img 
+                        src={member.image} 
+                        alt={member.name}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-secondary/10">
+                        <span className="text-3xl font-bold text-secondary">
+                          {member.name?.charAt(0) || '?'}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  <h3 className="font-display font-semibold text-lg">{member.name}</h3>
+                  <p className="text-muted-foreground text-sm">{member.role}</p>
+                </div>
+              ))}
             </div>
           </div>
         </section>
