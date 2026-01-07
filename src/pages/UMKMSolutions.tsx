@@ -92,8 +92,11 @@ export default function UMKMSolutions() {
   const successSection = content?.successSection || { 
     title: t('Cerita Sukses UMKM', 'SME Success Stories'), 
     subtitle: t('Lihat bagaimana UMKM lain berkembang bersama kami.', 'See how other SMEs have grown with us.'), 
-    buttonText: t('Lihat Case Studies', 'View Case Studies') 
+    buttonText: t('Lihat Case Studies', 'View Case Studies'),
+    buttonLink: '/case-studies',
+    isVisible: true
   };
+  const showSuccessSection = successSection.isVisible !== false;
 
   return (
     <Layout>
@@ -169,27 +172,29 @@ export default function UMKMSolutions() {
       )}
 
       {/* Success Story Preview */}
-      <section className="py-24 bg-muted/30">
-        <div className="container mx-auto px-4">
-          <div className="text-center max-w-3xl mx-auto mb-12">
-            <h2 className="text-3xl sm:text-4xl font-display font-bold text-foreground mb-4">
-              {successSection.title}
-            </h2>
-            <p className="text-muted-foreground text-lg">
-              {successSection.subtitle}
-            </p>
-          </div>
+      {showSuccessSection && (
+        <section className="py-24 bg-muted/30">
+          <div className="container mx-auto px-4">
+            <div className="text-center max-w-3xl mx-auto mb-12">
+              <h2 className="text-3xl sm:text-4xl font-display font-bold text-foreground mb-4">
+                {successSection.title}
+              </h2>
+              <p className="text-muted-foreground text-lg">
+                {successSection.subtitle}
+              </p>
+            </div>
 
-          <div className="text-center">
-            <Button asChild variant="outline" size="lg">
-              <Link to="/case-studies">
-                {successSection.buttonText}
-                <ArrowRight className="h-4 w-4 ml-2" />
-              </Link>
-            </Button>
+            <div className="text-center">
+              <Button asChild variant="outline" size="lg">
+                <Link to={successSection.buttonLink || '/case-studies'}>
+                  {successSection.buttonText}
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </Link>
+              </Button>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       <CTASection 
         title={content?.cta?.title}
