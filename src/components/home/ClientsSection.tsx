@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { Building2 } from 'lucide-react';
 
 interface ClientLogo {
@@ -21,6 +21,11 @@ const speedMap = {
 };
 
 export function ClientsSection({ title, subtitle, logos, marqueeSpeed = 'normal' }: ClientsSectionProps) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
+
   // Don't render if no logos provided (CMS not configured)
   if (!logos || logos.length === 0) {
     return null;
@@ -28,6 +33,39 @@ export function ClientsSection({ title, subtitle, logos, marqueeSpeed = 'normal'
 
   const useMarquee = logos.length > 4;
   const animationDuration = speedMap[marqueeSpeed] || 30;
+
+  // Touch/mouse handlers for swipe scrolling
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!scrollRef.current) return;
+    setIsDragging(true);
+    setStartX(e.pageX - scrollRef.current.offsetLeft);
+    setScrollLeft(scrollRef.current.scrollLeft);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !scrollRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - scrollRef.current.offsetLeft;
+    const walk = (x - startX) * 2;
+    scrollRef.current.scrollLeft = scrollLeft - walk;
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (!scrollRef.current) return;
+    setStartX(e.touches[0].pageX - scrollRef.current.offsetLeft);
+    setScrollLeft(scrollRef.current.scrollLeft);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!scrollRef.current) return;
+    const x = e.touches[0].pageX - scrollRef.current.offsetLeft;
+    const walk = (x - startX) * 2;
+    scrollRef.current.scrollLeft = scrollLeft - walk;
+  };
 
   return (
     <section className="py-16 bg-background overflow-hidden">
@@ -48,17 +86,27 @@ export function ClientsSection({ title, subtitle, logos, marqueeSpeed = 'normal'
         )}
 
         {useMarquee ? (
-          /* Infinite scrolling marquee for 5+ logos */
+          /* Swipeable + auto-scrolling marquee for 5+ logos */
           <div className="relative">
             {/* Gradient fade edges */}
             <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
             <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
             
-            <div className="overflow-hidden">
+            <div 
+              ref={scrollRef}
+              className="overflow-x-auto scrollbar-hide cursor-grab active:cursor-grabbing"
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseUp}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
               <div 
-                className="flex hover:[animation-play-state:paused]"
+                className={`flex ${isDragging ? '' : 'hover:[animation-play-state:paused]'}`}
                 style={{ 
-                  animation: `marquee ${animationDuration}s linear infinite`,
+                  animation: isDragging ? 'none' : `marquee ${animationDuration}s linear infinite`,
                   width: 'max-content'
                 }}
               >

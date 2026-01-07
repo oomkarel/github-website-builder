@@ -42,7 +42,7 @@ import {
   Menu as MenuIcon
 } from 'lucide-react';
 import { 
-  useNavigationMenus,
+  useAllNavigationMenus,
   useNavigationMenusHierarchy,
   useCreateNavigationMenu,
   useUpdateNavigationMenu,
@@ -267,8 +267,8 @@ function SortableMenuList({
 
 export default function AdminMenus() {
   const { language } = useLanguage();
-  const { data: hierarchicalMenus, isLoading, refetch } = useNavigationMenusHierarchy();
-  const { data: flatMenus } = useNavigationMenus();
+  const { data: hierarchicalMenus, isLoading, refetch } = useNavigationMenusHierarchy(true); // Include hidden items
+  const { data: flatMenus } = useAllNavigationMenus();
   const createMenu = useCreateNavigationMenu();
   const updateMenu = useUpdateNavigationMenu();
   const deleteMenu = useDeleteNavigationMenu();
