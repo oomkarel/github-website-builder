@@ -565,6 +565,16 @@ export default function AdminPageEditor() {
         <CardTitle>Success Stories Section</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
+        <div className="flex items-center justify-between">
+          <Label>Show Section</Label>
+          <Switch
+            checked={content.successSection?.isVisible !== false}
+            onCheckedChange={(checked) => setContent((prev: Record<string, any>) => ({
+              ...prev,
+              successSection: { ...prev.successSection, isVisible: checked }
+            }))}
+          />
+        </div>
         <div>
           <Label>Section Title</Label>
           <Input
@@ -586,15 +596,29 @@ export default function AdminPageEditor() {
             rows={2}
           />
         </div>
-        <div>
-          <Label>Button Text</Label>
-          <Input
-            value={content.successSection?.buttonText || ''}
-            onChange={(e) => setContent((prev: Record<string, any>) => ({
-              ...prev,
-              successSection: { ...prev.successSection, buttonText: e.target.value }
-            }))}
-          />
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label>Button Text</Label>
+            <Input
+              value={content.successSection?.buttonText || ''}
+              onChange={(e) => setContent((prev: Record<string, any>) => ({
+                ...prev,
+                successSection: { ...prev.successSection, buttonText: e.target.value }
+              }))}
+              placeholder={lang === 'id' ? 'Lihat Case Studies' : 'View Case Studies'}
+            />
+          </div>
+          <div>
+            <Label>Button Link</Label>
+            <Input
+              value={content.successSection?.buttonLink || ''}
+              onChange={(e) => setContent((prev: Record<string, any>) => ({
+                ...prev,
+                successSection: { ...prev.successSection, buttonLink: e.target.value }
+              }))}
+              placeholder="/case-studies"
+            />
+          </div>
         </div>
       </CardContent>
     </Card>
