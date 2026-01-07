@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -21,6 +21,8 @@ interface HeroCarouselProps {
 
 export function HeroCarousel({ content }: HeroCarouselProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const touchStartX = useRef<number | null>(null);
+  const touchEndX = useRef<number | null>(null);
 
   // If no content provided, don't render (parent shows skeleton)
   if (!content) {
@@ -48,6 +50,33 @@ export function HeroCarousel({ content }: HeroCarouselProps) {
     }
   }, [images.length]);
 
+  // Touch handlers for swipe
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    if (touchStartX.current === null || touchEndX.current === null) return;
+    
+    const diff = touchStartX.current - touchEndX.current;
+    const minSwipeDistance = 50;
+
+    if (Math.abs(diff) > minSwipeDistance) {
+      if (diff > 0) {
+        nextSlide();
+      } else {
+        prevSlide();
+      }
+    }
+
+    touchStartX.current = null;
+    touchEndX.current = null;
+  };
+
   useEffect(() => {
     if (images.length > 1) {
       const timer = setInterval(nextSlide, 5000);
@@ -70,7 +99,12 @@ export function HeroCarousel({ content }: HeroCarouselProps) {
   };
 
   return (
-    <section className="relative min-h-screen flex items-center overflow-hidden">
+    <section 
+      className="relative min-h-screen flex items-center overflow-hidden"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
       {/* Background Images */}
       {images.length > 0 ? (
         images.map((image, index) => (
