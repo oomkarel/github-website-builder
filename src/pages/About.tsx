@@ -112,9 +112,9 @@ export default function About() {
             <h2 className="text-3xl font-display font-bold text-center mb-12">
               {t('Tim Kami', 'Our Team')}
             </h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 max-w-6xl mx-auto justify-items-center">
+            <div className="flex flex-wrap justify-center gap-8 max-w-6xl mx-auto">
               {team.map((member: any, i: number) => (
-                <div key={i} className="text-center group">
+                <div key={i} className="w-64 text-center group">
                   <div className="relative w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden bg-muted">
                     {member.image ? (
                       <img 
