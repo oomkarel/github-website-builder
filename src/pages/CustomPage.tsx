@@ -72,7 +72,7 @@ export default function CustomPage() {
           description={metaDescription || ''}
           image={page.og_image || undefined}
         />
-        <div className="container mx-auto px-4 py-12">
+        <div className="container mx-auto px-4 pt-24 pb-12">
           <article className="max-w-4xl mx-auto">
             <h1 className="text-4xl font-bold mb-8">{title}</h1>
             <BlockRenderer blocks={blocks} />

@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { usePageContent, useUpdatePageContent } from '@/hooks/usePageContent';
@@ -8,13 +8,31 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Loader2, Save, Plus, Trash2 } from 'lucide-react';
+import { ArrowLeft, Loader2, Save, Plus, Trash2, Eye, EyeOff, GripVertical } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import AdminLayout from '@/components/admin/AdminLayout';
 import ImageUploader from '@/components/admin/ImageUploader';
 import LivePreview from '@/components/admin/LivePreview';
 import IconSelector from '@/components/admin/IconSelector';
 import SEOAudit from '@/components/admin/SEOAudit';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { cn } from '@/lib/utils';
 
 interface ContentItem {
   icon?: string;
@@ -31,6 +49,49 @@ interface ContentItem {
   tags?: string[];
 }
 
+// Sortable Item Component
+interface SortableItemProps {
+  id: string;
+  children: React.ReactNode;
+}
+
+function SortableItem({ id, children }: SortableItemProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={cn("relative", isDragging && "opacity-50 z-50")}
+    >
+      <div className="absolute left-2 top-4 z-10">
+        <button
+          className="cursor-grab active:cursor-grabbing touch-none p-1 rounded hover:bg-muted"
+          {...attributes}
+          {...listeners}
+        >
+          <GripVertical className="h-4 w-4 text-muted-foreground" />
+        </button>
+      </div>
+      <div className="pl-8">
+        {children}
+      </div>
+    </div>
+  );
+}
+
 export default function AdminPageEditor() {
   const { pageKey } = useParams<{ pageKey: string }>();
   const navigate = useNavigate();
@@ -40,6 +101,18 @@ export default function AdminPageEditor() {
 
   const [contentEn, setContentEn] = useState<Record<string, any>>({});
   const [contentId, setContentId] = useState<Record<string, any>>({});
+  const [showPreview, setShowPreview] = useState(true);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   useEffect(() => {
     if (page) {
@@ -51,6 +124,28 @@ export default function AdminPageEditor() {
   const handleSave = () => {
     if (!pageKey) return;
     updatePage.mutate({ pageKey, contentEn, contentId });
+  };
+
+  // Reorder handler for drag-and-drop
+  const handleDragEnd = (section: string) => (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const reorderInBoth = (arr: any[]) => {
+      const oldIndex = arr.findIndex((_, i) => `${section}-${i}` === active.id);
+      const newIndex = arr.findIndex((_, i) => `${section}-${i}` === over.id);
+      if (oldIndex === -1 || newIndex === -1) return arr;
+      return arrayMove(arr, oldIndex, newIndex);
+    };
+
+    setContentEn((prev: Record<string, any>) => ({
+      ...prev,
+      [section]: reorderInBoth(prev[section] || [])
+    }));
+    setContentId((prev: Record<string, any>) => ({
+      ...prev,
+      [section]: reorderInBoth(prev[section] || [])
+    }));
   };
 
   const updateField = (lang: 'en' | 'id', section: string, field: string, value: any) => {
@@ -714,54 +809,92 @@ export default function AdminPageEditor() {
     </Card>
   );
 
-  const renderTeamSection = (lang: 'en' | 'id', content: Record<string, any>) => (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Team Members</CardTitle>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => addArrayItem(lang, 'team', { name: '', role: '', image: '' })}
-        >
-          <Plus className="h-4 w-4 mr-1" /> Add
-        </Button>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {(content.team || []).map((item: ContentItem, index: number) => (
-          <div key={index} className="p-4 border rounded-lg space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="font-medium">Member {index + 1}</span>
-              <Button variant="ghost" size="sm" onClick={() => removeArrayItem(lang, 'team', index)}>
-                <Trash2 className="h-4 w-4 text-destructive" />
-              </Button>
-            </div>
-            <div>
-              <Label>Photo</Label>
-              <ImageUploader
-                value={item.image || ''}
-                onChange={(url) => updateArrayItem(lang, 'team', index, 'image', url)}
-                folder="team"
-              />
-            </div>
-            <div>
-              <Label>Name</Label>
-              <Input
-                value={item.name || ''}
-                onChange={(e) => updateArrayItem(lang, 'team', index, 'name', e.target.value)}
-              />
-            </div>
-            <div>
-              <Label>Role</Label>
-              <Input
-                value={item.role || ''}
-                onChange={(e) => updateArrayItem(lang, 'team', index, 'role', e.target.value)}
-              />
-            </div>
-          </div>
-        ))}
-      </CardContent>
-    </Card>
-  );
+  const renderTeamSection = (lang: 'en' | 'id', content: Record<string, any>) => {
+    const teamItems = content.team || [];
+    const teamIds = teamItems.map((_: any, i: number) => `team-${i}`);
+    
+    return (
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>Team Members</CardTitle>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              // Add to both languages to keep sync
+              const newMember = { name: '', role: '', image: '' };
+              addArrayItem('en', 'team', newMember);
+              addArrayItem('id', 'team', newMember);
+            }}
+          >
+            <Plus className="h-4 w-4 mr-1" /> Add
+          </Button>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <p className="text-xs text-muted-foreground">
+            {language === 'en' 
+              ? 'Drag items to reorder. Photos sync across languages.' 
+              : 'Seret untuk mengatur urutan. Foto disinkronkan antar bahasa.'}
+          </p>
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd('team')}>
+            <SortableContext items={teamIds} strategy={verticalListSortingStrategy}>
+              {teamItems.map((item: ContentItem, index: number) => (
+                <SortableItem key={`team-${index}`} id={`team-${index}`}>
+                  <div className="p-4 border rounded-lg space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="font-medium">Member {index + 1}</span>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => {
+                          // Remove from both languages
+                          removeArrayItem('en', 'team', index);
+                          removeArrayItem('id', 'team', index);
+                        }}
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </div>
+                    <div>
+                      <Label>Photo</Label>
+                      <ImageUploader
+                        value={item.image || ''}
+                        onChange={(url) => {
+                          // Sync image to both languages
+                          updateArrayItem('en', 'team', index, 'image', url);
+                          updateArrayItem('id', 'team', index, 'image', url);
+                        }}
+                        folder="team"
+                      />
+                    </div>
+                    <div>
+                      <Label>Name</Label>
+                      <Input
+                        value={item.name || ''}
+                        onChange={(e) => updateArrayItem(lang, 'team', index, 'name', e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <Label>Role</Label>
+                      <Input
+                        value={item.role || ''}
+                        onChange={(e) => updateArrayItem(lang, 'team', index, 'role', e.target.value)}
+                      />
+                    </div>
+                  </div>
+                </SortableItem>
+              ))}
+            </SortableContext>
+          </DndContext>
+          {teamItems.length === 0 && (
+            <p className="text-sm text-muted-foreground text-center py-4">
+              {language === 'en' ? 'No team members yet. Click "Add" to add your first team member.' : 'Belum ada anggota tim. Klik "Tambah" untuk menambahkan.'}
+            </p>
+          )}
+        </CardContent>
+      </Card>
+    );
+  };
 
   const renderCategoriesSection = (lang: 'en' | 'id', content: Record<string, any>) => (
     <Card>
@@ -1134,13 +1267,26 @@ export default function AdminPageEditor() {
             </Button>
             <h1 className="text-2xl font-bold">{pageLabels[pageKey || ''] || pageKey}</h1>
           </div>
-          <Button onClick={handleSave} disabled={updatePage.isPending}>
-            {updatePage.isPending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
-            {language === 'en' ? 'Save Changes' : 'Simpan'}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowPreview(!showPreview)}
+              className="hidden xl:flex"
+            >
+              {showPreview ? <EyeOff className="h-4 w-4 mr-2" /> : <Eye className="h-4 w-4 mr-2" />}
+              {showPreview 
+                ? (language === 'en' ? 'Hide Preview' : 'Sembunyikan Preview')
+                : (language === 'en' ? 'Show Preview' : 'Tampilkan Preview')}
+            </Button>
+            <Button onClick={handleSave} disabled={updatePage.isPending}>
+              {updatePage.isPending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
+              {language === 'en' ? 'Save Changes' : 'Simpan'}
+            </Button>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <div className={`grid gap-6 ${showPreview ? 'grid-cols-1 xl:grid-cols-2' : 'grid-cols-1'}`}>
           <div>
             <Tabs defaultValue="en">
               <TabsList>
@@ -1158,11 +1304,12 @@ export default function AdminPageEditor() {
             </Tabs>
           </div>
           
-          <div className="hidden xl:block sticky top-6 space-y-6">
-            <LivePreview 
-              path={pageRoutes[pageKey || ''] || '/'} 
-              title="Live Preview" 
-            />
+          {showPreview && (
+            <div className="hidden xl:block sticky top-6 space-y-6">
+              <LivePreview 
+                path={pageRoutes[pageKey || ''] || '/'} 
+                title="Live Preview" 
+              />
             
             {/* SEO Audit Panel */}
             <Tabs defaultValue="id">
@@ -1189,7 +1336,8 @@ export default function AdminPageEditor() {
                 />
               </TabsContent>
             </Tabs>
-          </div>
+            </div>
+          )}
         </div>
       </div>
     </AdminLayout>

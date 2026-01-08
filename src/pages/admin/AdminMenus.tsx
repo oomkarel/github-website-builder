@@ -50,6 +50,7 @@ import {
   useReorderNavigationMenus,
   NavigationMenu 
 } from '@/hooks/useNavigationMenus';
+import PageLinkSelector from '@/components/admin/PageLinkSelector';
 import { cn } from '@/lib/utils';
 import {
   DndContext,
@@ -477,10 +478,9 @@ export default function AdminMenus() {
 
             <div>
               <Label>Link URL</Label>
-              <Input
+              <PageLinkSelector
                 value={formData.href}
-                onChange={(e) => setFormData(prev => ({ ...prev, href: e.target.value }))}
-                placeholder="/page-url (leave empty for dropdown parent)"
+                onChange={(value) => setFormData(prev => ({ ...prev, href: value }))}
               />
               <p className="text-xs text-muted-foreground mt-1">
                 {language === 'en' 
