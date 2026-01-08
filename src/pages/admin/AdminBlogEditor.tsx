@@ -8,11 +8,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, Loader2, Save } from 'lucide-react';
+import { ArrowLeft, Loader2, Save, Eye, EyeOff } from 'lucide-react';
 import AdminLayout from '@/components/admin/AdminLayout';
 import ImageUploader from '@/components/admin/ImageUploader';
 import RichTextEditor from '@/components/admin/RichTextEditor';
 import LivePreview from '@/components/admin/LivePreview';
+import SEOAudit from '@/components/admin/SEOAudit';
 
 export default function AdminBlogEditor() {
   const { id } = useParams<{ id: string }>();
@@ -23,6 +24,7 @@ export default function AdminBlogEditor() {
   const createBlog = useCreateBlog();
   const updateBlog = useUpdateBlog();
 
+  const [showPreview, setShowPreview] = useState(true);
   const [formData, setFormData] = useState({
     title_en: '',
     title_id: '',
@@ -103,6 +105,17 @@ export default function AdminBlogEditor() {
             </h1>
           </div>
           <div className="flex items-center gap-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowPreview(!showPreview)}
+              className="hidden xl:flex"
+            >
+              {showPreview ? <EyeOff className="h-4 w-4 mr-2" /> : <Eye className="h-4 w-4 mr-2" />}
+              {showPreview 
+                ? (language === 'en' ? 'Hide Preview' : 'Sembunyikan Preview')
+                : (language === 'en' ? 'Show Preview' : 'Tampilkan Preview')}
+            </Button>
             <div className="flex items-center gap-2">
               <Switch
                 checked={formData.is_published}
@@ -117,7 +130,7 @@ export default function AdminBlogEditor() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <div className={`grid gap-6 ${showPreview ? 'grid-cols-1 xl:grid-cols-2' : 'grid-cols-1'}`}>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2 space-y-6">
               <Tabs defaultValue="en">
@@ -260,31 +273,59 @@ export default function AdminBlogEditor() {
                   </div>
                 </CardContent>
               </Card>
+
+              {/* SEO Audit */}
+              <Tabs defaultValue="id">
+                <TabsList className="w-full">
+                  <TabsTrigger value="id" className="flex-1">SEO (ID)</TabsTrigger>
+                  <TabsTrigger value="en" className="flex-1">SEO (EN)</TabsTrigger>
+                </TabsList>
+                <TabsContent value="id" className="mt-4">
+                  <SEOAudit
+                    title={formData.title_id}
+                    metaTitle={formData.meta_title_id || formData.title_id}
+                    metaDescription={formData.meta_description_id || formData.excerpt_id}
+                    content={formData.content_id}
+                    language="id"
+                  />
+                </TabsContent>
+                <TabsContent value="en" className="mt-4">
+                  <SEOAudit
+                    title={formData.title_en}
+                    metaTitle={formData.meta_title_en || formData.title_en}
+                    metaDescription={formData.meta_description_en || formData.excerpt_en}
+                    content={formData.content_en}
+                    language="en"
+                  />
+                </TabsContent>
+              </Tabs>
             </div>
           </div>
           
-          <div className="hidden xl:block sticky top-6">
-            {isNew ? (
-              <Card className="h-[600px] flex items-center justify-center">
-                <CardContent className="text-center text-muted-foreground">
-                  <p className="text-lg font-medium mb-2">Blog Preview</p>
-                  <p className="text-sm">Save the blog post to see preview</p>
-                </CardContent>
-              </Card>
-            ) : formData.slug ? (
-              <LivePreview 
-                path={`/blog/${formData.slug}`} 
-                title="Blog Preview" 
-              />
-            ) : (
-              <Card className="h-[600px] flex items-center justify-center">
-                <CardContent className="text-center text-muted-foreground">
-                  <p className="text-lg font-medium mb-2">Blog Preview</p>
-                  <p className="text-sm">Add a slug to see preview</p>
-                </CardContent>
-              </Card>
-            )}
-          </div>
+          {showPreview && (
+            <div className="hidden xl:block sticky top-6">
+              {isNew ? (
+                <Card className="h-[600px] flex items-center justify-center">
+                  <CardContent className="text-center text-muted-foreground">
+                    <p className="text-lg font-medium mb-2">Blog Preview</p>
+                    <p className="text-sm">Save the blog post to see preview</p>
+                  </CardContent>
+                </Card>
+              ) : formData.slug ? (
+                <LivePreview 
+                  path={`/blog/${formData.slug}`} 
+                  title="Blog Preview" 
+                />
+              ) : (
+                <Card className="h-[600px] flex items-center justify-center">
+                  <CardContent className="text-center text-muted-foreground">
+                    <p className="text-lg font-medium mb-2">Blog Preview</p>
+                    <p className="text-sm">Add a slug to see preview</p>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </AdminLayout>
