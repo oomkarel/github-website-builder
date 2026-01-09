@@ -191,7 +191,11 @@ export default function AdminPageEditor() {
           <Label>Hero Image</Label>
           <ImageUploader
             value={content.hero?.image || ''}
-            onChange={(url) => updateField(lang, 'hero', 'image', url)}
+            onChange={(url) => {
+              // Sync image to both languages
+              updateField('en', 'hero', 'image', url);
+              updateField('id', 'hero', 'image', url);
+            }}
             folder="heroes"
           />
         </div>
@@ -425,17 +429,31 @@ export default function AdminPageEditor() {
         <Button
           variant="outline"
           size="sm"
-          onClick={() => addArrayItem(lang, 'products', { image: '', name: '', description: '', category: '', tags: [] })}
+          onClick={() => {
+            // Add to both languages to keep sync
+            const newProduct = { image: '', name: '', description: '', category: '', tags: [] };
+            addArrayItem('en', 'products', newProduct);
+            addArrayItem('id', 'products', newProduct);
+          }}
         >
           <Plus className="h-4 w-4 mr-1" /> Add Product
         </Button>
       </CardHeader>
       <CardContent className="space-y-4">
+        <p className="text-xs text-muted-foreground">
+          {language === 'en' 
+            ? 'Images sync across languages. Text is language-specific.' 
+            : 'Gambar disinkronkan antar bahasa. Teks khusus per bahasa.'}
+        </p>
         {(content.products || []).map((item: any, index: number) => (
           <div key={index} className="p-4 border rounded-lg space-y-3">
             <div className="flex justify-between items-center">
               <span className="font-medium">Product {index + 1}</span>
-              <Button variant="ghost" size="sm" onClick={() => removeArrayItem(lang, 'products', index)}>
+              <Button variant="ghost" size="sm" onClick={() => {
+                // Remove from both languages
+                removeArrayItem('en', 'products', index);
+                removeArrayItem('id', 'products', index);
+              }}>
                 <Trash2 className="h-4 w-4 text-destructive" />
               </Button>
             </div>
@@ -443,7 +461,11 @@ export default function AdminPageEditor() {
               <Label>Image</Label>
               <ImageUploader
                 value={item.image || ''}
-                onChange={(url) => updateArrayItem(lang, 'products', index, 'image', url)}
+                onChange={(url) => {
+                  // Sync image to both languages
+                  updateArrayItem('en', 'products', index, 'image', url);
+                  updateArrayItem('id', 'products', index, 'image', url);
+                }}
                 folder="products"
               />
             </div>

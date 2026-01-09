@@ -549,7 +549,10 @@ export default function AdminHomeEditor() {
                     />
                   </div>
                   <div className="space-y-4">
-                    <Label>Products</Label>
+                    <div className="flex items-center justify-between">
+                      <Label>Products</Label>
+                      <span className="text-xs text-muted-foreground">Images sync across languages</span>
+                    </div>
                     {(contentEn.products?.items || []).map((item: any, index: number) => (
                       <div key={index} className="p-4 border rounded-lg space-y-3">
                         <div className="flex items-center justify-between">
@@ -557,14 +560,20 @@ export default function AdminHomeEditor() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => removeArrayItem('en', 'products', 'items', index)}
+                            onClick={() => {
+                              removeArrayItem('en', 'products', 'items', index);
+                              removeArrayItem('id', 'products', 'items', index);
+                            }}
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
                         <ImageUploader
                           value={item.image || ''}
-                          onChange={(url) => updateArrayItem('en', 'products', 'items', index, 'image', url)}
+                          onChange={(url) => {
+                            updateArrayItem('en', 'products', 'items', index, 'image', url);
+                            updateArrayItem('id', 'products', 'items', index, 'image', url);
+                          }}
                         />
                         <Input
                           placeholder="Name"
@@ -580,7 +589,10 @@ export default function AdminHomeEditor() {
                     ))}
                     <Button
                       variant="outline"
-                      onClick={() => addArrayItem('en', 'products', 'items', { image: '', name: '', description: '' })}
+                      onClick={() => {
+                        addArrayItem('en', 'products', 'items', { image: '', name: '', description: '' });
+                        addArrayItem('id', 'products', 'items', { image: '', name: '', description: '' });
+                      }}
                     >
                       <Plus className="h-4 w-4 mr-2" />
                       Add Product
@@ -609,23 +621,20 @@ export default function AdminHomeEditor() {
                     />
                   </div>
                   <div className="space-y-4">
-                    <Label>Products</Label>
+                    <div className="flex items-center justify-between">
+                      <Label>Products</Label>
+                      <span className="text-xs text-muted-foreground">Images managed in English tab</span>
+                    </div>
                     {(contentId.products?.items || []).map((item: any, index: number) => (
                       <div key={index} className="p-4 border rounded-lg space-y-3">
                         <div className="flex items-center justify-between">
                           <span className="font-medium">Product {index + 1}</span>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => removeArrayItem('id', 'products', 'items', index)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
                         </div>
-                        <ImageUploader
-                          value={item.image || ''}
-                          onChange={(url) => updateArrayItem('id', 'products', 'items', index, 'image', url)}
-                        />
+                        {item.image && (
+                          <div className="w-full h-32 rounded-lg overflow-hidden bg-muted">
+                            <img src={item.image} alt="" className="w-full h-full object-cover" />
+                          </div>
+                        )}
                         <Input
                           placeholder="Name"
                           value={item.name || ''}
@@ -638,13 +647,6 @@ export default function AdminHomeEditor() {
                         />
                       </div>
                     ))}
-                    <Button
-                      variant="outline"
-                      onClick={() => addArrayItem('id', 'products', 'items', { image: '', name: '', description: '' })}
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Add Product
-                    </Button>
                   </div>
                 </CardContent>
               </Card>

@@ -247,14 +247,57 @@ export default function AdminCustomPageEditor() {
 
             <Card>
               <CardHeader>
-                <CardTitle>{language === 'en' ? 'Page Content' : 'Konten Halaman'}</CardTitle>
-                <CardDescription>
-                  {language === 'en' 
-                    ? 'Write your page content using the rich text editor' 
-                    : 'Tulis konten halaman menggunakan editor teks kaya'}
-                </CardDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>{language === 'en' ? 'Page Content' : 'Konten Halaman'}</CardTitle>
+                    <CardDescription>
+                      {language === 'en' 
+                        ? 'Write your page content using the rich text editor' 
+                        : 'Tulis konten halaman menggunakan editor teks kaya'}
+                    </CardDescription>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      // Sync images from EN blocks to ID blocks
+                      const syncedBlocksId = blocksId.map((block, index) => {
+                        const enBlock = blocksEn[index];
+                        if (!enBlock) return block;
+                        
+                        // Deep copy and sync image fields
+                        const syncedData = { ...block.data };
+                        
+                        // Sync common image fields
+                        if (enBlock.data.background_image) syncedData.background_image = enBlock.data.background_image;
+                        if (enBlock.data.author_image) syncedData.author_image = enBlock.data.author_image;
+                        if (enBlock.data.images) syncedData.images = enBlock.data.images;
+                        
+                        // Sync images in array items (team members, etc.)
+                        if (enBlock.data.items && Array.isArray(enBlock.data.items)) {
+                          syncedData.items = (syncedData.items || []).map((item: any, i: number) => {
+                            const enItem = enBlock.data.items?.[i];
+                            if (enItem?.image) return { ...item, image: enItem.image };
+                            return item;
+                          });
+                        }
+                        
+                        return { ...block, data: syncedData };
+                      });
+                      setBlocksId(syncedBlocksId);
+                    }}
+                  >
+                    {language === 'en' ? 'Sync Images EN → ID' : 'Sinkron Gambar EN → ID'}
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent className="space-y-6">
+                <p className="text-xs text-muted-foreground -mt-2">
+                  {language === 'en' 
+                    ? 'Tip: Add content blocks in English first, then click "Sync Images" to copy images to Indonesian version.' 
+                    : 'Tips: Tambahkan blok konten di versi English dulu, lalu klik "Sinkron Gambar" untuk menyalin gambar ke versi Indonesia.'}
+                </p>
                 <div>
                   <Label className="mb-2 block">Content (English)</Label>
                   <ContentBlockEditor
