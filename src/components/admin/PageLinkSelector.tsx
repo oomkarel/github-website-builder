@@ -8,6 +8,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  SelectGroup,
+  SelectLabel,
 } from '@/components/ui/select';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { usePublishedCustomPages } from '@/hooks/useCustomPages';
@@ -102,25 +104,27 @@ export default function PageLinkSelector({ value, onChange, label }: PageLinkSel
             <SelectValue placeholder={language === 'en' ? 'Select a page' : 'Pilih halaman'} />
           </SelectTrigger>
           <SelectContent className="bg-background border shadow-lg z-50 max-h-[300px]">
-            <SelectItem value="" disabled className="text-muted-foreground font-medium">
-              {language === 'en' ? '— Fixed Pages —' : '— Halaman Tetap —'}
-            </SelectItem>
-            {fixedPages.map((page) => (
-              <SelectItem key={page.value} value={page.value}>
-                {page.label[language as 'en' | 'id']}
-              </SelectItem>
-            ))}
-            {customPages && customPages.length > 0 && (
-              <>
-                <SelectItem value="" disabled className="text-muted-foreground font-medium mt-2">
-                  {language === 'en' ? '— Custom Pages —' : '— Halaman Kustom —'}
+            <SelectGroup>
+              <SelectLabel className="text-muted-foreground font-medium">
+                {language === 'en' ? 'Fixed Pages' : 'Halaman Tetap'}
+              </SelectLabel>
+              {fixedPages.map((page) => (
+                <SelectItem key={page.value} value={page.value}>
+                  {page.label[language as 'en' | 'id']}
                 </SelectItem>
+              ))}
+            </SelectGroup>
+            {customPages && customPages.length > 0 && (
+              <SelectGroup>
+                <SelectLabel className="text-muted-foreground font-medium mt-2">
+                  {language === 'en' ? 'Custom Pages' : 'Halaman Kustom'}
+                </SelectLabel>
                 {customPages.map((page) => (
                   <SelectItem key={page.id} value={`/p/${page.slug}`}>
                     📄 {language === 'en' ? page.title_en : page.title_id}
                   </SelectItem>
                 ))}
-              </>
+              </SelectGroup>
             )}
           </SelectContent>
         </Select>
