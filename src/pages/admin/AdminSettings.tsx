@@ -161,8 +161,10 @@ export default function AdminSettings() {
                 </CardDescription>
               </div>
             </div>
-            <Button size="sm" onClick={handleSaveWhatsapp} disabled={updateSetting.isPending}>
-              {updateSetting.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            <Button size="sm" onClick={handleSaveWhatsapp} disabled={updateSetting.isPending} className="w-9 h-9 p-0">
+              <span className="w-4 h-4 inline-flex items-center justify-center">
+                {updateSetting.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              </span>
             </Button>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -254,8 +256,10 @@ export default function AdminSettings() {
                 </CardDescription>
               </div>
             </div>
-            <Button size="sm" onClick={handleSaveCtaDefaults} disabled={updateSetting.isPending}>
-              {updateSetting.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            <Button size="sm" onClick={handleSaveCtaDefaults} disabled={updateSetting.isPending} className="w-9 h-9 p-0">
+              <span className="w-4 h-4 inline-flex items-center justify-center">
+                {updateSetting.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              </span>
             </Button>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -322,8 +326,10 @@ export default function AdminSettings() {
                 </CardDescription>
               </div>
             </div>
-            <Button size="sm" onClick={handleSaveSeo} disabled={updateSetting.isPending}>
-              {updateSetting.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            <Button size="sm" onClick={handleSaveSeo} disabled={updateSetting.isPending} className="w-9 h-9 p-0">
+              <span className="w-4 h-4 inline-flex items-center justify-center">
+                {updateSetting.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              </span>
             </Button>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -521,8 +527,10 @@ export default function AdminSettings() {
                 </CardDescription>
               </div>
             </div>
-            <Button size="sm" onClick={handleSaveSeo} disabled={updateSetting.isPending}>
-              {updateSetting.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            <Button size="sm" onClick={handleSaveSeo} disabled={updateSetting.isPending} className="w-9 h-9 p-0">
+              <span className="w-4 h-4 inline-flex items-center justify-center">
+                {updateSetting.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              </span>
             </Button>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -590,8 +598,10 @@ export default function AdminSettings() {
                 </CardDescription>
               </div>
             </div>
-            <Button size="sm" onClick={handleSaveSeo} disabled={updateSetting.isPending}>
-              {updateSetting.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            <Button size="sm" onClick={handleSaveSeo} disabled={updateSetting.isPending} className="w-9 h-9 p-0">
+              <span className="w-4 h-4 inline-flex items-center justify-center">
+                {updateSetting.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              </span>
             </Button>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -634,8 +644,10 @@ export default function AdminSettings() {
                 </CardDescription>
               </div>
             </div>
-            <Button size="sm" onClick={handleSaveSeo} disabled={updateSetting.isPending}>
-              {updateSetting.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            <Button size="sm" onClick={handleSaveSeo} disabled={updateSetting.isPending} className="w-9 h-9 p-0">
+              <span className="w-4 h-4 inline-flex items-center justify-center">
+                {updateSetting.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              </span>
             </Button>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -786,8 +798,10 @@ export default function AdminSettings() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Favicon</CardTitle>
-            <Button size="sm" onClick={handleSaveFavicon} disabled={updateSetting.isPending}>
-              {updateSetting.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            <Button size="sm" onClick={handleSaveFavicon} disabled={updateSetting.isPending} className="w-9 h-9 p-0">
+              <span className="w-4 h-4 inline-flex items-center justify-center">
+                {updateSetting.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              </span>
             </Button>
           </CardHeader>
           <CardContent>
@@ -805,8 +819,10 @@ export default function AdminSettings() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Logo</CardTitle>
-            <Button size="sm" onClick={handleSaveLogo} disabled={updateSetting.isPending}>
-              {updateSetting.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            <Button size="sm" onClick={handleSaveLogo} disabled={updateSetting.isPending} className="w-9 h-9 p-0">
+              <span className="w-4 h-4 inline-flex items-center justify-center">
+                {updateSetting.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              </span>
             </Button>
           </CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -832,8 +848,10 @@ export default function AdminSettings() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>{language === 'en' ? 'Contact Information' : 'Informasi Kontak'}</CardTitle>
-            <Button size="sm" onClick={handleSaveContact} disabled={updateSetting.isPending}>
-              {updateSetting.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            <Button size="sm" onClick={handleSaveContact} disabled={updateSetting.isPending} className="w-9 h-9 p-0">
+              <span className="w-4 h-4 inline-flex items-center justify-center">
+                {updateSetting.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              </span>
             </Button>
           </CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -859,8 +877,10 @@ export default function AdminSettings() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle>Social Media</CardTitle>
-            <Button size="sm" onClick={handleSaveSocial} disabled={updateSetting.isPending}>
-              {updateSetting.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            <Button size="sm" onClick={handleSaveSocial} disabled={updateSetting.isPending} className="w-9 h-9 p-0">
+              <span className="w-4 h-4 inline-flex items-center justify-center">
+                {updateSetting.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              </span>
             </Button>
           </CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">

@@ -15,6 +15,7 @@ import ImageUploader from '@/components/admin/ImageUploader';
 import LivePreview from '@/components/admin/LivePreview';
 import IconSelector from '@/components/admin/IconSelector';
 import SEOAudit from '@/components/admin/SEOAudit';
+import RichTextEditor from '@/components/admin/RichTextEditor';
 import {
   DndContext,
   closestCenter,
@@ -1198,8 +1199,31 @@ export default function AdminPageEditor() {
     </Card>
   );
 
+  const renderLegalPageSection = (lang: 'en' | 'id', content: Record<string, any>, setContent: React.Dispatch<React.SetStateAction<Record<string, any>>>) => (
+    <Card>
+      <CardHeader>
+        <CardTitle>{lang === 'en' ? 'Page Content' : 'Konten Halaman'}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <RichTextEditor
+          value={content.content || ''}
+          onChange={(value) => setContent((prev: Record<string, any>) => ({ ...prev, content: value }))}
+          placeholder={lang === 'en' ? 'Enter page content...' : 'Masukkan konten halaman...'}
+        />
+      </CardContent>
+    </Card>
+  );
+
   const renderPageContent = (lang: 'en' | 'id', content: Record<string, any>, setContent: React.Dispatch<React.SetStateAction<Record<string, any>>>) => {
     const sections = [];
+    
+    // Legal pages only need hero, content, and SEO
+    if (pageKey === 'privacy-policy' || pageKey === 'terms-conditions') {
+      sections.push(renderHeroSection(lang, content));
+      sections.push(renderLegalPageSection(lang, content, setContent));
+      sections.push(renderSEOSection(lang, content, setContent));
+      return sections;
+    }
     
     // Always render hero and SEO
     sections.push(renderHeroSection(lang, content));
@@ -1265,7 +1289,9 @@ export default function AdminPageEditor() {
     'corporate-solutions': 'Solusi Korporat / Corporate Solutions',
     'umkm-solutions': 'Solusi UMKM / UMKM Solutions',
     'case-studies': 'Studi Kasus / Case Studies',
-    'blog': 'Blog'
+    'blog': 'Blog',
+    'privacy-policy': 'Kebijakan Privasi / Privacy Policy',
+    'terms-conditions': 'Syarat & Ketentuan / Terms & Conditions'
   };
 
   const pageRoutes: Record<string, string> = {
@@ -1276,7 +1302,9 @@ export default function AdminPageEditor() {
     'corporate-solutions': '/solusi-korporat',
     'umkm-solutions': '/solusi-umkm',
     'case-studies': '/studi-kasus',
-    'blog': '/blog'
+    'blog': '/blog',
+    'privacy-policy': '/privacy',
+    'terms-conditions': '/terms'
   };
 
   return (
@@ -1301,15 +1329,17 @@ export default function AdminPageEditor() {
                 ? (language === 'en' ? 'Hide Preview' : 'Sembunyikan Preview')
                 : (language === 'en' ? 'Show Preview' : 'Tampilkan Preview')}
             </Button>
-            <Button onClick={handleSave} disabled={updatePage.isPending}>
-              {updatePage.isPending ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
+            <Button onClick={handleSave} disabled={updatePage.isPending} className="min-w-[120px]">
+              <span className="w-4 h-4 mr-2 inline-flex items-center justify-center">
+                {updatePage.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              </span>
               {language === 'en' ? 'Save Changes' : 'Simpan'}
             </Button>
           </div>
         </div>
 
-        <div className={`grid gap-6 ${showPreview ? 'grid-cols-1 xl:grid-cols-2' : 'grid-cols-1'}`}>
-          <div>
+        <div className={`grid gap-6 ${showPreview ? 'grid-cols-1 xl:grid-cols-2' : 'grid-cols-1 lg:grid-cols-3'}`}>
+          <div className={showPreview ? '' : 'lg:col-span-2'}>
             <Tabs defaultValue="en">
               <TabsList>
                 <TabsTrigger value="en">English</TabsTrigger>
@@ -1324,40 +1354,74 @@ export default function AdminPageEditor() {
                 {renderPageContent('id', contentId, setContentId)}
               </TabsContent>
             </Tabs>
+
+            {/* SEO Audit below form when preview is ON */}
+            {showPreview && (
+              <div className="mt-6">
+                <Tabs defaultValue="id">
+                  <TabsList className="w-full">
+                    <TabsTrigger value="id" className="flex-1">SEO (ID)</TabsTrigger>
+                    <TabsTrigger value="en" className="flex-1">SEO (EN)</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="id" className="mt-4">
+                    <SEOAudit
+                      title={contentId?.hero?.title || contentId?.title || ''}
+                      metaTitle={contentId?.meta_title || contentId?.hero?.title || ''}
+                      metaDescription={contentId?.meta_description || contentId?.hero?.subtitle || ''}
+                      content={JSON.stringify(contentId)}
+                      language="id"
+                    />
+                  </TabsContent>
+                  <TabsContent value="en" className="mt-4">
+                    <SEOAudit
+                      title={contentEn?.hero?.title || contentEn?.title || ''}
+                      metaTitle={contentEn?.meta_title || contentEn?.hero?.title || ''}
+                      metaDescription={contentEn?.meta_description || contentEn?.hero?.subtitle || ''}
+                      content={JSON.stringify(contentEn)}
+                      language="en"
+                    />
+                  </TabsContent>
+                </Tabs>
+              </div>
+            )}
           </div>
+
+          {/* SEO Audit side-by-side when preview is OFF */}
+          {!showPreview && (
+            <div className="hidden lg:block sticky top-6">
+              <Tabs defaultValue="id">
+                <TabsList className="w-full">
+                  <TabsTrigger value="id" className="flex-1">SEO (ID)</TabsTrigger>
+                  <TabsTrigger value="en" className="flex-1">SEO (EN)</TabsTrigger>
+                </TabsList>
+                <TabsContent value="id" className="mt-4">
+                  <SEOAudit
+                    title={contentId?.hero?.title || contentId?.title || ''}
+                    metaTitle={contentId?.meta_title || contentId?.hero?.title || ''}
+                    metaDescription={contentId?.meta_description || contentId?.hero?.subtitle || ''}
+                    content={JSON.stringify(contentId)}
+                    language="id"
+                  />
+                </TabsContent>
+                <TabsContent value="en" className="mt-4">
+                  <SEOAudit
+                    title={contentEn?.hero?.title || contentEn?.title || ''}
+                    metaTitle={contentEn?.meta_title || contentEn?.hero?.title || ''}
+                    metaDescription={contentEn?.meta_description || contentEn?.hero?.subtitle || ''}
+                    content={JSON.stringify(contentEn)}
+                    language="en"
+                  />
+                </TabsContent>
+              </Tabs>
+            </div>
+          )}
           
           {showPreview && (
-            <div className="hidden xl:block sticky top-6 space-y-6">
+            <div className="hidden xl:block sticky top-6">
               <LivePreview 
                 path={pageRoutes[pageKey || ''] || '/'} 
                 title="Live Preview" 
               />
-            
-            {/* SEO Audit Panel */}
-            <Tabs defaultValue="id">
-              <TabsList className="w-full">
-                <TabsTrigger value="id" className="flex-1">SEO (ID)</TabsTrigger>
-                <TabsTrigger value="en" className="flex-1">SEO (EN)</TabsTrigger>
-              </TabsList>
-              <TabsContent value="id" className="mt-4">
-                <SEOAudit
-                  title={contentId?.hero?.title || contentId?.title || ''}
-                  metaTitle={contentId?.meta_title || contentId?.hero?.title || ''}
-                  metaDescription={contentId?.meta_description || contentId?.hero?.subtitle || ''}
-                  content={JSON.stringify(contentId)}
-                  language="id"
-                />
-              </TabsContent>
-              <TabsContent value="en" className="mt-4">
-                <SEOAudit
-                  title={contentEn?.hero?.title || contentEn?.title || ''}
-                  metaTitle={contentEn?.meta_title || contentEn?.hero?.title || ''}
-                  metaDescription={contentEn?.meta_description || contentEn?.hero?.subtitle || ''}
-                  content={JSON.stringify(contentEn)}
-                  language="en"
-                />
-              </TabsContent>
-            </Tabs>
             </div>
           )}
         </div>

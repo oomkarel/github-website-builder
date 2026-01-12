@@ -111,8 +111,10 @@ export default function AdminHomeEditor() {
             <h1 className="text-2xl font-display font-bold">Edit Home Page</h1>
             <p className="text-muted-foreground">Manage all sections of your home page</p>
           </div>
-          <Button onClick={handleSave} disabled={updatePageContent.isPending}>
-            <Save className="h-4 w-4 mr-2" />
+          <Button onClick={handleSave} disabled={updatePageContent.isPending} className="min-w-[140px]">
+            <span className="w-4 h-4 mr-2 inline-flex items-center justify-center">
+              <Save className="h-4 w-4" />
+            </span>
             {updatePageContent.isPending ? 'Saving...' : 'Save Changes'}
           </Button>
         </div>

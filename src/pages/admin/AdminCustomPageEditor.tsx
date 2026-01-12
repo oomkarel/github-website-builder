@@ -170,9 +170,10 @@ export default function AdminCustomPageEditor() {
                 </a>
               </Button>
             )}
-            <Button onClick={handleSave} disabled={isPending || !formData.title_en || !formData.slug}>
-              {isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              <Save className="h-4 w-4 mr-2" />
+            <Button onClick={handleSave} disabled={isPending || !formData.title_en || !formData.slug} className="min-w-[100px]">
+              <span className="w-4 h-4 mr-2 inline-flex items-center justify-center">
+                {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+              </span>
               {language === 'en' ? 'Save' : 'Simpan'}
             </Button>
           </div>
