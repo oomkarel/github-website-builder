@@ -12,6 +12,7 @@ import ImageUploader from '@/components/admin/ImageUploader';
 import LivePreview from '@/components/admin/LivePreview';
 import IconSelector from '@/components/admin/IconSelector';
 import PageLinkSelector from '@/components/admin/PageLinkSelector';
+import SEOAudit from '@/components/admin/SEOAudit';
 import { usePageContent, useUpdatePageContent } from '@/hooks/usePageContent';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -1088,6 +1089,9 @@ export default function AdminHomeEditor() {
                       value={contentEn.meta_title || ''}
                       onChange={(e) => setContentEn(prev => ({ ...prev, meta_title: e.target.value }))}
                     />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {(contentEn.meta_title || '').length}/60 characters
+                    </p>
                   </div>
                   <div>
                     <Label>Meta Description</Label>
@@ -1095,6 +1099,9 @@ export default function AdminHomeEditor() {
                       value={contentEn.meta_description || ''}
                       onChange={(e) => setContentEn(prev => ({ ...prev, meta_description: e.target.value }))}
                     />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {(contentEn.meta_description || '').length}/160 characters
+                    </p>
                   </div>
                 </CardContent>
               </Card>
@@ -1110,6 +1117,9 @@ export default function AdminHomeEditor() {
                       value={contentId.meta_title || ''}
                       onChange={(e) => setContentId(prev => ({ ...prev, meta_title: e.target.value }))}
                     />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {(contentId.meta_title || '').length}/60 characters
+                    </p>
                   </div>
                   <div>
                     <Label>Meta Description</Label>
@@ -1117,9 +1127,30 @@ export default function AdminHomeEditor() {
                       value={contentId.meta_description || ''}
                       onChange={(e) => setContentId(prev => ({ ...prev, meta_description: e.target.value }))}
                     />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {(contentId.meta_description || '').length}/160 characters
+                    </p>
                   </div>
                 </CardContent>
               </Card>
+            </div>
+
+            {/* SEO Audit */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <SEOAudit
+                title={contentEn.hero?.title || ''}
+                metaTitle={contentEn.meta_title || contentEn.hero?.title || ''}
+                metaDescription={contentEn.meta_description || contentEn.hero?.subtitle || ''}
+                content={JSON.stringify(contentEn)}
+                language="en"
+              />
+              <SEOAudit
+                title={contentId.hero?.title || ''}
+                metaTitle={contentId.meta_title || contentId.hero?.title || ''}
+                metaDescription={contentId.meta_description || contentId.hero?.subtitle || ''}
+                content={JSON.stringify(contentId)}
+                language="id"
+              />
             </div>
           </TabsContent>
             </Tabs>
