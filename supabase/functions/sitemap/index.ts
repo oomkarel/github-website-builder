@@ -40,7 +40,7 @@ serve(async (req) => {
     const baseUrl = seo?.site_url || 'https://bungkusin.co.id';
     const pageIndexing = seo?.page_indexing || {};
 
-    // Define all static pages with their routes
+    // Define all static pages with their routes (excluding admin pages)
     const staticPages = [
       { key: 'home', path: '/', priority: '1.0', changefreq: 'weekly' },
       { key: 'about', path: '/tentang-kami', priority: '0.8', changefreq: 'monthly' },
@@ -63,6 +63,13 @@ serve(async (req) => {
       .from('blogs')
       .select('slug, updated_at, created_at')
       .eq('is_published', true)
+      .order('created_at', { ascending: false });
+
+    // Get published custom pages
+    const { data: customPages } = await supabase
+      .from('custom_pages')
+      .select('slug, updated_at, created_at')
+      .eq('status', 'published')
       .order('created_at', { ascending: false });
 
     const today = new Date().toISOString().split('T')[0];
@@ -94,9 +101,26 @@ serve(async (req) => {
       }
     }
 
+    // Add custom pages (check individual page indexing)
+    if (customPages) {
+      for (const page of customPages) {
+        // Skip if this specific custom page is set to noindex
+        const pageKey = `custom-${page.slug}`;
+        if (pageIndexing[pageKey] === false) continue;
+
+        const lastmod = page.updated_at || page.created_at || today;
+        xml += `  <url>\n`;
+        xml += `    <loc>${baseUrl}/p/${page.slug}</loc>\n`;
+        xml += `    <lastmod>${lastmod.split('T')[0]}</lastmod>\n`;
+        xml += `    <changefreq>monthly</changefreq>\n`;
+        xml += `    <priority>0.7</priority>\n`;
+        xml += `  </url>\n`;
+      }
+    }
+
     xml += '</urlset>';
 
-    console.log(`Sitemap generated with ${indexedPages.length} pages and ${blogs?.length || 0} blog posts`);
+    console.log(`Sitemap generated with ${indexedPages.length} static pages, ${blogs?.length || 0} blog posts, and ${customPages?.length || 0} custom pages`);
 
     return new Response(xml, { headers: corsHeaders });
   } catch (error) {

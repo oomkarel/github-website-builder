@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useSiteSettings, useUpdateSiteSetting } from '@/hooks/useSiteSettings';
+import { usePublishedCustomPages } from '@/hooks/useCustomPages';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
-import { Loader2, Save, MessageCircle, Search, Globe, Copy, Check, Megaphone, ShieldCheck } from 'lucide-react';
+import { Loader2, Save, MessageCircle, Search, Globe, Copy, Check, Megaphone, ShieldCheck, FileText } from 'lucide-react';
 import { 
   Select,
   SelectContent,
@@ -23,6 +24,7 @@ import { useToast } from '@/hooks/use-toast';
 export default function AdminSettings() {
   const { language } = useLanguage();
   const { data: settings, isLoading } = useSiteSettings();
+  const { data: customPages } = usePublishedCustomPages();
   const updateSetting = useUpdateSiteSetting();
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
@@ -447,40 +449,76 @@ export default function AdminSettings() {
                 <Label className="text-base font-medium">{language === 'en' ? 'Page Indexing' : 'Pengindeksan Halaman'}</Label>
                 <p className="text-sm text-muted-foreground">
                   {language === 'en' 
-                    ? 'Enable or disable search engine indexing for each page' 
-                    : 'Aktifkan atau nonaktifkan pengindeksan mesin pencari untuk setiap halaman'}
+                    ? 'Enable or disable search engine indexing for each page. Admin pages are automatically excluded.' 
+                    : 'Aktifkan atau nonaktifkan pengindeksan mesin pencari untuk setiap halaman. Halaman admin otomatis dikecualikan.'}
                 </p>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {[
-                  { key: 'home', label: 'Home / Beranda' },
-                  { key: 'about', label: 'About / Tentang' },
-                  { key: 'products', label: 'Products / Produk' },
-                  { key: 'product-catalog', label: 'Product Catalog / Katalog Produk' },
-                  { key: 'corporate-solutions', label: 'Corporate Solutions / Solusi Korporat' },
-                  { key: 'umkm-solutions', label: 'UMKM Solutions / Solusi UMKM' },
-                  { key: 'case-studies', label: 'Case Studies / Studi Kasus' },
-                  { key: 'blog', label: 'Blog' },
-                  { key: 'contact', label: 'Contact / Kontak' },
-                  { key: 'terms-conditions', label: 'Terms & Conditions / Syarat & Ketentuan' },
-                  { key: 'privacy-policy', label: 'Privacy Policy / Kebijakan Privasi' },
-                ].map((page) => (
-                  <div key={page.key} className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
-                    <span className="text-sm font-medium">{page.label}</span>
-                    <Switch 
-                      checked={seo.page_indexing[page.key] !== false}
-                      onCheckedChange={(checked) => setSeo(prev => ({ 
-                        ...prev, 
-                        page_indexing: { ...prev.page_indexing, [page.key]: checked }
-                      }))}
-                    />
-                  </div>
-                ))}
+              
+              {/* Static Pages */}
+              <div className="space-y-2">
+                <Label className="text-sm text-muted-foreground">{language === 'en' ? 'Static Pages' : 'Halaman Statis'}</Label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {[
+                    { key: 'home', label: 'Home / Beranda' },
+                    { key: 'about', label: 'About / Tentang' },
+                    { key: 'products', label: 'Products / Produk' },
+                    { key: 'product-catalog', label: 'Product Catalog / Katalog Produk' },
+                    { key: 'corporate-solutions', label: 'Corporate Solutions / Solusi Korporat' },
+                    { key: 'umkm-solutions', label: 'UMKM Solutions / Solusi UMKM' },
+                    { key: 'case-studies', label: 'Case Studies / Studi Kasus' },
+                    { key: 'blog', label: 'Blog' },
+                    { key: 'contact', label: 'Contact / Kontak' },
+                    { key: 'terms-conditions', label: 'Terms & Conditions / Syarat & Ketentuan' },
+                    { key: 'privacy-policy', label: 'Privacy Policy / Kebijakan Privasi' },
+                  ].map((page) => (
+                    <div key={page.key} className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
+                      <span className="text-sm font-medium">{page.label}</span>
+                      <Switch 
+                        checked={seo.page_indexing[page.key] !== false}
+                        onCheckedChange={(checked) => setSeo(prev => ({ 
+                          ...prev, 
+                          page_indexing: { ...prev.page_indexing, [page.key]: checked }
+                        }))}
+                      />
+                    </div>
+                  ))}
+                </div>
               </div>
+
+              {/* Custom Pages */}
+              {customPages && customPages.length > 0 && (
+                <div className="space-y-2">
+                  <Label className="text-sm text-muted-foreground flex items-center gap-2">
+                    <FileText className="h-4 w-4" />
+                    {language === 'en' ? 'Custom Pages' : 'Halaman Kustom'}
+                  </Label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {customPages.map((page) => {
+                      const pageKey = `custom-${page.slug}`;
+                      return (
+                        <div key={page.id} className="flex items-center justify-between p-3 rounded-lg border bg-muted/30">
+                          <div className="flex flex-col">
+                            <span className="text-sm font-medium">{language === 'id' ? page.title_id : page.title_en}</span>
+                            <span className="text-xs text-muted-foreground">/p/{page.slug}</span>
+                          </div>
+                          <Switch 
+                            checked={seo.page_indexing[pageKey] !== false}
+                            onCheckedChange={(checked) => setSeo(prev => ({ 
+                              ...prev, 
+                              page_indexing: { ...prev.page_indexing, [pageKey]: checked }
+                            }))}
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
               <p className="text-xs text-muted-foreground">
                 {language === 'en' 
-                  ? 'Pages with indexing disabled will have "noindex, nofollow" meta tag.' 
-                  : 'Halaman dengan pengindeksan dinonaktifkan akan memiliki meta tag "noindex, nofollow".'}
+                  ? 'Pages with indexing disabled will have "noindex, nofollow" meta tag and be excluded from sitemap.' 
+                  : 'Halaman dengan pengindeksan dinonaktifkan akan memiliki meta tag "noindex, nofollow" dan dikecualikan dari sitemap.'}
               </p>
             </div>
 
