@@ -57,8 +57,15 @@ export function ClientsSection({ title, subtitle, logos, marqueeSpeed = 'normal'
     return null;
   }
 
-  const useMarquee = logos.length > 4;
-  const animationDuration = speedMap[marqueeSpeed] || 30;
+  // Calculate how many times to repeat logos for smooth infinite scroll
+  // We want at least 8 logo cards visible to fill the viewport
+  const minLogosForSmooth = 8;
+  const duplicateCount = Math.ceil(minLogosForSmooth / logos.length);
+  const expandedLogos = Array(duplicateCount).fill(logos).flat();
+  
+  // Base speed, adjusted proportionally for number of expanded logos
+  const baseSpeed = speedMap[marqueeSpeed] || 30;
+  const animationDuration = (expandedLogos.length / 8) * baseSpeed;
 
   // Touch/mouse handlers for swipe scrolling
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -111,13 +118,12 @@ export function ClientsSection({ title, subtitle, logos, marqueeSpeed = 'normal'
           </div>
         )}
 
-        {useMarquee ? (
-          /* Swipeable + auto-scrolling marquee for 5+ logos */
-          <div className="relative">
-            {/* Gradient fade edges */}
-            <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
-            <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
-            
+        {/* Swipeable + auto-scrolling marquee for infinite loop */}
+        <div className="relative">
+          {/* Gradient fade edges */}
+          <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
+          
           <div 
             ref={scrollRef}
             className="overflow-x-auto scrollbar-hide cursor-grab active:cursor-grabbing"
@@ -141,30 +147,17 @@ export function ClientsSection({ title, subtitle, logos, marqueeSpeed = 'normal'
                 willChange: 'transform'
               }}
             >
-              {/* First set of logos */}
-              {logos.map((client, index) => (
+              {/* First set of expanded logos */}
+              {expandedLogos.map((client, index) => (
                 <LogoCard key={`first-${index}`} client={client} variant="marquee" />
               ))}
               {/* Duplicate set for seamless infinite loop */}
-              {logos.map((client, index) => (
+              {expandedLogos.map((client, index) => (
                 <LogoCard key={`second-${index}`} client={client} variant="marquee" />
               ))}
             </div>
           </div>
-          </div>
-        ) : (
-          /* Static grid for 1-4 logos */
-          <div className={`grid gap-8 items-center justify-items-center ${
-            logos.length === 1 ? 'grid-cols-1 max-w-xs mx-auto' :
-            logos.length === 2 ? 'grid-cols-2 max-w-lg mx-auto' :
-            logos.length === 3 ? 'grid-cols-3 max-w-2xl mx-auto' :
-            'grid-cols-2 md:grid-cols-4 max-w-4xl mx-auto'
-          }`}>
-            {logos.map((client, index) => (
-              <LogoCard key={index} client={client} variant="grid" />
-            ))}
-          </div>
-        )}
+        </div>
       </div>
     </section>
   );
