@@ -62,6 +62,19 @@ export function Navbar() {
     ? dynamicMenus.map(transformMenuToNavLink)
     : [];
 
+  // Check if current path is active (direct match or child match)
+  const isActiveLink = (link: { href?: string; children?: { href: string; label: string }[] }): boolean => {
+    // Direct link match
+    if (link.href && location.pathname === link.href) return true;
+    
+    // Check if current path matches any child
+    if (link.children) {
+      return link.children.some(child => location.pathname === child.href);
+    }
+    
+    return false;
+  };
+
   const navBg = isHome && !isScrolled 
     ? 'bg-transparent' 
     : 'bg-background/95 backdrop-blur-md shadow-sm';
@@ -108,7 +121,9 @@ export function Navbar() {
                 'children' in link && link.children ? (
                   <DropdownMenu key={index}>
                     <DropdownMenuTrigger asChild>
-                      <button className={`nav-item-3d flex items-center gap-1 px-4 py-2 text-sm font-medium ${textColor} hover:text-secondary transition-all`}>
+                      <button className={`nav-item-3d flex items-center gap-1 px-4 py-2 text-sm font-medium ${textColor} hover:text-secondary transition-all ${
+                        isActiveLink(link) ? 'active' : ''
+                      }`}>
                         {link.label}
                         <ChevronDown className="h-4 w-4" />
                       </button>
@@ -116,7 +131,10 @@ export function Navbar() {
                     <DropdownMenuContent align="start" className="w-48">
                       {link.children.map((child) => (
                         <DropdownMenuItem key={child.href} asChild>
-                          <Link to={child.href} className="cursor-pointer">
+                          <Link 
+                            to={child.href} 
+                            className={`cursor-pointer ${location.pathname === child.href ? 'bg-secondary/10 text-secondary font-medium' : ''}`}
+                          >
                             {child.label}
                           </Link>
                         </DropdownMenuItem>
@@ -128,7 +146,7 @@ export function Navbar() {
                     key={link.href}
                     to={link.href!}
                     className={`nav-item-3d px-4 py-2 text-sm font-medium ${textColor} hover:text-secondary transition-all ${
-                      location.pathname === link.href ? 'text-secondary' : ''
+                      location.pathname === link.href ? 'active' : ''
                     }`}
                   >
                     {link.label}
