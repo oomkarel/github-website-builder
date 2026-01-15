@@ -40,6 +40,21 @@ serve(async (req) => {
     const baseUrl = seo?.site_url || 'https://bungkusin.co.id';
     const pageIndexing = seo?.page_indexing || {};
 
+    // Get page content for accurate lastmod dates
+    const { data: pageContent } = await supabase
+      .from('page_content')
+      .select('page_key, updated_at');
+
+    // Create a map of page_key to updated_at
+    const pageLastMod: Record<string, string> = {};
+    if (pageContent) {
+      for (const page of pageContent) {
+        pageLastMod[page.page_key] = page.updated_at?.split('T')[0] || new Date().toISOString().split('T')[0];
+      }
+    }
+
+    const today = new Date().toISOString().split('T')[0];
+
     // Define all static pages with their routes (excluding admin pages)
     const staticPages = [
       { key: 'home', path: '/', priority: '1.0', changefreq: 'weekly' },
@@ -72,17 +87,16 @@ serve(async (req) => {
       .eq('status', 'published')
       .order('created_at', { ascending: false });
 
-    const today = new Date().toISOString().split('T')[0];
-
     // Build XML
     let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
     xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
 
-    // Add static pages
+    // Add static pages with accurate lastmod from page_content
     for (const page of indexedPages) {
+      const lastmod = pageLastMod[page.key] || today;
       xml += `  <url>\n`;
       xml += `    <loc>${baseUrl}${page.path}</loc>\n`;
-      xml += `    <lastmod>${today}</lastmod>\n`;
+      xml += `    <lastmod>${lastmod}</lastmod>\n`;
       xml += `    <changefreq>${page.changefreq}</changefreq>\n`;
       xml += `    <priority>${page.priority}</priority>\n`;
       xml += `  </url>\n`;
