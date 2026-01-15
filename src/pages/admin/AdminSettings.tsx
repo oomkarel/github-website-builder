@@ -443,6 +443,52 @@ export default function AdminSettings() {
               />
             </div>
 
+            {/* Sitemap Tools */}
+            <div className="p-4 rounded-lg border bg-muted/30 space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="text-sm font-medium">{language === 'en' ? 'Dynamic Sitemap' : 'Sitemap Dinamis'}</Label>
+                  <p className="text-xs text-muted-foreground">
+                    {language === 'en' 
+                      ? 'Auto-generated from database with all pages, blogs, and custom pages' 
+                      : 'Dibuat otomatis dari database dengan semua halaman, blog, dan halaman kustom'}
+                  </p>
+                </div>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => window.open('https://ahhhiqcnnwpfbgdggvct.supabase.co/functions/v1/sitemap', '_blank')}
+                >
+                  {language === 'en' ? 'Preview Sitemap' : 'Lihat Sitemap'}
+                </Button>
+              </div>
+              <div className="flex items-center justify-between pt-2 border-t">
+                <div>
+                  <Label className="text-sm font-medium">Google Search Console</Label>
+                  <p className="text-xs text-muted-foreground">
+                    {language === 'en' 
+                      ? 'Submit your sitemap to Google for faster indexing' 
+                      : 'Kirim sitemap Anda ke Google untuk pengindeksan lebih cepat'}
+                  </p>
+                </div>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => window.open('https://search.google.com/search-console', '_blank')}
+                >
+                  {language === 'en' ? 'Open Console' : 'Buka Console'}
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground pt-2 border-t">
+                <strong>{language === 'en' ? 'Sitemap URL:' : 'URL Sitemap:'}</strong>{' '}
+                <code className="bg-muted px-1 py-0.5 rounded text-[10px]">
+                  https://ahhhiqcnnwpfbgdggvct.supabase.co/functions/v1/sitemap
+                </code>
+              </p>
+            </div>
+
             {/* Page Indexing Controls */}
             <div className="space-y-4">
               <div>
