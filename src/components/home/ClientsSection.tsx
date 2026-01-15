@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, memo } from 'react';
 import { Building2 } from 'lucide-react';
 
 interface ClientLogo {
@@ -12,6 +12,32 @@ interface ClientsSectionProps {
   logos?: ClientLogo[];
   marqueeSpeed?: 'slow' | 'normal' | 'fast' | 'very-fast';
 }
+
+// Memoized LogoCard to prevent unnecessary re-renders
+const LogoCard = memo(({ client, variant = 'marquee' }: { client: ClientLogo; variant?: 'marquee' | 'grid' }) => (
+  <div
+    className={`flex-shrink-0 ${variant === 'marquee' ? 'w-48 h-32 mx-4' : 'w-full h-36'} flex items-center justify-center p-6 rounded-xl bg-muted/50 border border-border hover:bg-muted transition-colors group`}
+  >
+    {client.image ? (
+      <img
+        src={client.image}
+        alt={client.name}
+        loading="lazy"
+        decoding="async"
+        width={192}
+        height={80}
+        className="max-h-20 max-w-full object-contain opacity-80 group-hover:opacity-100 transition-opacity"
+      />
+    ) : (
+      <div className={`flex flex-col items-center ${variant === 'marquee' ? 'gap-2' : 'gap-3'} text-muted-foreground group-hover:text-foreground transition-colors`}>
+        <Building2 className={variant === 'marquee' ? 'h-10 w-10' : 'h-12 w-12'} />
+        <span className="text-sm font-medium text-center">{client.name}</span>
+      </div>
+    )}
+  </div>
+));
+
+LogoCard.displayName = 'LogoCard';
 
 const speedMap = {
   'slow': 45,
@@ -92,66 +118,39 @@ export function ClientsSection({ title, subtitle, logos, marqueeSpeed = 'normal'
             <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
             <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
             
+          <div 
+            ref={scrollRef}
+            className="overflow-x-auto scrollbar-hide cursor-grab active:cursor-grabbing"
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            style={{ 
+              scrollbarWidth: 'none', 
+              msOverflowStyle: 'none',
+              contain: 'content'
+            }}
+          >
             <div 
-              ref={scrollRef}
-              className="overflow-x-auto scrollbar-hide cursor-grab active:cursor-grabbing"
-              onMouseDown={handleMouseDown}
-              onMouseMove={handleMouseMove}
-              onMouseUp={handleMouseUp}
-              onMouseLeave={handleMouseUp}
-              onTouchStart={handleTouchStart}
-              onTouchMove={handleTouchMove}
-              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+              className={`flex ${isDragging ? '' : 'hover:[animation-play-state:paused]'}`}
+              style={{ 
+                animation: isDragging ? 'none' : `marquee ${animationDuration}s linear infinite`,
+                width: 'max-content',
+                willChange: 'transform'
+              }}
             >
-              <div 
-                className={`flex ${isDragging ? '' : 'hover:[animation-play-state:paused]'}`}
-                style={{ 
-                  animation: isDragging ? 'none' : `marquee ${animationDuration}s linear infinite`,
-                  width: 'max-content'
-                }}
-              >
-                {/* First set of logos */}
-                {logos.map((client, index) => (
-                  <div
-                    key={`first-${index}`}
-                    className="flex-shrink-0 w-48 h-32 mx-4 flex items-center justify-center p-6 rounded-xl bg-muted/50 border border-border hover:bg-muted transition-colors group"
-                  >
-                    {client.image ? (
-                      <img
-                        src={client.image}
-                        alt={client.name}
-                        className="max-h-20 max-w-full object-contain opacity-80 group-hover:opacity-100 transition-opacity"
-                      />
-                    ) : (
-                      <div className="flex flex-col items-center gap-2 text-muted-foreground group-hover:text-foreground transition-colors">
-                        <Building2 className="h-10 w-10" />
-                        <span className="text-sm font-medium text-center">{client.name}</span>
-                      </div>
-                    )}
-                  </div>
-                ))}
-                {/* Duplicate set for seamless infinite loop */}
-                {logos.map((client, index) => (
-                  <div
-                    key={`second-${index}`}
-                    className="flex-shrink-0 w-48 h-32 mx-4 flex items-center justify-center p-6 rounded-xl bg-muted/50 border border-border hover:bg-muted transition-colors group"
-                  >
-                    {client.image ? (
-                      <img
-                        src={client.image}
-                        alt={client.name}
-                        className="max-h-20 max-w-full object-contain opacity-80 group-hover:opacity-100 transition-opacity"
-                      />
-                    ) : (
-                      <div className="flex flex-col items-center gap-2 text-muted-foreground group-hover:text-foreground transition-colors">
-                        <Building2 className="h-10 w-10" />
-                        <span className="text-sm font-medium text-center">{client.name}</span>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
+              {/* First set of logos */}
+              {logos.map((client, index) => (
+                <LogoCard key={`first-${index}`} client={client} variant="marquee" />
+              ))}
+              {/* Duplicate set for seamless infinite loop */}
+              {logos.map((client, index) => (
+                <LogoCard key={`second-${index}`} client={client} variant="marquee" />
+              ))}
             </div>
+          </div>
           </div>
         ) : (
           /* Static grid for 1-4 logos */
@@ -162,23 +161,7 @@ export function ClientsSection({ title, subtitle, logos, marqueeSpeed = 'normal'
             'grid-cols-2 md:grid-cols-4 max-w-4xl mx-auto'
           }`}>
             {logos.map((client, index) => (
-              <div
-                key={index}
-                className="w-full h-36 flex items-center justify-center p-6 rounded-xl bg-muted/50 border border-border hover:bg-muted transition-colors group"
-              >
-                {client.image ? (
-                  <img
-                    src={client.image}
-                    alt={client.name}
-                    className="max-h-20 max-w-full object-contain opacity-80 group-hover:opacity-100 transition-opacity"
-                  />
-                ) : (
-                  <div className="flex flex-col items-center gap-3 text-muted-foreground group-hover:text-foreground transition-colors">
-                    <Building2 className="h-12 w-12" />
-                    <span className="text-sm font-medium">{client.name}</span>
-                  </div>
-                )}
-              </div>
+              <LogoCard key={index} client={client} variant="grid" />
             ))}
           </div>
         )}
