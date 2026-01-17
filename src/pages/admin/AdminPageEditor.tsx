@@ -1297,8 +1297,8 @@ export default function AdminPageEditor() {
   const pageRoutes: Record<string, string> = {
     'contact': '/hubungi-kami',
     'about': '/tentang-kami',
-    'products': '/produk',
-    'product-catalog': '/produk/katalog',
+    'products': '/produk/industri',
+    'product-catalog': '/produk',
     'corporate-solutions': '/solusi-korporat',
     'umkm-solutions': '/solusi-umkm',
     'case-studies': '/studi-kasus',
