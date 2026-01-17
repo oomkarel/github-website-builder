@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -66,6 +66,7 @@ const App = () => (
                 <Route path="/solusi-korporat" element={<CorporateSolutions />} />
                 <Route path="/solusi-umkm" element={<UMKMSolutions />} />
                 <Route path="/produk" element={<ProductCatalog />} />
+                <Route path="/produk/katalog" element={<Navigate to="/produk" replace />} />
                 <Route path="/produk/industri" element={<Products />} />
                 <Route path="/case-studies" element={<CaseStudies />} />
                 <Route path="/blog" element={<Blog />} />
