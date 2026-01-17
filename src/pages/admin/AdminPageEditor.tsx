@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Loader2, Save, Plus, Trash2, Eye, EyeOff, GripVertical } from 'lucide-react';
+import { ArrowLeft, Loader2, Save, Plus, Trash2, Eye, EyeOff, GripVertical, Languages } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import AdminLayout from '@/components/admin/AdminLayout';
 import ImageUploader from '@/components/admin/ImageUploader';
@@ -16,6 +16,19 @@ import LivePreview from '@/components/admin/LivePreview';
 import IconSelector from '@/components/admin/IconSelector';
 import SEOAudit from '@/components/admin/SEOAudit';
 import RichTextEditor from '@/components/admin/RichTextEditor';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import {
   DndContext,
   closestCenter,
@@ -104,6 +117,9 @@ export default function AdminPageEditor() {
   const [contentId, setContentId] = useState<Record<string, any>>({});
   const [showPreview, setShowPreview] = useState(true);
 
+  const { toast } = useToast();
+  const [isTranslating, setIsTranslating] = useState(false);
+
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -114,6 +130,71 @@ export default function AdminPageEditor() {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
+
+  const handleTranslateToEnglish = async () => {
+    if (!pageKey || !contentId || Object.keys(contentId).length === 0) {
+      toast({
+        title: language === 'en' ? 'Error' : 'Kesalahan',
+        description: language === 'en' ? 'No Indonesian content to translate' : 'Tidak ada konten Indonesia untuk diterjemahkan',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    setIsTranslating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('translate-content', {
+        body: { pageKey, contentId }
+      });
+
+      if (error) {
+        throw new Error(error.message || 'Translation failed');
+      }
+
+      if (data?.translatedContent) {
+        // Preserve images from current English content
+        const mergedContent = { ...data.translatedContent };
+        
+        // Keep hero image from current English content if exists
+        if (contentEn?.hero?.image) {
+          mergedContent.hero = { ...mergedContent.hero, image: contentEn.hero.image };
+        }
+        
+        // Keep team images from current English content if exists
+        if (contentEn?.team && mergedContent?.team) {
+          mergedContent.team = mergedContent.team.map((item: any, idx: number) => ({
+            ...item,
+            image: contentEn?.team?.[idx]?.image || item.image
+          }));
+        }
+        
+        // Keep product images
+        if (contentEn?.products && mergedContent?.products) {
+          mergedContent.products = mergedContent.products.map((item: any, idx: number) => ({
+            ...item,
+            image: contentEn?.products?.[idx]?.image || item.image
+          }));
+        }
+
+        setContentEn(mergedContent);
+        toast({
+          title: language === 'en' ? 'Translation Complete' : 'Terjemahan Selesai',
+          description: language === 'en' 
+            ? 'Indonesian content has been translated to English. Review and save your changes.' 
+            : 'Konten Indonesia telah diterjemahkan ke Inggris. Tinjau dan simpan perubahan Anda.'
+        });
+      }
+    } catch (error: any) {
+      console.error('Translation error:', error);
+      toast({
+        title: language === 'en' ? 'Translation Failed' : 'Terjemahan Gagal',
+        description: error.message || (language === 'en' ? 'Failed to translate content' : 'Gagal menerjemahkan konten'),
+        variant: 'destructive'
+      });
+    } finally {
+      setIsTranslating(false);
+    }
+  };
 
   useEffect(() => {
     if (page) {
@@ -1318,6 +1399,43 @@ export default function AdminPageEditor() {
             <h1 className="text-2xl font-bold">{pageLabels[pageKey || ''] || pageKey}</h1>
           </div>
           <div className="flex items-center gap-2">
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={isTranslating}
+                  className="hidden sm:flex"
+                >
+                  {isTranslating ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <Languages className="h-4 w-4 mr-2" />
+                  )}
+                  {language === 'en' ? 'AI Translate' : 'Terjemahkan AI'}
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>
+                    {language === 'en' ? 'Translate to English?' : 'Terjemahkan ke Inggris?'}
+                  </AlertDialogTitle>
+                  <AlertDialogDescription>
+                    {language === 'en' 
+                      ? 'This will use AI to translate all Indonesian content to English. The existing English content will be replaced. Images and "Bungkus Indonesia" will not be translated.'
+                      : 'Ini akan menggunakan AI untuk menerjemahkan semua konten Indonesia ke Inggris. Konten Inggris yang ada akan diganti. Gambar dan "Bungkus Indonesia" tidak akan diterjemahkan.'}
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>
+                    {language === 'en' ? 'Cancel' : 'Batal'}
+                  </AlertDialogCancel>
+                  <AlertDialogAction onClick={handleTranslateToEnglish}>
+                    {language === 'en' ? 'Translate' : 'Terjemahkan'}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
             <Button
               variant="outline"
               size="sm"
