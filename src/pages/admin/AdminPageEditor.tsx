@@ -116,6 +116,8 @@ export default function AdminPageEditor() {
   const [contentEn, setContentEn] = useState<Record<string, any>>({});
   const [contentId, setContentId] = useState<Record<string, any>>({});
   const [showPreview, setShowPreview] = useState(true);
+  const [slug, setSlug] = useState('');
+  const [usePrefix, setUsePrefix] = useState(false);
 
   const { toast } = useToast();
   const [isTranslating, setIsTranslating] = useState(false);
@@ -200,12 +202,14 @@ export default function AdminPageEditor() {
     if (page) {
       setContentEn(page.content_en || {});
       setContentId(page.content_id || {});
+      setSlug(page.slug || '');
+      setUsePrefix(page.use_prefix ?? false);
     }
   }, [page]);
 
   const handleSave = () => {
     if (!pageKey) return;
-    updatePage.mutate({ pageKey, contentEn, contentId });
+    updatePage.mutate({ pageKey, contentEn, contentId, slug, usePrefix });
   };
 
   // Reorder handler for drag-and-drop
@@ -320,6 +324,51 @@ export default function AdminPageEditor() {
             onChange={(e) => setContent((prev: Record<string, any>) => ({ ...prev, meta_description: e.target.value }))}
             rows={3}
           />
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  const renderURLSettingsSection = () => (
+    <Card>
+      <CardHeader>
+        <CardTitle>URL Settings</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div>
+          <Label>URL Slug</Label>
+          <div className="flex items-center gap-2 mt-1">
+            <span className="text-muted-foreground text-sm">
+              {usePrefix ? '/p/' : '/'}
+            </span>
+            <Input
+              value={slug}
+              onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9\-\/]/g, ''))}
+              placeholder="page-url"
+              className="flex-1"
+            />
+          </div>
+          <p className="text-xs text-muted-foreground mt-1">
+            Use lowercase letters, numbers, hyphens, and forward slashes only.
+          </p>
+        </div>
+        <div className="flex items-center justify-between">
+          <div>
+            <Label>Use /p/ Prefix</Label>
+            <p className="text-sm text-muted-foreground">
+              When enabled, page will be at /p/{slug}
+            </p>
+          </div>
+          <Switch
+            checked={usePrefix}
+            onCheckedChange={setUsePrefix}
+          />
+        </div>
+        <div className="p-3 bg-muted rounded-lg">
+          <Label className="text-xs text-muted-foreground">Preview URL</Label>
+          <p className="font-mono text-sm mt-1">
+            {usePrefix ? `/p/${slug || 'page-url'}` : `/${slug || 'page-url'}`}
+          </p>
         </div>
       </CardContent>
     </Card>
@@ -1375,19 +1424,6 @@ export default function AdminPageEditor() {
     'terms-conditions': 'Syarat & Ketentuan / Terms & Conditions'
   };
 
-  const pageRoutes: Record<string, string> = {
-    'contact': '/hubungi-kami',
-    'about': '/tentang-kami',
-    'products': '/produk/industri',
-    'product-catalog': '/produk',
-    'corporate-solutions': '/solusi-korporat',
-    'umkm-solutions': '/solusi-umkm',
-    'case-studies': '/studi-kasus',
-    'blog': '/blog',
-    'privacy-policy': '/privacy',
-    'terms-conditions': '/terms'
-  };
-
   return (
     <AdminLayout>
       <div className="space-y-6">
@@ -1458,7 +1494,10 @@ export default function AdminPageEditor() {
 
         <div className={`grid gap-6 ${showPreview ? 'grid-cols-1 xl:grid-cols-2' : 'grid-cols-1 lg:grid-cols-3'}`}>
           <div className={showPreview ? '' : 'lg:col-span-2'}>
-            <Tabs defaultValue="en">
+            {/* URL Settings - Language Independent */}
+            {renderURLSettingsSection()}
+            
+            <Tabs defaultValue="en" className="mt-6">
               <TabsList>
                 <TabsTrigger value="en">English</TabsTrigger>
                 <TabsTrigger value="id">Indonesia</TabsTrigger>
@@ -1537,7 +1576,7 @@ export default function AdminPageEditor() {
           {showPreview && (
             <div className="hidden xl:block sticky top-6">
               <LivePreview 
-                path={pageRoutes[pageKey || ''] || '/'} 
+                path={usePrefix ? `/p/${slug}` : `/${slug}`} 
                 title="Live Preview" 
               />
             </div>
