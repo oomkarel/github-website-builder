@@ -79,6 +79,10 @@ export default function RichTextEditor({ value, onChange, placeholder, className
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
+      // CRITICAL: Stop propagation to prevent dnd-kit KeyboardSensor from hijacking the event
+      e.stopPropagation();
+      e.nativeEvent.stopImmediatePropagation?.();
+      
       if (e.shiftKey) {
         // Shift+Enter = line break within same block
         e.preventDefault();

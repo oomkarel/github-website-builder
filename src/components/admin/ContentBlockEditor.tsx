@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
-import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
+import { DndContext, closestCenter, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
+import { arrayMove, SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -794,11 +794,9 @@ export default function ContentBlockEditor({ blocks, onChange }: ContentBlockEdi
   const [expandedBlocks, setExpandedBlocks] = useState<Set<string>>(new Set());
   const [showAddMenu, setShowAddMenu] = useState(false);
 
+  // Only use PointerSensor - remove KeyboardSensor to prevent conflicts with rich text editing
   const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
+    useSensor(PointerSensor)
   );
 
   const handleDragEnd = (event: DragEndEvent) => {
