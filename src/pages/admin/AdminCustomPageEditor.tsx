@@ -307,7 +307,7 @@ export default function AdminCustomPageEditor() {
           <div className="flex items-center gap-2">
             {!isNew && formData.status === 'published' && (
               <Button variant="outline" asChild>
-                <a href={`/p/${formData.slug}`} target="_blank" rel="noopener noreferrer">
+                <a href={`/${formData.slug}`} target="_blank" rel="noopener noreferrer">
                   <Eye className="h-4 w-4 mr-2" />
                   {language === 'en' ? 'Preview' : 'Pratinjau'}
                 </a>
@@ -407,7 +407,7 @@ export default function AdminCustomPageEditor() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-muted-foreground">/p/</span>
+                    <span className="text-muted-foreground">/</span>
                     <Input
                       value={formData.slug}
                       onChange={(e) => setFormData(prev => ({ ...prev, slug: e.target.value }))}
