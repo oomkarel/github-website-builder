@@ -77,6 +77,27 @@ export default function RichTextEditor({ value, onChange, placeholder, className
     document.execCommand('insertText', false, text);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      if (e.shiftKey) {
+        // Shift+Enter = line break within same block
+        e.preventDefault();
+        document.execCommand('insertLineBreak', false);
+      } else {
+        // Enter = new paragraph
+        e.preventDefault();
+        document.execCommand('insertParagraph', false);
+      }
+      // Update value after key action
+      setTimeout(() => {
+        if (editorRef.current) {
+          const sanitized = sanitizeHtml(editorRef.current.innerHTML);
+          onChange(sanitized);
+        }
+      }, 0);
+    }
+  };
+
   const toolbarButtons = [
     { icon: Heading1, action: () => formatBlock('h1'), tooltip: 'Heading 1' },
     { icon: Heading2, action: () => formatBlock('h2'), tooltip: 'Heading 2' },
@@ -131,6 +152,7 @@ export default function RichTextEditor({ value, onChange, placeholder, className
         contentEditable
         onInput={handleInput}
         onPaste={handlePaste}
+        onKeyDown={handleKeyDown}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
         dangerouslySetInnerHTML={{ __html: value }}
