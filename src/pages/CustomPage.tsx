@@ -1,6 +1,6 @@
-import { useParams } from 'react-router-dom';
+import { useParams, useLocation } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useCustomPageBySlug } from '@/hooks/useCustomPages';
+import { useCustomPageBySlugRootLevel, useCustomPageBySlugWithPrefix } from '@/hooks/useCustomPages';
 import { Layout } from '@/components/layout/Layout';
 import { SEO } from '@/components/common/SEO';
 import BlockRenderer from '@/components/common/BlockRenderer';
@@ -9,8 +9,18 @@ import NotFound from './NotFound';
 
 export default function CustomPage() {
   const { slug } = useParams();
+  const location = useLocation();
   const { language } = useLanguage();
-  const { data: page, isLoading, error } = useCustomPageBySlug(slug || '');
+  
+  // Determine if we're on /p/:slug route or root /:slug route
+  const isPrefixedRoute = location.pathname.startsWith('/p/');
+  
+  // Use appropriate hook based on route
+  const rootQuery = useCustomPageBySlugRootLevel(slug || '');
+  const prefixQuery = useCustomPageBySlugWithPrefix(slug || '');
+  
+  // Select the correct query based on route
+  const { data: page, isLoading, error } = isPrefixedRoute ? prefixQuery : rootQuery;
 
   if (isLoading) {
     return (
