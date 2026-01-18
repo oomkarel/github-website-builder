@@ -37,6 +37,7 @@ import AdminMenus from "./pages/admin/AdminMenus";
 import AdminCustomPages from "./pages/admin/AdminCustomPages";
 import AdminCustomPageEditor from "./pages/admin/AdminCustomPageEditor";
 import CustomPage from "./pages/CustomPage";
+import DynamicPageRouter from "./components/common/DynamicPageRouter";
 
 // Components
 import { PromoPopup } from "./components/common/PromoPopup";
@@ -91,8 +92,9 @@ const App = () => (
                 <Route path="/admin/custom-pages" element={<ProtectedRoute><AdminCustomPages /></ProtectedRoute>} />
                 <Route path="/admin/custom-pages/:id" element={<ProtectedRoute><AdminCustomPageEditor /></ProtectedRoute>} />
                 
-                {/* Custom Pages Route */}
+                {/* Custom Pages Route - both /p/:slug and root level /:slug */}
                 <Route path="/p/:slug" element={<CustomPage />} />
+                <Route path="/:slug" element={<DynamicPageRouter />} />
                 
                 <Route path="*" element={<NotFound />} />
               </Routes>
