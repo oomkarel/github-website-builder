@@ -56,6 +56,7 @@ interface PageFormData {
   meta_description_id: string;
   og_image: string;
   is_in_menu: boolean;
+  use_prefix: boolean;
 }
 
 const defaultFormData: PageFormData = {
@@ -73,6 +74,7 @@ const defaultFormData: PageFormData = {
   meta_description_id: '',
   og_image: '',
   is_in_menu: false,
+  use_prefix: false,
 };
 
 export default function AdminCustomPageEditor() {
@@ -110,6 +112,7 @@ export default function AdminCustomPageEditor() {
         meta_description_id: existingPage.meta_description_id || '',
         og_image: existingPage.og_image || '',
         is_in_menu: existingPage.is_in_menu,
+        use_prefix: existingPage.use_prefix ?? false,
       });
       // Extract blocks from content arrays
       const enBlocks = Array.isArray(existingPage.content_en) ? existingPage.content_en : [];
@@ -299,20 +302,22 @@ export default function AdminCustomPageEditor() {
                   ? (language === 'en' ? 'Create New Page' : 'Buat Halaman Baru')
                   : (language === 'en' ? 'Edit Page' : 'Edit Halaman')}
               </h1>
-              {!isNew && formData.slug && (
-                <p className="text-muted-foreground mt-1">/{formData.slug}</p>
-              )}
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            {!isNew && formData.status === 'published' && (
-              <Button variant="outline" asChild>
-                <a href={`/${formData.slug}`} target="_blank" rel="noopener noreferrer">
-                  <Eye className="h-4 w-4 mr-2" />
-                  {language === 'en' ? 'Preview' : 'Pratinjau'}
-                </a>
-              </Button>
+            {!isNew && formData.slug && (
+              <p className="text-muted-foreground mt-1">
+                {formData.use_prefix ? `/p/${formData.slug}` : `/${formData.slug}`}
+              </p>
             )}
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          {!isNew && formData.status === 'published' && (
+            <Button variant="outline" asChild>
+              <a href={formData.use_prefix ? `/p/${formData.slug}` : `/${formData.slug}`} target="_blank" rel="noopener noreferrer">
+                <Eye className="h-4 w-4 mr-2" />
+                {language === 'en' ? 'Preview' : 'Pratinjau'}
+              </a>
+            </Button>
+          )}
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button variant="outline" disabled={isTranslating || blocksId.length === 0}>
@@ -407,7 +412,9 @@ export default function AdminCustomPageEditor() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-muted-foreground">/</span>
+                    <span className="text-muted-foreground">
+                      {formData.use_prefix ? '/p/' : '/'}
+                    </span>
                     <Input
                       value={formData.slug}
                       onChange={(e) => setFormData(prev => ({ ...prev, slug: e.target.value }))}
@@ -681,6 +688,29 @@ export default function AdminCustomPageEditor() {
                       ))}
                     </SelectContent>
                   </Select>
+                </div>
+
+                <div className="flex items-center justify-between p-4 rounded-lg border bg-muted/30">
+                  <div>
+                    <Label>{language === 'en' ? 'URL Prefix (/p/)' : 'Prefix URL (/p/)'}</Label>
+                    <p className="text-xs text-muted-foreground">
+                      {language === 'en' 
+                        ? 'Use /p/ prefix for this page URL. OFF = root level (better for SEO)' 
+                        : 'Gunakan prefix /p/ untuk URL halaman ini. OFF = level root (lebih baik untuk SEO)'}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className={`text-sm ${!formData.use_prefix ? 'font-medium text-primary' : 'text-muted-foreground'}`}>
+                      /{formData.slug || 'slug'}
+                    </span>
+                    <Switch
+                      checked={formData.use_prefix}
+                      onCheckedChange={(checked) => setFormData(prev => ({ ...prev, use_prefix: checked }))}
+                    />
+                    <span className={`text-sm ${formData.use_prefix ? 'font-medium text-primary' : 'text-muted-foreground'}`}>
+                      /p/{formData.slug || 'slug'}
+                    </span>
+                  </div>
                 </div>
 
                 <div className="flex items-center justify-between p-4 rounded-lg border bg-muted/30">

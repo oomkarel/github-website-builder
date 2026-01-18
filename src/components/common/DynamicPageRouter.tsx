@@ -1,17 +1,18 @@
 import { useParams } from 'react-router-dom';
-import { useCustomPageBySlug } from '@/hooks/useCustomPages';
+import { useCustomPageBySlugRootLevel } from '@/hooks/useCustomPages';
 import CustomPage from '@/pages/CustomPage';
 import NotFound from '@/pages/NotFound';
 import { Loader2 } from 'lucide-react';
 
 /**
- * Dynamic router that checks if a slug exists in custom_pages table.
- * If it exists and is published, renders the CustomPage component.
+ * Dynamic router that checks if a slug exists in custom_pages table with use_prefix = false.
+ * Only serves root-level pages (e.g., /katalog).
+ * If page exists and is published with use_prefix = false, renders CustomPage.
  * If not found, renders the NotFound page.
  */
 export default function DynamicPageRouter() {
   const { slug } = useParams();
-  const { data: page, isLoading, error } = useCustomPageBySlug(slug || '');
+  const { data: page, isLoading, error } = useCustomPageBySlugRootLevel(slug || '');
 
   if (isLoading) {
     return (
@@ -21,7 +22,7 @@ export default function DynamicPageRouter() {
     );
   }
 
-  // If page exists in custom_pages and is published, render it
+  // If page exists with use_prefix = false, render it
   if (page && !error) {
     return <CustomPage />;
   }
@@ -29,4 +30,3 @@ export default function DynamicPageRouter() {
   // Otherwise show 404
   return <NotFound />;
 }
-
