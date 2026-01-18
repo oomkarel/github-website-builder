@@ -222,14 +222,35 @@ function HeroBlockEditor({ data, onChange }: { data: Record<string, any>; onChan
   const { language } = useLanguage();
   return (
     <div className="space-y-4">
+      <div className="p-3 bg-muted/50 rounded-lg border border-dashed">
+        <p className="text-xs text-muted-foreground">
+          {language === 'en' 
+            ? '💡 Hero Section is for the main banner area only. For page headings, use a Text Block with H1/H2/H3 formatting.' 
+            : '💡 Bagian Hero hanya untuk area banner utama. Untuk heading halaman, gunakan Blok Teks dengan format H1/H2/H3.'}
+        </p>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <Label>{language === 'en' ? 'Title' : 'Judul'}</Label>
-          <Input value={data.title || ''} onChange={(e) => onChange({ ...data, title: e.target.value })} />
+          <Label>{language === 'en' ? 'Hero Headline' : 'Judul Hero'}</Label>
+          <Input 
+            value={data.title || ''} 
+            onChange={(e) => onChange({ ...data, title: e.target.value })} 
+            placeholder={language === 'en' ? 'Main banner text' : 'Teks banner utama'}
+          />
+          <p className="text-xs text-muted-foreground mt-1">
+            {language === 'en' ? 'Large text displayed on the banner' : 'Teks besar ditampilkan di banner'}
+          </p>
         </div>
         <div>
-          <Label>{language === 'en' ? 'Subtitle' : 'Subjudul'}</Label>
-          <Input value={data.subtitle || ''} onChange={(e) => onChange({ ...data, subtitle: e.target.value })} />
+          <Label>{language === 'en' ? 'Hero Tagline' : 'Tagline Hero'}</Label>
+          <Input 
+            value={data.subtitle || ''} 
+            onChange={(e) => onChange({ ...data, subtitle: e.target.value })} 
+            placeholder={language === 'en' ? 'Supporting text' : 'Teks pendukung'}
+          />
+          <p className="text-xs text-muted-foreground mt-1">
+            {language === 'en' ? 'Smaller text below the headline' : 'Teks kecil di bawah judul'}
+          </p>
         </div>
       </div>
       <div>
