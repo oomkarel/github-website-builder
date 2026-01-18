@@ -63,7 +63,7 @@ const defaultFormData: PageFormData = {
   title_id: '',
   slug: '',
   parent_id: null,
-  template: 'default',
+  template: 'landing',
   status: 'draft',
   content_en: [],
   content_id: [],

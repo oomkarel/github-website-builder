@@ -34,6 +34,9 @@ export default function CustomPage() {
   // Parse content blocks - content is stored as array of blocks
   const blocks = Array.isArray(content) ? content : [];
 
+  // Check if first block is a hero to avoid duplicate title
+  const firstBlockIsHero = blocks.length > 0 && blocks[0]?.type === 'hero';
+
   // Render based on template
   const renderContent = () => {
     // Create pageKey for custom pages to support per-page indexing
@@ -69,7 +72,7 @@ export default function CustomPage() {
       );
     }
 
-    // Default template
+    // Default template - skip H1 if first block is Hero to prevent duplication
     return (
       <Layout>
         <SEO
@@ -78,12 +81,16 @@ export default function CustomPage() {
           image={page.og_image || undefined}
           pageKey={pageKey}
         />
-        <div className="container mx-auto px-4 pt-24 pb-12">
-          <article className="max-w-4xl mx-auto">
-            <h1 className="text-4xl font-bold mb-8">{title}</h1>
-            <BlockRenderer blocks={blocks} />
-          </article>
-        </div>
+        {firstBlockIsHero ? (
+          <BlockRenderer blocks={blocks} />
+        ) : (
+          <div className="container mx-auto px-4 pt-24 pb-12">
+            <article className="max-w-4xl mx-auto">
+              <h1 className="text-4xl font-bold mb-8">{title}</h1>
+              <BlockRenderer blocks={blocks} />
+            </article>
+          </div>
+        )}
       </Layout>
     );
   };
