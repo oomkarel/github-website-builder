@@ -25,42 +25,51 @@ interface BlockRendererProps {
 function HeroBlock({ data }: { data: Record<string, any> }) {
   return (
     <section 
-      className="relative py-20 px-6 min-h-[400px] flex items-center justify-center text-center"
+      className="relative min-h-[70vh] flex items-center justify-center text-center overflow-hidden"
       style={{
         backgroundImage: data.background_image ? `url(${data.background_image})` : undefined,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}
     >
+      {/* Gradient overlay for better text readability */}
       {data.background_image && (
-        <div className="absolute inset-0 bg-black/50" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/70" />
       )}
-      <div className="relative z-10 max-w-4xl mx-auto">
+      <div className="relative z-10 max-w-4xl mx-auto px-6 py-24">
         {data.title && (
           <h1 className={cn(
-            "text-4xl md:text-5xl font-bold mb-4",
-            data.background_image ? "text-white" : "text-foreground"
+            "text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight animate-fade-up",
+            data.background_image ? "text-white drop-shadow-lg" : "text-foreground"
           )}>
             {data.title}
           </h1>
         )}
         {data.subtitle && (
           <p className={cn(
-            "text-xl mb-8",
+            "text-xl md:text-2xl mb-10 max-w-2xl mx-auto leading-relaxed animate-fade-up",
             data.background_image ? "text-white/90" : "text-muted-foreground"
-          )}>
+          )} style={{ animationDelay: '0.1s' }}>
             {data.subtitle}
           </p>
         )}
         {(data.primary_button_text || data.secondary_button_text) && (
-          <div className="flex flex-wrap gap-4 justify-center">
+          <div className="flex flex-wrap gap-4 justify-center animate-fade-up" style={{ animationDelay: '0.2s' }}>
             {data.primary_button_text && (
-              <Button size="lg" asChild>
+              <Button size="lg" asChild className="text-lg px-8 py-6 h-auto shadow-lg hover:shadow-xl transition-shadow">
                 <Link to={data.primary_button_link || '#'}>{data.primary_button_text}</Link>
               </Button>
             )}
             {data.secondary_button_text && (
-              <Button size="lg" variant="outline" asChild className={data.background_image ? "bg-white/10 border-white text-white hover:bg-white/20" : ""}>
+              <Button 
+                size="lg" 
+                variant="outline" 
+                asChild 
+                className={cn(
+                  "text-lg px-8 py-6 h-auto",
+                  data.background_image && "bg-white/10 border-white/50 text-white hover:bg-white/20 backdrop-blur-sm"
+                )}
+              >
                 <Link to={data.secondary_button_link || '#'}>{data.secondary_button_text}</Link>
               </Button>
             )}
@@ -74,9 +83,21 @@ function HeroBlock({ data }: { data: Record<string, any> }) {
 function TextBlock({ data }: { data: Record<string, any> }) {
   if (!data.content) return null;
   return (
-    <section className="py-12 px-6">
-      <div className="max-w-4xl mx-auto prose prose-lg dark:prose-invert">
-        <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(data.content) }} />
+    <section className="py-16 md:py-20 px-6">
+      <div className="max-w-4xl mx-auto">
+        <div 
+          className="prose prose-lg dark:prose-invert max-w-none
+            prose-headings:font-bold prose-headings:text-foreground
+            prose-h1:text-3xl prose-h1:md:text-4xl prose-h1:mb-6 prose-h1:mt-0
+            prose-h2:text-2xl prose-h2:md:text-3xl prose-h2:text-primary prose-h2:mb-4 prose-h2:mt-10
+            prose-h3:text-xl prose-h3:md:text-2xl prose-h3:mb-3 prose-h3:mt-8
+            prose-p:text-muted-foreground prose-p:leading-relaxed prose-p:mb-5
+            prose-strong:text-foreground prose-strong:font-semibold
+            prose-a:text-primary prose-a:no-underline hover:prose-a:underline
+            prose-ul:my-6 prose-li:text-muted-foreground prose-li:leading-relaxed
+            prose-blockquote:border-l-primary prose-blockquote:bg-muted/30 prose-blockquote:py-2 prose-blockquote:rounded-r-lg"
+          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(data.content) }} 
+        />
       </div>
     </section>
   );
@@ -96,31 +117,47 @@ function TableBlock({ data }: { data: Record<string, any> }) {
   };
 
   return (
-    <section className="py-12 px-6">
-      <div className="max-w-4xl mx-auto overflow-x-auto">
-        <table className="w-full border-collapse border border-border">
-          <tbody>
-            {rows.map((row, rowIdx) => (
-              <tr key={rowIdx}>
-                {row.map((cell, colIdx) => {
-                  const isHeader = isHeaderCell(rowIdx, colIdx);
-                  const Tag = isHeader ? 'th' : 'td';
-                  return (
-                    <Tag
-                      key={colIdx}
-                      className={cn(
-                        "p-3 border border-border text-left",
-                        isHeader && "bg-muted font-semibold"
-                      )}
-                    >
-                      <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(cell) }} />
-                    </Tag>
-                  );
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
+    <section className="py-16 md:py-20 px-6">
+      <div className="max-w-4xl mx-auto">
+        <div className="overflow-hidden rounded-xl border border-border shadow-sm bg-card">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <tbody>
+                {rows.map((row, rowIdx) => (
+                  <tr 
+                    key={rowIdx} 
+                    className={cn(
+                      rowIdx !== rows.length - 1 && "border-b border-border",
+                      rowIdx % 2 === 1 && !isHeaderCell(rowIdx, 0) && "bg-muted/20"
+                    )}
+                  >
+                    {row.map((cell, colIdx) => {
+                      const isHeader = isHeaderCell(rowIdx, colIdx);
+                      const Tag = isHeader ? 'th' : 'td';
+                      return (
+                        <Tag
+                          key={colIdx}
+                          className={cn(
+                            "p-4 text-left align-top",
+                            colIdx !== row.length - 1 && "border-r border-border",
+                            isHeader && "bg-primary/5 font-semibold text-foreground",
+                            !isHeader && "text-muted-foreground",
+                            "first:pl-6 last:pr-6"
+                          )}
+                        >
+                          <span 
+                            className="prose prose-sm dark:prose-invert prose-p:m-0 prose-p:leading-relaxed"
+                            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(cell) }} 
+                          />
+                        </Tag>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </section>
   );
@@ -182,24 +219,34 @@ function FeaturesBlock({ data }: { data: Record<string, any> }) {
   if (items.length === 0) return null;
 
   return (
-    <section className="py-16 px-6">
+    <section className="py-16 md:py-20 px-6">
       <div className="max-w-6xl mx-auto">
+        {(data.title || data.subtitle) && (
+          <div className="text-center mb-12">
+            {data.title && (
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">{data.title}</h2>
+            )}
+            {data.subtitle && (
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">{data.subtitle}</p>
+            )}
+          </div>
+        )}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {items.map((item: any, idx: number) => {
             const IconComponent = item.icon && (icons as any)[item.icon];
             return (
-              <Card key={idx} className="text-center">
-                <CardContent className="pt-6">
+              <Card key={idx} className="text-center group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border-border/50">
+                <CardContent className="pt-8 pb-6">
                   {IconComponent && (
-                    <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
-                      <IconComponent className="h-6 w-6 text-primary" />
+                    <div className="w-14 h-14 mx-auto mb-5 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                      <IconComponent className="h-7 w-7 text-primary" />
                     </div>
                   )}
                   {item.title && (
-                    <h3 className="text-xl font-semibold mb-2">{item.title}</h3>
+                    <h3 className="text-xl font-semibold mb-3 text-foreground">{item.title}</h3>
                   )}
                   {item.description && (
-                    <p className="text-muted-foreground">{item.description}</p>
+                    <p className="text-muted-foreground leading-relaxed">{item.description}</p>
                   )}
                 </CardContent>
               </Card>
@@ -519,45 +566,60 @@ function ContactFormBlock({ data }: { data: Record<string, any> }) {
   );
 }
 
+// Helper to determine section background based on block type and index
+const getSectionBg = (index: number, type: string) => {
+  // These blocks have their own background styling
+  const selfStyledBlocks = ['hero', 'cta', 'stats_counter', 'testimonial'];
+  if (selfStyledBlocks.includes(type)) return '';
+  // Alternate between transparent and subtle muted background
+  return index % 2 === 1 ? 'bg-muted/30' : '';
+};
+
 export default function BlockRenderer({ blocks }: BlockRendererProps) {
   if (!blocks || blocks.length === 0) return null;
 
+  const renderBlock = (block: ContentBlock) => {
+    switch (block.type) {
+      case 'hero':
+        return <HeroBlock data={block.data} />;
+      case 'text':
+        return <TextBlock data={block.data} />;
+      case 'table':
+        return <TableBlock data={block.data} />;
+      case 'image_gallery':
+        return <ImageGalleryBlock data={block.data} />;
+      case 'cta':
+        return <CTABlock data={block.data} />;
+      case 'features':
+        return <FeaturesBlock data={block.data} />;
+      case 'testimonial':
+        return <TestimonialBlock data={block.data} />;
+      case 'video':
+        return <VideoBlock data={block.data} />;
+      case 'faq':
+        return <FAQBlock data={block.data} />;
+      case 'html':
+        return <HTMLBlock data={block.data} />;
+      case 'pricing_table':
+        return <PricingTableBlock data={block.data} />;
+      case 'team_members':
+        return <TeamMembersBlock data={block.data} />;
+      case 'stats_counter':
+        return <StatsCounterBlock data={block.data} />;
+      case 'contact_form':
+        return <ContactFormBlock data={block.data} />;
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="block-renderer">
-      {blocks.map((block) => {
-        switch (block.type) {
-          case 'hero':
-            return <HeroBlock key={block.id} data={block.data} />;
-        case 'text':
-            return <TextBlock key={block.id} data={block.data} />;
-          case 'table':
-            return <TableBlock key={block.id} data={block.data} />;
-          case 'image_gallery':
-            return <ImageGalleryBlock key={block.id} data={block.data} />;
-          case 'cta':
-            return <CTABlock key={block.id} data={block.data} />;
-          case 'features':
-            return <FeaturesBlock key={block.id} data={block.data} />;
-          case 'testimonial':
-            return <TestimonialBlock key={block.id} data={block.data} />;
-          case 'video':
-            return <VideoBlock key={block.id} data={block.data} />;
-          case 'faq':
-            return <FAQBlock key={block.id} data={block.data} />;
-          case 'html':
-            return <HTMLBlock key={block.id} data={block.data} />;
-          case 'pricing_table':
-            return <PricingTableBlock key={block.id} data={block.data} />;
-          case 'team_members':
-            return <TeamMembersBlock key={block.id} data={block.data} />;
-          case 'stats_counter':
-            return <StatsCounterBlock key={block.id} data={block.data} />;
-          case 'contact_form':
-            return <ContactFormBlock key={block.id} data={block.data} />;
-          default:
-            return null;
-        }
-      })}
+      {blocks.map((block, index) => (
+        <div key={block.id} className={getSectionBg(index, block.type)}>
+          {renderBlock(block)}
+        </div>
+      ))}
     </div>
   );
 }
