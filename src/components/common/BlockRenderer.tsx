@@ -82,6 +82,50 @@ function TextBlock({ data }: { data: Record<string, any> }) {
   );
 }
 
+function TableBlock({ data }: { data: Record<string, any> }) {
+  const rows: string[][] = data.rows || [];
+  const headerType: 'row' | 'column' | 'both' | 'none' = data.headerType || 'both';
+  
+  if (rows.length === 0) return null;
+
+  const isHeaderCell = (rowIdx: number, colIdx: number) => {
+    if (headerType === 'both') return rowIdx === 0 || colIdx === 0;
+    if (headerType === 'row') return rowIdx === 0;
+    if (headerType === 'column') return colIdx === 0;
+    return false;
+  };
+
+  return (
+    <section className="py-12 px-6">
+      <div className="max-w-4xl mx-auto overflow-x-auto">
+        <table className="w-full border-collapse border border-border">
+          <tbody>
+            {rows.map((row, rowIdx) => (
+              <tr key={rowIdx}>
+                {row.map((cell, colIdx) => {
+                  const isHeader = isHeaderCell(rowIdx, colIdx);
+                  const Tag = isHeader ? 'th' : 'td';
+                  return (
+                    <Tag
+                      key={colIdx}
+                      className={cn(
+                        "p-3 border border-border text-left",
+                        isHeader && "bg-muted font-semibold"
+                      )}
+                    >
+                      <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(cell) }} />
+                    </Tag>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}
+
 function ImageGalleryBlock({ data }: { data: Record<string, any> }) {
   const images = data.images || [];
   if (images.length === 0) return null;
@@ -484,8 +528,10 @@ export default function BlockRenderer({ blocks }: BlockRendererProps) {
         switch (block.type) {
           case 'hero':
             return <HeroBlock key={block.id} data={block.data} />;
-          case 'text':
+        case 'text':
             return <TextBlock key={block.id} data={block.data} />;
+          case 'table':
+            return <TableBlock key={block.id} data={block.data} />;
           case 'image_gallery':
             return <ImageGalleryBlock key={block.id} data={block.data} />;
           case 'cta':
