@@ -6,11 +6,13 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { icons, Check, Linkedin } from 'lucide-react';
+import { icons, Check, Linkedin, ArrowRight } from 'lucide-react';
 import DOMPurify from 'dompurify';
 import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useSiteSetting } from '@/hooks/useSiteSettings';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ContentBlock {
   id: string;
@@ -195,20 +197,83 @@ function ImageGalleryBlock({ data }: { data: Record<string, any> }) {
 }
 
 function CTABlock({ data }: { data: Record<string, any> }) {
+  const { t } = useLanguage();
+  const { data: ctaDefaults } = useSiteSetting('cta_defaults');
+  const defaults = ctaDefaults?.value || {};
+  
+  const useDefaults = data.use_defaults !== false;
+  
+  // Merge block data with defaults - block data takes priority
+  const title = data.title || (useDefaults ? t(
+    'Siap Memulai Kemitraan dengan Kami?',
+    'Ready to Start a Partnership with Us?'
+  ) : '');
+  
+  const subtitle = data.subtitle || data.description || (useDefaults ? t(
+    'Hubungi kami sekarang untuk konsultasi gratis tentang solusi kemasan terbaik untuk bisnis Anda.',
+    'Contact us now for free consultation about the best packaging solutions for your business.'
+  ) : '');
+
+  const primaryButtonText = data.primary_button_text || data.button_text || (useDefaults 
+    ? t(defaults.primary_button_text_id, defaults.primary_button_text_en) 
+    : '');
+  
+  const primaryButtonLink = data.primary_button_link || data.button_link || 
+    (useDefaults ? defaults.primary_button_link : '#');
+
+  const secondaryButtonText = data.secondary_button_text || (useDefaults 
+    ? t(defaults.secondary_button_text_id, defaults.secondary_button_text_en) 
+    : '');
+  
+  const secondaryButtonLink = data.secondary_button_link || 
+    (useDefaults ? defaults.secondary_button_link : '#');
+
   return (
-    <section className="py-16 px-6 bg-primary text-primary-foreground">
-      <div className="max-w-4xl mx-auto text-center">
-        {data.title && (
-          <h2 className="text-3xl font-bold mb-4">{data.title}</h2>
-        )}
-        {data.description && (
-          <p className="text-lg mb-8 opacity-90">{data.description}</p>
-        )}
-        {data.button_text && (
-          <Button size="lg" variant="secondary" asChild>
-            <Link to={data.button_link || '#'}>{data.button_text}</Link>
-          </Button>
-        )}
+    <section className="relative py-20 overflow-hidden">
+      {/* Background with gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary to-primary/80" />
+      
+      {/* Decorative elements */}
+      <div className="absolute top-0 left-0 w-64 h-64 bg-white/5 rounded-full -translate-x-1/2 -translate-y-1/2" />
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-white/5 rounded-full translate-x-1/3 translate-y-1/3" />
+      
+      <div className="relative z-10 container mx-auto px-6">
+        <div className="max-w-3xl mx-auto text-center text-primary-foreground">
+          {title && (
+            <h2 className="text-3xl md:text-4xl font-bold mb-6">{title}</h2>
+          )}
+          {subtitle && (
+            <p className="text-lg md:text-xl mb-10 opacity-90 leading-relaxed">{subtitle}</p>
+          )}
+          
+          {(primaryButtonText || secondaryButtonText) && (
+            <div className="flex flex-wrap gap-4 justify-center">
+              {primaryButtonText && (
+                <Button 
+                  size="lg" 
+                  variant="secondary" 
+                  asChild 
+                  className="text-lg px-8 py-6 h-auto shadow-lg hover:shadow-xl transition-all"
+                >
+                  <Link to={primaryButtonLink}>
+                    {primaryButtonText}
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Link>
+                </Button>
+              )}
+              {secondaryButtonText && (
+                <Button 
+                  size="lg" 
+                  variant="outline" 
+                  asChild 
+                  className="text-lg px-8 py-6 h-auto bg-white/10 border-white/50 text-white hover:bg-white/20 backdrop-blur-sm"
+                >
+                  <Link to={secondaryButtonLink}>{secondaryButtonText}</Link>
+                </Button>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </section>
   );
