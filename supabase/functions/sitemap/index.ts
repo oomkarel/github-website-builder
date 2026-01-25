@@ -7,6 +7,24 @@ const corsHeaders = {
   'Content-Type': 'application/xml',
 };
 
+// Security-sensitive paths that should NEVER be in sitemap
+const EXCLUDED_PATHS = [
+  '/admin',
+  '/auth',
+  '/api',
+  '/login',
+  '/signup',
+  '/dashboard',
+  '/reset-password',
+];
+
+// Helper function to check if path is security-sensitive
+const isSecuritySensitivePath = (path: string): boolean => {
+  return EXCLUDED_PATHS.some(excluded => 
+    path === excluded || path.startsWith(`${excluded}/`)
+  );
+};
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -17,7 +35,7 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    // Get SEO settings to check if sitemap is enabled and get page indexing
+    // Get SEO settings to check if sitemap is enabled and get site URL
     const { data: seoSettings } = await supabase
       .from('site_settings')
       .select('value')
@@ -26,7 +44,6 @@ serve(async (req) => {
 
     const seo = seoSettings?.value as {
       sitemap_enabled?: boolean;
-      page_indexing?: Record<string, boolean>;
       site_url?: string;
     } | null;
 
@@ -38,7 +55,6 @@ serve(async (req) => {
     }
 
     const baseUrl = seo?.site_url || 'https://bungkusin.co.id';
-    const pageIndexing = seo?.page_indexing || {};
 
     // Get page content for accurate lastmod dates
     const { data: pageContent } = await supabase
@@ -70,8 +86,8 @@ serve(async (req) => {
       { key: 'privacy-policy', path: '/privacy', priority: '0.3', changefreq: 'yearly' },
     ];
 
-    // Filter pages based on indexing settings (default is indexed)
-    const indexedPages = staticPages.filter(page => pageIndexing[page.key] !== false);
+    // Always include all static pages (no CMS filtering - security paths already excluded from list)
+    const indexedPages = staticPages;
 
     // Get published blog posts
     const { data: blogs } = await supabase
@@ -102,8 +118,8 @@ serve(async (req) => {
       xml += `  </url>\n`;
     }
 
-    // Add blog posts (if blog page is indexed)
-    if (pageIndexing['blog'] !== false && blogs) {
+    // Always include all published blog posts
+    if (blogs) {
       for (const blog of blogs) {
         const lastmod = blog.updated_at || blog.created_at || today;
         xml += `  <url>\n`;
@@ -115,16 +131,19 @@ serve(async (req) => {
       }
     }
 
-    // Add custom pages (check individual page indexing)
+    // Add all published custom pages (filtered only by security, not CMS settings)
     if (customPages) {
       for (const page of customPages) {
-        // Skip if this specific custom page is set to noindex
-        const pageKey = `custom-${page.slug}`;
-        if (pageIndexing[pageKey] === false) continue;
+        // Determine the full path for this custom page
+        const pagePath = page.use_prefix ? `/p/${page.slug}` : `/${page.slug}`;
+        
+        // Skip security-sensitive paths
+        if (isSecuritySensitivePath(pagePath)) {
+          console.log(`Skipping security-sensitive path: ${pagePath}`);
+          continue;
+        }
 
         const lastmod = page.updated_at || page.created_at || today;
-        // Use /p/ prefix only if use_prefix is true, otherwise use root path
-        const pagePath = page.use_prefix ? `/p/${page.slug}` : `/${page.slug}`;
         xml += `  <url>\n`;
         xml += `    <loc>${baseUrl}${pagePath}</loc>\n`;
         xml += `    <lastmod>${lastmod.split('T')[0]}</lastmod>\n`;
