@@ -915,6 +915,27 @@ function TableBlockEditor({ data, onChange }: { data: Record<string, any>; onCha
 
   return (
     <div className="space-y-4">
+      {/* Table Title */}
+      <div>
+        <Label>{language === 'en' ? 'Table Title' : 'Judul Tabel'}</Label>
+        <Input 
+          value={data.title || ''} 
+          onChange={(e) => onChange({ ...data, title: e.target.value })}
+          placeholder={language === 'en' ? 'e.g. Product Specifications' : 'contoh: Spesifikasi Produk'}
+        />
+      </div>
+      
+      {/* Table Description */}
+      <div>
+        <Label>{language === 'en' ? 'Description (above table)' : 'Deskripsi (di atas tabel)'}</Label>
+        <Textarea 
+          value={data.description || ''} 
+          onChange={(e) => onChange({ ...data, description: e.target.value })}
+          placeholder={language === 'en' ? 'Optional description for the table' : 'Deskripsi opsional untuk tabel'}
+          rows={2}
+        />
+      </div>
+      
       {/* Header Type Selector */}
       <div>
         <Label>{language === 'en' ? 'Header Type' : 'Tipe Header'}</Label>
@@ -1020,6 +1041,16 @@ function TableBlockEditor({ data, onChange }: { data: Record<string, any>; onCha
           <ColumnsIcon className="h-4 w-4 mr-2" />
           {language === 'en' ? 'Add Column' : 'Tambah Kolom'}
         </Button>
+      </div>
+      
+      {/* Table Caption */}
+      <div>
+        <Label>{language === 'en' ? 'Table Caption (below table)' : 'Nama Tabel (di bawah tabel)'}</Label>
+        <Input 
+          value={data.table_caption || ''} 
+          onChange={(e) => onChange({ ...data, table_caption: e.target.value })}
+          placeholder={language === 'en' ? 'e.g. Table 1: Product Sizes' : 'contoh: Tabel 1: Ukuran Produk'}
+        />
       </div>
     </div>
   );

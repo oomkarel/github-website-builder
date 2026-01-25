@@ -88,18 +88,18 @@ function HeroBlock({ data }: { data: Record<string, any> }) {
 function TextBlock({ data }: { data: Record<string, any> }) {
   if (!data.content) return null;
   return (
-    <section className="py-16 md:py-20 px-6">
+    <section className="py-8 md:py-10 px-6">
       <div className="max-w-4xl mx-auto">
         <div 
           className="prose prose-lg dark:prose-invert max-w-none
             prose-headings:font-bold prose-headings:text-foreground
-            prose-h1:text-3xl prose-h1:md:text-4xl prose-h1:mb-6 prose-h1:mt-0
-            prose-h2:text-2xl prose-h2:md:text-3xl prose-h2:text-primary prose-h2:mb-4 prose-h2:mt-10
-            prose-h3:text-xl prose-h3:md:text-2xl prose-h3:mb-3 prose-h3:mt-8
-            prose-p:text-muted-foreground prose-p:leading-relaxed prose-p:mb-5
+            prose-h1:text-3xl prose-h1:md:text-4xl prose-h1:mb-4 prose-h1:mt-0
+            prose-h2:text-2xl prose-h2:md:text-3xl prose-h2:text-primary prose-h2:mb-3 prose-h2:mt-6
+            prose-h3:text-xl prose-h3:md:text-2xl prose-h3:mb-2 prose-h3:mt-5
+            prose-p:text-muted-foreground prose-p:leading-relaxed prose-p:mb-4
             prose-strong:text-foreground prose-strong:font-semibold
             prose-a:text-primary prose-a:no-underline hover:prose-a:underline
-            prose-ul:my-6 prose-li:text-muted-foreground prose-li:leading-relaxed
+            prose-ul:my-4 prose-li:text-muted-foreground prose-li:leading-relaxed
             prose-blockquote:border-l-primary prose-blockquote:bg-muted/30 prose-blockquote:py-2 prose-blockquote:rounded-r-lg"
           dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(data.content) }} 
         />
@@ -122,8 +122,23 @@ function TableBlock({ data }: { data: Record<string, any> }) {
   };
 
   return (
-    <section className="py-16 md:py-20 px-6">
+    <section className="py-10 md:py-14 px-6">
       <div className="max-w-4xl mx-auto">
+        {/* Table Title */}
+        {data.title && (
+          <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-3 text-center">
+            {data.title}
+          </h3>
+        )}
+        
+        {/* Table Description */}
+        {data.description && (
+          <p className="text-muted-foreground text-center mb-6 max-w-2xl mx-auto leading-relaxed">
+            {data.description}
+          </p>
+        )}
+        
+        {/* Table */}
         <div className="overflow-hidden rounded-xl border border-border shadow-sm bg-card">
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -163,6 +178,13 @@ function TableBlock({ data }: { data: Record<string, any> }) {
             </table>
           </div>
         </div>
+        
+        {/* Table Caption */}
+        {data.table_caption && (
+          <p className="text-sm text-muted-foreground text-center mt-4 italic">
+            {data.table_caption}
+          </p>
+        )}
       </div>
     </section>
   );
@@ -300,11 +322,12 @@ function FeaturesBlock({ data }: { data: Record<string, any> }) {
             )}
           </div>
         )}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {/* Centered flex container - items center when row is not full */}
+        <div className="flex flex-wrap justify-center gap-8">
           {items.map((item: any, idx: number) => {
             const IconComponent = item.icon && (icons as any)[item.icon];
             return (
-              <Card key={idx} className="text-center group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border-border/50">
+              <Card key={idx} className="text-center group hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border-border/50 w-full md:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.5rem)] max-w-sm">
                 <CardContent className="pt-8 pb-6">
                   {IconComponent && (
                     <div className="w-14 h-14 mx-auto mb-5 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
@@ -636,13 +659,22 @@ function ContactFormBlock({ data }: { data: Record<string, any> }) {
   );
 }
 
-// Helper to determine section background based on block type and index
-const getSectionBg = (index: number, type: string) => {
-  // These blocks have their own background styling
-  const selfStyledBlocks = ['hero', 'cta', 'stats_counter', 'testimonial'];
+// Helper to determine section background based on block type
+const getSectionBg = (type: string) => {
+  // Skip background for blocks that have their own styling
+  const selfStyledBlocks = ['hero', 'cta', 'stats_counter'];
   if (selfStyledBlocks.includes(type)) return '';
-  // Alternate between transparent and subtle muted background
-  return index % 2 === 1 ? 'bg-muted/30' : '';
+  
+  // Flow blocks (text, table, image_gallery, video) should have no background
+  // They flow naturally as cohesive content without visual separation
+  const flowBlocks = ['text', 'table', 'image_gallery', 'video'];
+  if (flowBlocks.includes(type)) return '';
+  
+  // Section blocks get subtle background for visual distinction
+  const sectionBlocks = ['features', 'faq', 'pricing_table', 'team_members', 'testimonial'];
+  if (sectionBlocks.includes(type)) return 'bg-muted/30';
+  
+  return '';
 };
 
 export default function BlockRenderer({ blocks }: BlockRendererProps) {
@@ -685,8 +717,8 @@ export default function BlockRenderer({ blocks }: BlockRendererProps) {
 
   return (
     <div className="block-renderer">
-      {blocks.map((block, index) => (
-        <div key={block.id} className={getSectionBg(index, block.type)}>
+      {blocks.map((block) => (
+        <div key={block.id} className={getSectionBg(block.type)}>
           {renderBlock(block)}
         </div>
       ))}
