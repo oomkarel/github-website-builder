@@ -36,15 +36,20 @@ export default function PageLinkSelector({ value, onChange, label }: PageLinkSel
   const { language } = useLanguage();
   const { data: customPages } = usePublishedCustomPages();
   
+  // Helper function to get the correct URL path based on use_prefix setting
+  const getCustomPagePath = (page: { slug: string; use_prefix?: boolean }) => {
+    return page.use_prefix ? `/p/${page.slug}` : `/${page.slug}`;
+  };
+  
   // Build combined list of fixed pages + custom pages
   const allPages = useMemo(() => {
     const pages = [...fixedPages];
     
-    // Add custom pages with /p/ prefix
+    // Add custom pages with correct URL based on use_prefix
     if (customPages && customPages.length > 0) {
       customPages.forEach(page => {
         pages.push({
-          value: `/p/${page.slug}`,
+          value: getCustomPagePath(page),
           label: {
             en: `📄 ${page.title_en}`,
             id: `📄 ${page.title_id}`
@@ -120,7 +125,7 @@ export default function PageLinkSelector({ value, onChange, label }: PageLinkSel
                   {language === 'en' ? 'Custom Pages' : 'Halaman Kustom'}
                 </SelectLabel>
                 {customPages.map((page) => (
-                  <SelectItem key={page.id} value={`/p/${page.slug}`}>
+                  <SelectItem key={page.id} value={getCustomPagePath(page)}>
                     📄 {language === 'en' ? page.title_en : page.title_id}
                   </SelectItem>
                 ))}
