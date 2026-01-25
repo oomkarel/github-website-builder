@@ -36,6 +36,8 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import ImageUploader from './ImageUploader';
 import RichTextEditor from './RichTextEditor';
 import { cn } from '@/lib/utils';
+import { useSiteSetting } from '@/hooks/useSiteSettings';
+import { Switch } from '@/components/ui/switch';
 import {
   Dialog,
   DialogContent,
@@ -146,7 +148,15 @@ function getDefaultBlockData(type: BlockType): Record<string, any> {
     case 'image_gallery':
       return { images: [], layout: 'grid' };
     case 'cta':
-      return { title: '', description: '', button_text: '', button_link: '', background_color: '' };
+      return { 
+        use_defaults: true, 
+        title: '', 
+        subtitle: '', 
+        primary_button_text: '', 
+        primary_button_link: '', 
+        secondary_button_text: '', 
+        secondary_button_link: '' 
+      };
     case 'features':
       return { items: [] };
     case 'testimonial':
@@ -361,25 +371,110 @@ function ImageGalleryBlockEditor({ data, onChange }: { data: Record<string, any>
 }
 
 function CTABlockEditor({ data, onChange }: { data: Record<string, any>; onChange: (data: Record<string, any>) => void }) {
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
+  const { data: ctaDefaults } = useSiteSetting('cta_defaults');
+  const defaults = ctaDefaults?.value || {};
+  
+  const useDefaults = data.use_defaults !== false;
+
   return (
     <div className="space-y-4">
+      {/* Toggle for using defaults */}
+      <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg border">
+        <div>
+          <Label className="font-medium">
+            {language === 'en' ? 'Use Website Default CTA' : 'Gunakan CTA Default Website'}
+          </Label>
+          <p className="text-xs text-muted-foreground mt-1">
+            {language === 'en' 
+              ? 'Pull button content from global CTA settings. Leave fields empty to use defaults.' 
+              : 'Ambil konten tombol dari pengaturan CTA global. Kosongkan field untuk menggunakan default.'}
+          </p>
+        </div>
+        <Switch 
+          checked={useDefaults} 
+          onCheckedChange={(checked) => onChange({ ...data, use_defaults: checked })} 
+        />
+      </div>
+
+      {/* Show preview of defaults when enabled */}
+      {useDefaults && defaults.primary_button_text_id && (
+        <div className="p-4 border rounded-lg bg-muted/30 space-y-2">
+          <p className="text-sm font-medium text-muted-foreground">
+            {language === 'en' ? 'Default values (from Website Settings):' : 'Nilai default (dari Pengaturan Website):'}
+          </p>
+          <div className="grid grid-cols-2 gap-2 text-sm">
+            <div>
+              <span className="text-muted-foreground">{language === 'en' ? 'Primary:' : 'Utama:'}</span>{' '}
+              <span className="font-medium">{t(defaults.primary_button_text_id, defaults.primary_button_text_en)}</span>
+            </div>
+            <div>
+              <span className="text-muted-foreground">{language === 'en' ? 'Secondary:' : 'Sekunder:'}</span>{' '}
+              <span className="font-medium">{t(defaults.secondary_button_text_id, defaults.secondary_button_text_en)}</span>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div>
         <Label>{language === 'en' ? 'Title' : 'Judul'}</Label>
-        <Input value={data.title || ''} onChange={(e) => onChange({ ...data, title: e.target.value })} />
+        <Input 
+          value={data.title || ''} 
+          onChange={(e) => onChange({ ...data, title: e.target.value })} 
+          placeholder={useDefaults ? (language === 'en' ? 'Leave empty for default' : 'Kosongkan untuk default') : ''}
+        />
       </div>
       <div>
-        <Label>{language === 'en' ? 'Description' : 'Deskripsi'}</Label>
-        <Textarea value={data.description || ''} onChange={(e) => onChange({ ...data, description: e.target.value })} rows={3} />
+        <Label>{language === 'en' ? 'Subtitle / Description' : 'Subjudul / Deskripsi'}</Label>
+        <Textarea 
+          value={data.subtitle || ''} 
+          onChange={(e) => onChange({ ...data, subtitle: e.target.value })} 
+          rows={2}
+          placeholder={useDefaults ? (language === 'en' ? 'Leave empty for default' : 'Kosongkan untuk default') : ''}
+        />
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <Label>{language === 'en' ? 'Button Text' : 'Teks Tombol'}</Label>
-          <Input value={data.button_text || ''} onChange={(e) => onChange({ ...data, button_text: e.target.value })} />
+
+      <div className="border-t pt-4">
+        <p className="text-sm font-medium mb-3">{language === 'en' ? 'Primary Button' : 'Tombol Utama'}</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <Label>{language === 'en' ? 'Text' : 'Teks'}</Label>
+            <Input 
+              value={data.primary_button_text || ''} 
+              onChange={(e) => onChange({ ...data, primary_button_text: e.target.value })}
+              placeholder={useDefaults ? t(defaults.primary_button_text_id, defaults.primary_button_text_en) || '' : ''}
+            />
+          </div>
+          <div>
+            <Label>{language === 'en' ? 'Link' : 'Link'}</Label>
+            <Input 
+              value={data.primary_button_link || ''} 
+              onChange={(e) => onChange({ ...data, primary_button_link: e.target.value })}
+              placeholder={useDefaults ? defaults.primary_button_link || '' : ''}
+            />
+          </div>
         </div>
-        <div>
-          <Label>{language === 'en' ? 'Button Link' : 'Link Tombol'}</Label>
-          <Input value={data.button_link || ''} onChange={(e) => onChange({ ...data, button_link: e.target.value })} />
+      </div>
+
+      <div className="border-t pt-4">
+        <p className="text-sm font-medium mb-3">{language === 'en' ? 'Secondary Button' : 'Tombol Sekunder'}</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <Label>{language === 'en' ? 'Text' : 'Teks'}</Label>
+            <Input 
+              value={data.secondary_button_text || ''} 
+              onChange={(e) => onChange({ ...data, secondary_button_text: e.target.value })}
+              placeholder={useDefaults ? t(defaults.secondary_button_text_id, defaults.secondary_button_text_en) || '' : ''}
+            />
+          </div>
+          <div>
+            <Label>{language === 'en' ? 'Link' : 'Link'}</Label>
+            <Input 
+              value={data.secondary_button_link || ''} 
+              onChange={(e) => onChange({ ...data, secondary_button_link: e.target.value })}
+              placeholder={useDefaults ? defaults.secondary_button_link || '' : ''}
+            />
+          </div>
         </div>
       </div>
     </div>
