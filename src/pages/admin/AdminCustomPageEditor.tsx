@@ -218,8 +218,10 @@ export default function AdminCustomPageEditor() {
 
       if (error) throw error;
 
-      if (data?.translated) {
-        const translated = data.translated;
+      console.log('Translation response:', data);
+
+      if (data?.translatedContent) {
+        const translated = data.translatedContent;
         
         // Update form data
         if (translated.title) {
@@ -236,6 +238,11 @@ export default function AdminCustomPageEditor() {
         if (translated.blocks && Array.isArray(translated.blocks)) {
           const translatedBlocks = applyImagesToBlocks(translated.blocks as ContentBlock[], preservedImages);
           setBlocksEn(translatedBlocks);
+        } else if (blocksId.length > 0 && blocksEn.length === 0) {
+          // Fallback: Copy ID blocks structure if EN is empty and translation didn't return blocks
+          console.log('Auto-adding blocks from Indonesian content');
+          const copiedBlocks = applyImagesToBlocks([...blocksId], preservedImages);
+          setBlocksEn(copiedBlocks);
         }
 
         toast({
@@ -244,6 +251,9 @@ export default function AdminCustomPageEditor() {
             ? 'Indonesian content has been translated to English. You can now edit freely.' 
             : 'Konten Indonesia telah diterjemahkan ke Inggris. Anda dapat mengedit dengan bebas.',
         });
+      } else {
+        console.error('No translatedContent in response:', data);
+        throw new Error('Translation returned no content');
       }
     } catch (error: any) {
       console.error('Translation error:', error);
