@@ -97,15 +97,15 @@ function TextBlock({ data }: { data: Record<string, any> }) {
           </h2>
         )}
         <div 
-          className="prose prose-lg dark:prose-invert max-w-none
+          className="prose prose-lg dark:prose-invert max-w-none text-left
             prose-headings:font-bold
             prose-h1:text-2xl prose-h1:md:text-3xl prose-h1:font-bold prose-h1:text-foreground prose-h1:mb-4 prose-h1:mt-0
             prose-h2:text-xl prose-h2:md:text-2xl prose-h2:font-semibold prose-h2:text-foreground/90 prose-h2:mb-3 prose-h2:mt-6
-            prose-h3:text-base prose-h3:md:text-lg prose-h3:font-medium prose-h3:text-foreground/80 prose-h3:mb-2 prose-h3:mt-4
-            prose-p:text-foreground/80 prose-p:leading-relaxed prose-p:mb-4
-            prose-strong:font-semibold
+            prose-h3:text-base prose-h3:md:text-lg prose-h3:font-medium prose-h3:text-muted-foreground prose-h3:mb-2 prose-h3:mt-4
+            prose-p:text-muted-foreground prose-p:leading-relaxed prose-p:mb-4 prose-p:text-base prose-p:md:text-lg
+            prose-strong:font-semibold prose-strong:text-foreground
             prose-a:text-primary prose-a:no-underline hover:prose-a:underline
-            prose-ul:my-4 prose-li:text-foreground/80 prose-li:leading-relaxed
+            prose-ul:my-4 prose-li:text-muted-foreground prose-li:leading-relaxed
             prose-blockquote:border-l-primary prose-blockquote:bg-muted/30 prose-blockquote:py-2 prose-blockquote:rounded-r-lg"
           dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(data.content) }} 
         />
