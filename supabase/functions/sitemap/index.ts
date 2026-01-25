@@ -80,10 +80,10 @@ serve(async (req) => {
       .eq('is_published', true)
       .order('created_at', { ascending: false });
 
-    // Get published custom pages
+    // Get published custom pages with use_prefix field
     const { data: customPages } = await supabase
       .from('custom_pages')
-      .select('slug, updated_at, created_at')
+      .select('slug, updated_at, created_at, use_prefix')
       .eq('status', 'published')
       .order('created_at', { ascending: false });
 
@@ -123,8 +123,10 @@ serve(async (req) => {
         if (pageIndexing[pageKey] === false) continue;
 
         const lastmod = page.updated_at || page.created_at || today;
+        // Use /p/ prefix only if use_prefix is true, otherwise use root path
+        const pagePath = page.use_prefix ? `/p/${page.slug}` : `/${page.slug}`;
         xml += `  <url>\n`;
-        xml += `    <loc>${baseUrl}/p/${page.slug}</loc>\n`;
+        xml += `    <loc>${baseUrl}${pagePath}</loc>\n`;
         xml += `    <lastmod>${lastmod.split('T')[0]}</lastmod>\n`;
         xml += `    <changefreq>monthly</changefreq>\n`;
         xml += `    <priority>0.7</priority>\n`;
