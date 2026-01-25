@@ -77,6 +77,56 @@ const defaultFormData: PageFormData = {
   use_prefix: false,
 };
 
+// Normalize legacy block data structures to expected format
+const normalizeBlockData = (block: ContentBlock): ContentBlock => {
+  const normalizedData = { ...block.data };
+  const blockType = block.type as string;
+  
+  // Normalize features block (features -> items)
+  if (blockType === 'features' && normalizedData.features && !normalizedData.items) {
+    normalizedData.items = normalizedData.features;
+    delete normalizedData.features;
+  }
+  
+  // Normalize FAQ block (faqs -> items)
+  if (blockType === 'faq' && normalizedData.faqs && !normalizedData.items) {
+    normalizedData.items = normalizedData.faqs;
+    delete normalizedData.faqs;
+  }
+  
+  // Normalize Hero block (backgroundImage -> background_image)
+  if (blockType === 'hero' && normalizedData.backgroundImage && !normalizedData.background_image) {
+    normalizedData.background_image = normalizedData.backgroundImage;
+    delete normalizedData.backgroundImage;
+  }
+  
+  // Normalize Testimonial block (testimonials -> items)
+  if (blockType === 'testimonial' && normalizedData.testimonials && !normalizedData.items) {
+    normalizedData.items = normalizedData.testimonials;
+    delete normalizedData.testimonials;
+  }
+  
+  // Normalize Team block (members -> items)
+  if (blockType === 'team_members' && normalizedData.members && !normalizedData.items) {
+    normalizedData.items = normalizedData.members;
+    delete normalizedData.members;
+  }
+  
+  // Normalize Stats block (stats -> items)
+  if (blockType === 'stats_counter' && normalizedData.stats && !normalizedData.items) {
+    normalizedData.items = normalizedData.stats;
+    delete normalizedData.stats;
+  }
+  
+  // Normalize Pricing block (plans -> items)
+  if (blockType === 'pricing_table' && normalizedData.plans && !normalizedData.items) {
+    normalizedData.items = normalizedData.plans;
+    delete normalizedData.plans;
+  }
+  
+  return { ...block, data: normalizedData };
+};
+
 export default function AdminCustomPageEditor() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -114,9 +164,13 @@ export default function AdminCustomPageEditor() {
         is_in_menu: existingPage.is_in_menu,
         use_prefix: existingPage.use_prefix ?? false,
       });
-      // Extract blocks from content arrays
-      const enBlocks = Array.isArray(existingPage.content_en) ? existingPage.content_en : [];
-      const idBlocks = Array.isArray(existingPage.content_id) ? existingPage.content_id : [];
+      // Load and normalize content blocks to fix legacy data structures
+      const enBlocks = Array.isArray(existingPage.content_en) 
+        ? existingPage.content_en.map(normalizeBlockData) 
+        : [];
+      const idBlocks = Array.isArray(existingPage.content_id) 
+        ? existingPage.content_id.map(normalizeBlockData) 
+        : [];
       setBlocksEn(enBlocks as ContentBlock[]);
       setBlocksId(idBlocks as ContentBlock[]);
       setAutoSlug(false);

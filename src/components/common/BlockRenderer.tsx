@@ -25,11 +25,14 @@ interface BlockRendererProps {
 }
 
 function HeroBlock({ data }: { data: Record<string, any> }) {
+  // Support both snake_case and camelCase for background image
+  const backgroundImage = data.background_image || data.backgroundImage;
+  
   return (
     <section 
       className="relative min-h-[70vh] flex items-center justify-center text-center overflow-hidden"
       style={{
-        backgroundImage: data.background_image ? `url(${data.background_image})` : undefined,
+        backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
       }}
@@ -280,7 +283,8 @@ function CTABlock({ data }: { data: Record<string, any> }) {
 }
 
 function FeaturesBlock({ data }: { data: Record<string, any> }) {
-  const items = data.items || [];
+  // Support both 'items' and legacy 'features' field names
+  const items = data.items || data.features || [];
   if (items.length === 0) return null;
 
   return (
@@ -384,7 +388,8 @@ function VideoBlock({ data }: { data: Record<string, any> }) {
 }
 
 function FAQBlock({ data }: { data: Record<string, any> }) {
-  const items = data.items || [];
+  // Support both 'items' and legacy 'faqs' field names
+  const items = data.items || data.faqs || [];
   if (items.length === 0) return null;
 
   return (
