@@ -8,16 +8,19 @@ import { Loader2 } from 'lucide-react';
 import NotFound from './NotFound';
 
 export default function CustomPage() {
-  const { slug } = useParams();
+  const { slug, subslug } = useParams();
   const location = useLocation();
   const { language } = useLanguage();
+  
+  // Combine slug and subslug for nested paths like "industri/kardus"
+  const fullSlug = subslug ? `${slug}/${subslug}` : slug;
   
   // Determine if we're on /p/:slug route or root /:slug route
   const isPrefixedRoute = location.pathname.startsWith('/p/');
   
   // Use appropriate hook based on route
-  const rootQuery = useCustomPageBySlugRootLevel(slug || '');
-  const prefixQuery = useCustomPageBySlugWithPrefix(slug || '');
+  const rootQuery = useCustomPageBySlugRootLevel(fullSlug || '');
+  const prefixQuery = useCustomPageBySlugWithPrefix(fullSlug || '');
   
   // Select the correct query based on route
   const { data: page, isLoading, error } = isPrefixedRoute ? prefixQuery : rootQuery;
