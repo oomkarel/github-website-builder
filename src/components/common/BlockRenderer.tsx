@@ -88,18 +88,24 @@ function HeroBlock({ data }: { data: Record<string, any> }) {
 function TextBlock({ data }: { data: Record<string, any> }) {
   if (!data.content) return null;
   return (
-    <section className="py-8 md:py-10 px-6">
+    <section className="py-6 md:py-8 px-6">
       <div className="max-w-4xl mx-auto">
+        {/* Render title if present */}
+        {data.title && (
+          <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-6">
+            {data.title}
+          </h2>
+        )}
         <div 
           className="prose prose-lg dark:prose-invert max-w-none
             prose-headings:font-bold prose-headings:text-foreground
             prose-h1:text-3xl prose-h1:md:text-4xl prose-h1:mb-4 prose-h1:mt-0
-            prose-h2:text-2xl prose-h2:md:text-3xl prose-h2:text-primary prose-h2:mb-3 prose-h2:mt-6
+            prose-h2:text-2xl prose-h2:md:text-3xl prose-h2:mb-3 prose-h2:mt-6
             prose-h3:text-xl prose-h3:md:text-2xl prose-h3:mb-2 prose-h3:mt-5
-            prose-p:text-muted-foreground prose-p:leading-relaxed prose-p:mb-4
-            prose-strong:text-foreground prose-strong:font-semibold
+            prose-p:text-foreground/80 prose-p:leading-relaxed prose-p:mb-4
+            prose-strong:font-semibold
             prose-a:text-primary prose-a:no-underline hover:prose-a:underline
-            prose-ul:my-4 prose-li:text-muted-foreground prose-li:leading-relaxed
+            prose-ul:my-4 prose-li:text-foreground/80 prose-li:leading-relaxed
             prose-blockquote:border-l-primary prose-blockquote:bg-muted/30 prose-blockquote:py-2 prose-blockquote:rounded-r-lg"
           dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(data.content) }} 
         />
@@ -122,7 +128,7 @@ function TableBlock({ data }: { data: Record<string, any> }) {
   };
 
   return (
-    <section className="py-10 md:py-14 px-6">
+    <section className="py-6 md:py-10 px-6">
       <div className="max-w-4xl mx-auto">
         {/* Table Title */}
         {data.title && (
