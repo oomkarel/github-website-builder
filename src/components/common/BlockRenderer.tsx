@@ -74,14 +74,14 @@ function TextBlock({
   data: Record<string, any>;
 }) {
   if (!data.content) return null;
-  return <section className="py-16 md:py-24">
+  return <section className="py-16 md:py-20">
       <div className="container mx-auto px-4">
-        <div className="max-w-4xl mx-auto text-center">
+        <div className="max-w-4xl mx-auto">
           {/* Render title if present */}
-          {data.title && <h2 className="text-3xl sm:text-4xl font-display font-bold text-foreground mb-8">
+          {data.title && <h2 className="text-3xl sm:text-4xl font-display font-bold text-foreground mb-6">
               {data.title}
             </h2>}
-          <div className="prose prose-lg dark:prose-invert max-w-none mx-auto prose-headings:font-display prose-headings:text-center prose-h2:text-2xl prose-h2:font-bold prose-h2:text-foreground prose-h2:mb-4 prose-h2:mt-8 prose-h3:text-xl prose-h3:font-semibold prose-h3:text-foreground prose-h3:mt-6 prose-p:text-muted-foreground prose-p:leading-relaxed prose-p:mb-4 prose-a:text-secondary prose-a:no-underline hover:prose-a:underline prose-ul:my-4 prose-ul:text-left prose-ul:inline-block prose-li:text-muted-foreground prose-li:leading-relaxed prose-blockquote:border-l-secondary prose-blockquote:bg-muted/30 prose-blockquote:py-2 prose-blockquote:rounded-r-lg prose-blockquote:text-left" dangerouslySetInnerHTML={{
+          <div className="prose prose-lg dark:prose-invert max-w-none text-left prose-headings:font-display prose-h2:text-2xl prose-h2:font-bold prose-h2:text-foreground prose-h2:mb-4 prose-h3:text-xl prose-h3:font-semibold prose-h3:text-foreground prose-p:text-muted-foreground prose-p:leading-relaxed prose-p:mb-4 prose-a:text-secondary prose-a:no-underline hover:prose-a:underline prose-ul:my-4 prose-li:text-muted-foreground prose-li:leading-relaxed prose-blockquote:border-l-secondary prose-blockquote:bg-muted/30 prose-blockquote:py-2 prose-blockquote:rounded-r-lg" dangerouslySetInnerHTML={{
           __html: DOMPurify.sanitize(data.content)
         }} />
         </div>
