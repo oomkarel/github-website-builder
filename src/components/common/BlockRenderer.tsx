@@ -74,14 +74,41 @@ function TextBlock({
   data: Record<string, any>;
 }) {
   if (!data.content) return null;
+  
+  // Support text alignment from CMS
+  const alignment = data.alignment || 'left';
+  const alignmentClasses = {
+    left: 'text-left',
+    center: 'text-center',
+    right: 'text-right'
+  };
+  
   return <section className="py-16 md:py-20">
       <div className="container mx-auto px-4">
-        <div className="max-w-4xl mx-auto">
+        <div className={cn(
+          "max-w-4xl mx-auto",
+          alignmentClasses[alignment as keyof typeof alignmentClasses]
+        )}>
           {/* Render title if present */}
           {data.title && <h2 className="text-3xl sm:text-4xl font-display font-bold text-foreground mb-6">
               {data.title}
             </h2>}
-          <div className="prose prose-lg dark:prose-invert max-w-none text-left prose-headings:font-display prose-h2:text-2xl prose-h2:font-bold prose-h2:text-foreground prose-h2:mb-4 prose-h3:text-xl prose-h3:font-semibold prose-h3:text-foreground prose-p:text-muted-foreground prose-p:leading-relaxed prose-p:mb-4 prose-a:text-secondary prose-a:no-underline hover:prose-a:underline prose-ul:my-4 prose-li:text-muted-foreground prose-li:leading-relaxed prose-blockquote:border-l-secondary prose-blockquote:bg-muted/30 prose-blockquote:py-2 prose-blockquote:rounded-r-lg" dangerouslySetInnerHTML={{
+          <div className={cn(
+            "prose prose-lg dark:prose-invert max-w-none",
+            // Typography matching site design system
+            "prose-headings:font-display",
+            "prose-h2:text-2xl prose-h2:font-bold prose-h2:text-secondary prose-h2:mb-4 prose-h2:mt-8",
+            "prose-h3:text-xl prose-h3:font-semibold prose-h3:text-foreground prose-h3:mb-3 prose-h3:mt-6",
+            "prose-p:text-muted-foreground prose-p:leading-relaxed prose-p:mb-4",
+            "prose-strong:text-foreground prose-strong:font-semibold",
+            "prose-a:text-secondary prose-a:no-underline hover:prose-a:underline",
+            "prose-ul:my-4 prose-ul:pl-0",
+            "prose-li:text-muted-foreground prose-li:leading-relaxed prose-li:mb-2",
+            "prose-blockquote:border-l-secondary prose-blockquote:bg-muted/30 prose-blockquote:py-2 prose-blockquote:rounded-r-lg",
+            // Inherit alignment from parent
+            alignment === 'center' && "[&>*]:mx-auto",
+            alignment === 'center' && "prose-ul:inline-block prose-ul:text-left"
+          )} dangerouslySetInnerHTML={{
           __html: DOMPurify.sanitize(data.content)
         }} />
         </div>

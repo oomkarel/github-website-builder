@@ -310,8 +310,39 @@ function HeroBlockEditor({ data, onChange }: { data: Record<string, any>; onChan
 }
 
 function TextBlockEditor({ data, onChange }: { data: Record<string, any>; onChange: (data: Record<string, any>) => void }) {
+  const { language } = useLanguage();
+  
   return (
-    <RichTextEditor value={data.content || ''} onChange={(content) => onChange({ ...data, content })} />
+    <div className="space-y-4">
+      {/* Text Alignment Option */}
+      <div>
+        <Label>{language === 'en' ? 'Text Alignment' : 'Perataan Teks'}</Label>
+        <Select 
+          value={data.alignment || 'left'} 
+          onValueChange={(value) => onChange({ ...data, alignment: value })}
+        >
+          <SelectTrigger className="bg-background">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="bg-background border shadow-lg z-50">
+            <SelectItem value="left">{language === 'en' ? 'Left' : 'Kiri'}</SelectItem>
+            <SelectItem value="center">{language === 'en' ? 'Center' : 'Tengah'}</SelectItem>
+            <SelectItem value="right">{language === 'en' ? 'Right' : 'Kanan'}</SelectItem>
+          </SelectContent>
+        </Select>
+        <p className="text-xs text-muted-foreground mt-1">
+          {language === 'en' 
+            ? 'Choose how text content is aligned within the section' 
+            : 'Pilih bagaimana konten teks diratakan dalam bagian'}
+        </p>
+      </div>
+      
+      {/* Rich Text Editor */}
+      <div>
+        <Label>{language === 'en' ? 'Content' : 'Konten'}</Label>
+        <RichTextEditor value={data.content || ''} onChange={(content) => onChange({ ...data, content })} />
+      </div>
+    </div>
   );
 }
 
