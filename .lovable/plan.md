@@ -1,116 +1,113 @@
 
-# Reformat Custom Pages to Match Homepage Style
 
-## Problem Analysis
+# Fix Text Block Alignment Issues on Custom Pages
 
-The custom pages (`/industri/kardus`, `/produk/packaging-makanan`, `/produk/paper-bag-retail`, `/produk/hardbox-custom`) use the generic `BlockRenderer` component which renders content blocks with a different visual style than the built-in pages like Homepage, `/solusi-korporat`, and `/solusi-umkm`.
+## Problem Summary
 
-### Key Style Differences
+The `/produk/packaging-makanan` page has three text blocks with alignment and styling inconsistencies:
 
-| Element | Built-in Pages (Target) | Custom Pages (Current) |
-|---------|-------------------------|------------------------|
-| **Hero** | `gradient-hero` with centered content, `font-display font-bold`, text sizes `4xl/5xl/6xl`, secondary-colored CTA button | Dark overlay on image, basic text styling |
-| **Section Headers** | `font-display font-bold`, `3xl/4xl` size, centered with `text-center max-w-3xl mx-auto mb-16` pattern | Uses prose styling, left-aligned |
-| **Features/Benefits** | Card-based with icon boxes (`bg-secondary/10`), `hover-lift` effect, `rounded-2xl` borders | Simple Card component without hover effects |
-| **Stats** | `gradient-primary` background, white text, animated numbers | `bg-primary` solid background |
-| **Container Styling** | `container mx-auto px-4` with generous padding (`py-24`) | Smaller padding (`py-6`, `py-16`) |
-| **CTA Section** | Rounded container (`rounded-3xl`) with `gradient-primary`, decorative blur elements | Full-width gradient |
-| **Text Content** | Clean muted-foreground paragraphs, clear hierarchy | Prose-based with complex overrides |
-| **Alternating Backgrounds** | `bg-background` / `bg-muted/30` pattern | No background on flow blocks |
+1. **First text block** - Content alignment doesn't match the website's visual style
+2. **Second text block** (Product descriptions) - Should be centered, not left-aligned
+3. **Third text block** ("Food Grade" section) - Format/design doesn't match the rest of the site
+
+The root cause is that the CMS content uses HTML heading tags (`<h2>`, `<h3>`) for content structure, but the TextBlock renders these as large headings instead of styled body text matching the site's design system.
 
 ---
 
-## Implementation Plan
+## Proposed Solution
 
-### Phase 1: Update Hero Block
-Update `HeroBlock` in BlockRenderer to match the homepage/built-in page hero style:
-- Add `gradient-hero` as default background when no image
-- Use `font-display font-bold` typography
-- Match button styling (`bg-secondary hover:bg-secondary/90`)
-- Add `pt-32 pb-20` padding pattern
+### Add Text Alignment Option to TextBlock
 
-### Phase 2: Update Features Block
-Align `FeaturesBlock` with the `FeaturesSection` component styling:
-- Add `container mx-auto px-4` wrapper
-- Use `py-24` vertical padding
-- Match card styling with `rounded-2xl`, `border border-border`, `hover:border-secondary/50`, `hover-lift`
-- Use `bg-secondary/10` icon containers with `text-secondary` icons
-
-### Phase 3: Update Text Block
-Simplify text styling to match built-in pages:
-- Remove complex prose overrides
-- Use simpler `text-muted-foreground` for body text
-- Add proper `container mx-auto px-4` wrapper
-- Use `py-16` or `py-24` section padding
-
-### Phase 4: Update Stats Counter Block  
-Match `StatsSection` component styling:
-- Change from `bg-primary` to `gradient-primary`
-- Use `container mx-auto px-4` wrapper
-- Match font sizes and opacity patterns
-
-### Phase 5: Update CTA Block
-Match `CTASection` component styling:
-- Add container wrapper with `rounded-3xl` inner container
-- Add decorative blur elements
-- Match button styling (white primary button, transparent outline secondary)
-
-### Phase 6: Update Table Block
-Apply consistent section styling:
-- Add `container mx-auto px-4` wrapper
-- Use `py-16` or `py-24` section padding
-- Match title styling with `font-display font-bold`
-
-### Phase 7: Update Section Background Logic
-Improve `getSectionBg()` function:
-- Apply `bg-muted/30` to appropriate alternating sections
-- Ensure proper visual rhythm between sections
-
----
-
-## Technical Details
-
-### File to Modify
-`src/components/common/BlockRenderer.tsx`
-
-### Key Style Classes to Apply
+Enhance the `TextBlock` component to support configurable text alignment, allowing individual text blocks to be left-aligned, centered, or right-aligned based on CMS data.
 
 ```text
-Hero:
-  pt-32 pb-20 gradient-hero (or image overlay)
-  font-display font-bold
-  text-4xl sm:text-5xl
-  bg-secondary hover:bg-secondary/90 (button)
+File: src/components/common/BlockRenderer.tsx
 
-Section Headers:
-  text-center max-w-3xl mx-auto mb-16
-  text-3xl sm:text-4xl font-display font-bold text-foreground mb-4
-  text-muted-foreground text-lg (subtitle)
-
-Cards/Features:
-  rounded-2xl bg-card border border-border 
-  hover:border-secondary/50 hover-lift
-  bg-secondary/10 (icon container)
-  text-secondary (icon color)
-
-Container Pattern:
-  container mx-auto px-4
-  py-24 (sections)
-
-CTA:
-  rounded-3xl gradient-primary
-  bg-white text-primary (primary button)
-  border-white/30 text-white hover:bg-white/10 bg-transparent (secondary)
+Changes to TextBlock:
+1. Read data.alignment property (default: 'left')
+2. Apply appropriate text alignment class
+3. Center the container when alignment is 'center'
 ```
 
-### Changes Summary
+### Improve Typography Consistency
 
-1. **HeroBlock**: Update gradient, typography, button styles, padding
-2. **TextBlock**: Simplify prose, add container wrapper, increase padding
-3. **FeaturesBlock**: Match FeaturesSection card styling and layout
-4. **StatsCounterBlock**: Use gradient-primary, match typography
-5. **CTABlock**: Add rounded container, decorative elements, match buttons
-6. **TableBlock**: Add container wrapper, match title styling
-7. **getSectionBg()**: Implement alternating background pattern
+Update the prose styling to better match the website's design language:
 
-This will create visual consistency between all pages - whether built-in or custom - giving the entire site a cohesive, professional appearance.
+```text
+Current Issues:
+- <h2> and <h3> in content render as large headings
+- Prose styling doesn't match FeaturesSection or CorporateSolutions pages
+
+Solution:
+- Style content <h2> as section subheadings (font-display, appropriate size)
+- Style content <h3> as emphasized text (semibold, slightly larger)
+- Ensure paragraph text uses text-muted-foreground consistently
+- Add proper spacing between elements
+```
+
+---
+
+## Implementation Details
+
+### 1. Update TextBlock Component
+
+```text
+// In BlockRenderer.tsx - TextBlock function
+
+Add alignment support:
+- data.alignment: 'left' | 'center' | 'right' (default: 'left')
+- Apply text-center/text-left/text-right class based on setting
+- When centered, also center the container (mx-auto)
+
+Update prose classes for better consistency:
+- prose-h2: font-display, text-2xl, font-bold, text-foreground
+- prose-h3: font-display, text-xl, font-semibold, text-secondary
+- prose-p: text-muted-foreground, text-base md:text-lg
+- prose-strong: text-foreground for proper contrast
+- prose-ul/prose-li: consistent muted styling
+```
+
+### 2. Update CMS Editor (ContentBlockEditor)
+
+Add an alignment dropdown to the Text block editor:
+
+```text
+Location: src/components/admin/ContentBlockEditor.tsx
+
+Add new field for text blocks:
+- Label: "Text Alignment"
+- Options: Left (default), Center, Right
+- Stored in: data.alignment
+```
+
+### 3. Data Migration Note
+
+Existing text blocks will default to left alignment. To center the product descriptions block:
+- Edit the page in CMS
+- Select the text block
+- Change alignment to "Center"
+
+---
+
+## Files to Modify
+
+| File | Changes |
+|------|---------|
+| `src/components/common/BlockRenderer.tsx` | Add alignment prop support, update prose styling |
+| `src/components/admin/ContentBlockEditor.tsx` | Add alignment dropdown for text blocks |
+
+---
+
+## Expected Results
+
+After implementation:
+
+1. **First text block**: Will maintain left alignment with improved typography matching the site's design
+2. **Second text block**: Can be set to center alignment via CMS, making product descriptions centered
+3. **Third text block**: Typography will match the clean, consistent style of built-in pages
+
+The text content will use:
+- `font-display` for any heading elements
+- `text-muted-foreground` for body paragraphs
+- Consistent spacing and sizing matching FeaturesSection/CorporateSolutions pages
+
