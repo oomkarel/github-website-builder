@@ -314,6 +314,30 @@ function TextBlockEditor({ data, onChange }: { data: Record<string, any>; onChan
   
   return (
     <div className="space-y-4">
+      {/* Visual Style Option */}
+      <div>
+        <Label>{language === 'en' ? 'Visual Style' : 'Gaya Visual'}</Label>
+        <Select 
+          value={data.style || 'default'} 
+          onValueChange={(value) => onChange({ ...data, style: value })}
+        >
+          <SelectTrigger className="bg-background">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="bg-background border shadow-lg z-50">
+            <SelectItem value="default">{language === 'en' ? 'Default (Prose)' : 'Default (Prosa)'}</SelectItem>
+            <SelectItem value="hero-intro">{language === 'en' ? 'Hero Intro (Large, Centered)' : 'Hero Intro (Besar, Tengah)'}</SelectItem>
+            <SelectItem value="card-grid">{language === 'en' ? 'Card Grid (H3 = Card Titles)' : 'Grid Kartu (H3 = Judul Kartu)'}</SelectItem>
+            <SelectItem value="highlight-box">{language === 'en' ? 'Highlight Box (Styled Container)' : 'Kotak Highlight (Kontainer Bergaya)'}</SelectItem>
+          </SelectContent>
+        </Select>
+        <p className="text-xs text-muted-foreground mt-1">
+          {language === 'en' 
+            ? 'Choose visual presentation style. Card Grid converts H3 headings into styled cards.' 
+            : 'Pilih gaya presentasi visual. Grid Kartu mengubah heading H3 menjadi kartu bergaya.'}
+        </p>
+      </div>
+
       {/* Text Alignment Option */}
       <div>
         <Label>{language === 'en' ? 'Text Alignment' : 'Perataan Teks'}</Label>

@@ -82,7 +82,126 @@ function TextBlock({
     center: 'text-center',
     right: 'text-right'
   };
+
+  // Style variant for different visual presentations
+  const style = data.style || 'default';
   
+  // Hero-style intro text (large, centered, impactful)
+  if (style === 'hero-intro') {
+    return (
+      <section className="py-16 md:py-24 bg-gradient-to-b from-muted/50 to-background">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto text-center">
+            <div className={cn(
+              "prose prose-xl dark:prose-invert max-w-none",
+              "prose-p:text-lg prose-p:md:text-xl prose-p:text-muted-foreground prose-p:leading-relaxed prose-p:mb-6",
+              "prose-strong:text-foreground prose-strong:font-semibold",
+              "[&>*]:mx-auto"
+            )} dangerouslySetInnerHTML={{
+              __html: DOMPurify.sanitize(data.content)
+            }} />
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Card grid style - parse H3s as card titles with following paragraphs as descriptions
+  if (style === 'card-grid') {
+    // Parse content to extract cards from H3 + P pattern
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = DOMPurify.sanitize(data.content);
+    
+    const cards: { title: string; description: string }[] = [];
+    const h3Elements = tempDiv.querySelectorAll('h3');
+    
+    h3Elements.forEach((h3) => {
+      const title = h3.textContent || '';
+      let description = '';
+      let nextSibling = h3.nextElementSibling;
+      
+      // Collect all paragraphs until next H3 or end
+      while (nextSibling && nextSibling.tagName !== 'H3') {
+        if (nextSibling.tagName === 'P') {
+          description += (description ? ' ' : '') + (nextSibling.textContent || '');
+        }
+        nextSibling = nextSibling.nextElementSibling;
+      }
+      
+      if (title) {
+        cards.push({ title, description });
+      }
+    });
+
+    if (cards.length > 0) {
+      return (
+        <section className="py-16 md:py-24">
+          <div className="container mx-auto px-4">
+            {data.title && (
+              <div className="text-center max-w-3xl mx-auto mb-12">
+                <h2 className="text-3xl sm:text-4xl font-display font-bold text-foreground">
+                  {data.title}
+                </h2>
+              </div>
+            )}
+            <div className={cn(
+              "grid gap-8 max-w-5xl mx-auto",
+              cards.length === 2 && "grid-cols-1 md:grid-cols-2",
+              cards.length === 3 && "grid-cols-1 md:grid-cols-3",
+              cards.length >= 4 && "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+            )}>
+              {cards.map((card, idx) => (
+                <div
+                  key={idx}
+                  className="group p-8 rounded-2xl bg-card border border-border hover:border-secondary/50 hover:shadow-lg transition-all duration-300 hover-lift text-center"
+                >
+                  <h3 className="text-xl font-display font-semibold text-secondary mb-4">
+                    {card.title}
+                  </h3>
+                  <p className="text-muted-foreground leading-relaxed">
+                    {card.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      );
+    }
+  }
+
+  // Highlight box style - for important notices or certifications
+  if (style === 'highlight-box') {
+    return (
+      <section className="py-16 md:py-24">
+        <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto">
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-secondary/10 via-secondary/5 to-transparent border border-secondary/20 p-8 md:p-12">
+              {/* Decorative elements */}
+              <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+              <div className="absolute bottom-0 left-0 w-24 h-24 bg-primary/10 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2" />
+              
+              <div className={cn(
+                "relative z-10 prose prose-lg dark:prose-invert max-w-none",
+                "prose-headings:font-display",
+                "prose-h2:text-2xl prose-h2:font-bold prose-h2:text-foreground prose-h2:mb-4",
+                "prose-h3:text-xl prose-h3:font-semibold prose-h3:text-secondary prose-h3:mb-3",
+                "prose-p:text-muted-foreground prose-p:leading-relaxed prose-p:mb-4",
+                "prose-strong:text-foreground prose-strong:font-semibold",
+                "prose-ul:my-4 prose-ul:space-y-2",
+                "prose-li:text-muted-foreground prose-li:leading-relaxed",
+                alignment === 'center' && "text-center [&>*]:mx-auto"
+              )} dangerouslySetInnerHTML={{
+                __html: DOMPurify.sanitize(data.content)
+              }} />
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+  
+  // Default prose style with improved styling
   return <section className="py-16 md:py-20">
       <div className="container mx-auto px-4">
         <div className={cn(
