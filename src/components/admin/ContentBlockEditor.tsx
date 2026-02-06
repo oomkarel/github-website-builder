@@ -328,13 +328,14 @@ function TextBlockEditor({ data, onChange }: { data: Record<string, any>; onChan
             <SelectItem value="default">{language === 'en' ? 'Default (Prose)' : 'Default (Prosa)'}</SelectItem>
             <SelectItem value="hero-intro">{language === 'en' ? 'Hero Intro (Large, Centered)' : 'Hero Intro (Besar, Tengah)'}</SelectItem>
             <SelectItem value="card-grid">{language === 'en' ? 'Card Grid (H3 = Card Titles)' : 'Grid Kartu (H3 = Judul Kartu)'}</SelectItem>
+            <SelectItem value="benefit-cards">{language === 'en' ? 'Benefit Cards (Icons + Grid)' : 'Kartu Manfaat (Ikon + Grid)'}</SelectItem>
             <SelectItem value="highlight-box">{language === 'en' ? 'Highlight Box (Styled Container)' : 'Kotak Highlight (Kontainer Bergaya)'}</SelectItem>
           </SelectContent>
         </Select>
         <p className="text-xs text-muted-foreground mt-1">
           {language === 'en' 
-            ? 'Choose visual presentation style. Card Grid converts H3 headings into styled cards.' 
-            : 'Pilih gaya presentasi visual. Grid Kartu mengubah heading H3 menjadi kartu bergaya.'}
+            ? 'Choose visual presentation style. Benefit Cards converts bold items into premium icon cards.' 
+            : 'Pilih gaya presentasi visual. Kartu Manfaat mengubah item tebal menjadi kartu ikon premium.'}
         </p>
       </div>
 
