@@ -141,6 +141,128 @@ function TextBlock({
     }
   }
 
+  // Benefit cards style - premium layout with icons for key benefits
+  if (style === 'benefit-cards') {
+    // Parse content to extract title (H2) and benefit items
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = DOMPurify.sanitize(data.content);
+    
+    // Extract main title from H2
+    const mainTitle = tempDiv.querySelector('h2')?.textContent || '';
+    
+    // Extract intro paragraph (first p before any list or strong elements)
+    const firstP = tempDiv.querySelector('p');
+    const introText = firstP?.textContent || '';
+    
+    // Parse benefits from the content - look for strong elements or list items
+    const benefits: { title: string; description: string; icon: string }[] = [];
+    
+    // Try to find benefits from list items first
+    const listItems = tempDiv.querySelectorAll('li');
+    if (listItems.length > 0) {
+      const benefitIcons = ['Shield', 'Sparkles', 'FileCheck'];
+      listItems.forEach((li, idx) => {
+        const strongEl = li.querySelector('strong');
+        if (strongEl) {
+          const title = strongEl.textContent || '';
+          // Get the rest of the text after the strong element
+          const fullText = li.textContent || '';
+          const description = fullText.replace(title, '').replace(/^[:\s]+/, '').trim();
+          benefits.push({
+            title,
+            description,
+            icon: benefitIcons[idx % benefitIcons.length]
+          });
+        }
+      });
+    }
+    
+    // Fallback: parse paragraphs with strong elements
+    if (benefits.length === 0) {
+      const paragraphs = tempDiv.querySelectorAll('p');
+      const benefitIcons = ['Shield', 'Sparkles', 'FileCheck'];
+      paragraphs.forEach((p, idx) => {
+        const strongEl = p.querySelector('strong');
+        if (strongEl && idx > 0) { // Skip first p (intro)
+          const title = strongEl.textContent || '';
+          const fullText = p.textContent || '';
+          const description = fullText.replace(title, '').replace(/^[:\s]+/, '').trim();
+          benefits.push({
+            title,
+            description,
+            icon: benefitIcons[(idx - 1) % benefitIcons.length]
+          });
+        }
+      });
+    }
+
+    // Allow custom icons from data if provided
+    const customIcons = data.benefit_icons || [];
+    benefits.forEach((b, idx) => {
+      if (customIcons[idx]) b.icon = customIcons[idx];
+    });
+
+    return (
+      <section className="py-16 md:py-24 bg-gradient-to-b from-muted/30 to-background">
+        <div className="container mx-auto px-4">
+          <div className="max-w-5xl mx-auto">
+            {/* Section Header */}
+            {mainTitle && (
+              <div className="text-center mb-12">
+                <h2 className="text-3xl sm:text-4xl font-display font-bold text-foreground mb-4">
+                  {mainTitle}
+                </h2>
+                {introText && introText !== mainTitle && (
+                  <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+                    {introText}
+                  </p>
+                )}
+              </div>
+            )}
+
+            {/* Benefit Cards Grid */}
+            {benefits.length > 0 && (
+              <div className={cn(
+                "grid gap-6 md:gap-8",
+                benefits.length === 2 && "grid-cols-1 md:grid-cols-2",
+                benefits.length === 3 && "grid-cols-1 md:grid-cols-3",
+                benefits.length >= 4 && "grid-cols-1 md:grid-cols-2 lg:grid-cols-4"
+              )}>
+                {benefits.map((benefit, idx) => {
+                  const IconComponent = (icons as any)[benefit.icon];
+                  return (
+                    <div
+                      key={idx}
+                      className="group relative overflow-hidden rounded-2xl bg-card border border-border p-6 md:p-8 hover:border-secondary/50 hover:shadow-xl transition-all duration-300 hover-lift"
+                    >
+                      {/* Decorative gradient */}
+                      <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-secondary/10 to-transparent rounded-full -translate-y-1/2 translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      
+                      {/* Icon */}
+                      {IconComponent && (
+                        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-secondary/20 to-secondary/10 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300">
+                          <IconComponent className="h-7 w-7 text-secondary" />
+                        </div>
+                      )}
+                      
+                      {/* Content */}
+                      <h3 className="text-lg md:text-xl font-display font-semibold text-foreground mb-3">
+                        {benefit.title}
+                      </h3>
+                      <p className="text-muted-foreground leading-relaxed text-sm md:text-base">
+                        {benefit.description}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   // Highlight box style - for important notices or certifications
   if (style === 'highlight-box') {
     return <section className="py-16 md:py-24">
