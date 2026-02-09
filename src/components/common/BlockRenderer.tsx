@@ -273,7 +273,7 @@ function TextBlock({
               <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
               <div className="absolute bottom-0 left-0 w-24 h-24 bg-primary/10 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2" />
               
-              <div className={cn("relative z-10 prose prose-lg dark:prose-invert max-w-none", "prose-headings:font-display", "prose-h2:text-2xl prose-h2:font-bold prose-h2:text-foreground prose-h2:mb-4", "prose-h3:text-xl prose-h3:font-semibold prose-h3:text-secondary prose-h3:mb-3", "prose-p:text-muted-foreground prose-p:leading-relaxed prose-p:mb-4", "prose-strong:text-foreground prose-strong:font-semibold", "prose-ul:my-4 prose-ul:space-y-2", "prose-li:text-muted-foreground prose-li:leading-relaxed", alignment === 'center' && "text-center [&>*]:mx-auto")} dangerouslySetInnerHTML={{
+              <div className={cn("relative z-10 prose prose-lg dark:prose-invert max-w-none", "prose-headings:font-display", "prose-h1:text-4xl sm:prose-h1:text-5xl prose-h1:font-bold prose-h1:text-foreground prose-h1:mb-6", "prose-h2:text-3xl sm:prose-h2:text-4xl prose-h2:font-bold prose-h2:text-foreground prose-h2:mb-4", "prose-h3:text-xl prose-h3:font-semibold prose-h3:text-secondary prose-h3:mb-3", "prose-p:text-muted-foreground prose-p:leading-relaxed prose-p:mb-4", "prose-strong:text-foreground prose-strong:font-semibold", "prose-ul:my-4 prose-ul:space-y-2", "prose-li:text-muted-foreground prose-li:leading-relaxed", alignment === 'center' && "text-center [&>*]:mx-auto")} dangerouslySetInnerHTML={{
               __html: DOMPurify.sanitize(data.content)
             }} />
             </div>
@@ -290,7 +290,7 @@ function TextBlock({
           {data.title && <h2 className="text-3xl sm:text-4xl font-display font-bold text-foreground mb-6">
               {data.title}
             </h2>}
-          <div className={cn("prose prose-lg dark:prose-invert max-w-none prose-headings:font-display prose-h2:text-2xl prose-h2:text-secondary prose-h2:mb-4 prose-h2:mt-8 prose-h3:text-xl prose-h3:text-foreground prose-h3:mb-3 prose-h3:mt-6 prose-p:text-muted-foreground prose-p:leading-relaxed prose-p:mb-4 prose-strong:text-foreground prose-a:text-secondary prose-a:no-underline hover:prose-a:underline prose-ul:my-4 prose-ul:pl-0 prose-li:text-muted-foreground prose-li:leading-relaxed prose-li:mb-2 prose-blockquote:border-l-secondary prose-blockquote:bg-muted/30 prose-blockquote:py-2 prose-blockquote:rounded-r-lg text-justify font-normal",
+          <div className={cn("prose prose-lg dark:prose-invert max-w-none prose-headings:font-display prose-h1:text-4xl sm:prose-h1:text-5xl prose-h1:font-bold prose-h1:text-foreground prose-h1:mb-6 prose-h1:mt-8 prose-h2:text-3xl sm:prose-h2:text-4xl prose-h2:text-secondary prose-h2:mb-4 prose-h2:mt-8 prose-h3:text-xl prose-h3:text-foreground prose-h3:mb-3 prose-h3:mt-6 prose-p:text-muted-foreground prose-p:leading-relaxed prose-p:mb-4 prose-strong:text-foreground prose-a:text-secondary prose-a:no-underline hover:prose-a:underline prose-ul:my-4 prose-ul:pl-0 prose-li:text-muted-foreground prose-li:leading-relaxed prose-li:mb-2 prose-blockquote:border-l-secondary prose-blockquote:bg-muted/30 prose-blockquote:py-2 prose-blockquote:rounded-r-lg text-justify font-normal",
         // Inherit alignment from parent
         alignment === 'center' && "[&>*]:mx-auto", alignment === 'center' && "prose-ul:inline-block prose-ul:text-left")} dangerouslySetInnerHTML={{
           __html: DOMPurify.sanitize(data.content)
@@ -317,9 +317,9 @@ function TableBlock({
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto">
           {/* Table Title */}
-          {data.title && <h3 className="text-3xl sm:text-4xl font-display font-bold text-foreground mb-4 text-center">
+          {data.title && <h2 className="text-3xl sm:text-4xl font-display font-bold text-foreground mb-4 text-center">
               {data.title}
-            </h3>}
+             </h2>}
           
           {/* Table Description */}
           {data.description && <p className="text-muted-foreground text-lg text-center mb-8 max-w-2xl mx-auto leading-relaxed">
