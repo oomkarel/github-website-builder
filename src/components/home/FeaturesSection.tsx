@@ -38,13 +38,13 @@ export function FeaturesSection({ title, subtitle, items }: FeaturesSectionProps
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="flex flex-wrap justify-center gap-8">
           {items.map((feature, index) => {
             const IconComponent = iconMap[feature.icon || 'Package'] || Package;
             return (
               <div
                 key={index}
-                className="group p-8 rounded-2xl bg-card border border-border hover:border-secondary/50 hover:shadow-lg transition-all duration-300 hover-lift"
+                className="group p-8 rounded-2xl bg-card border border-border hover:border-secondary/50 hover:shadow-lg transition-all duration-300 hover-lift w-full md:w-[calc(50%-1rem)] lg:w-[calc(25%-1.5rem)]"
               >
                 <div className="w-14 h-14 rounded-xl bg-secondary/10 flex items-center justify-center mb-6 group-hover:bg-secondary/20 transition-colors">
                   <IconComponent className="h-7 w-7 text-secondary" />

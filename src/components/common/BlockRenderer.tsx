@@ -444,10 +444,10 @@ function FeaturesBlock({
             {data.title && <h2 className="text-3xl sm:text-4xl font-display font-bold text-foreground mb-4">{data.title}</h2>}
             {data.subtitle && <p className="text-muted-foreground text-lg">{data.subtitle}</p>}
           </div>}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="flex flex-wrap justify-center gap-8">
           {items.map((item: any, idx: number) => {
           const IconComponent = item.icon && (icons as any)[item.icon];
-          return <div key={idx} className="group p-8 rounded-2xl bg-card border border-border hover:border-secondary/50 hover:shadow-lg transition-all duration-300 hover-lift">
+          return <div key={idx} className="group p-8 rounded-2xl bg-card border border-border hover:border-secondary/50 hover:shadow-lg transition-all duration-300 hover-lift w-full md:w-[calc(50%-1rem)] lg:w-[calc(25%-1.5rem)]">
                   {IconComponent && <div className="w-14 h-14 rounded-xl bg-secondary/10 flex items-center justify-center mb-6 group-hover:bg-secondary/20 transition-colors">
                       <IconComponent className="h-7 w-7 text-secondary" />
                     </div>}
